@@ -45,6 +45,8 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //implements IDisplayAssemblyExceptions, SimMagnet, BlockEntitySubLevelActor
+    public List<Integer> deltaList = new ArrayList<>();
+
     public int delta = 0;
     public int target = 0;
     public float oldHeight;
@@ -160,6 +162,10 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
         }
 
         target += delta;
+        if (!deltaList.isEmpty()) {
+            for (var d : deltaList) target += d;
+            deltaList.clear();
+        }
         target = Mth.clamp(target, 0, 16*8);
 
         height.updateChaseTarget(target/16f);
@@ -565,7 +571,6 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
         }
 
         public void remove() {
-            //Lifts.LOGGER.info("Removing Constraint from Session");
             if (this.constraint != null) this.constraint.remove();
             this.constraint = null;
         }

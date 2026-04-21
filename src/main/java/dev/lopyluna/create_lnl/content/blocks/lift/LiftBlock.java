@@ -21,12 +21,10 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -43,6 +41,7 @@ import net.neoforged.neoforge.common.util.FakePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 @SuppressWarnings("NullableProblems")
@@ -197,9 +196,32 @@ public class LiftBlock extends Block implements IBE<LiftBE>, IWrenchable, BlockS
         }
     }
 
+    @Override
+    protected void onProjectileHit(Level level, BlockState state, BlockHitResult hit, Projectile projectile) {
+        super.onProjectileHit(level, state, hit, projectile);
+        var pos = hit.getBlockPos();
+        if (state.getValue(LIFT).structure() && level.getBlockEntity(pos) instanceof LiftBE struct && level.getBlockEntity(pos.below(struct.structIndex)) instanceof LiftBE be) be.deltaList.add(-4);
+        else if (level.getBlockEntity(pos) instanceof LiftBE be) be.deltaList.add(-4);
+    }
+
+    @Override
+    protected void onExplosionHit(BlockState state, Level level, BlockPos pos, Explosion explosion, BiConsumer<ItemStack, BlockPos> consumer) {
+        super.onExplosionHit(state, level, pos, explosion, consumer);
+        if (state.getValue(LIFT).structure() && level.getBlockEntity(pos) instanceof LiftBE struct && level.getBlockEntity(pos.below(struct.structIndex)) instanceof LiftBE be) be.deltaList.add(-4);
+        else if (level.getBlockEntity(pos) instanceof LiftBE be) be.deltaList.add(-4);
+    }
+
+    @Override
+    protected void attack(BlockState state, Level level, BlockPos pos, Player player) {
+        super.attack(state, level, pos, player);
+        if (state.getValue(LIFT).structure() && level.getBlockEntity(pos) instanceof LiftBE struct && level.getBlockEntity(pos.below(struct.structIndex)) instanceof LiftBE be) be.deltaList.add(-2);
+        else if (level.getBlockEntity(pos) instanceof LiftBE be) be.deltaList.add(-2);
+    }
+
     @Override protected boolean canBeReplaced(BlockState state, Fluid fluid) { return false; }
     @Override protected boolean canBeReplaced(BlockState state, BlockPlaceContext useContext) { return state.getValue(LIFT).structure() && getShape(state, useContext.getLevel(), useContext.getClickedPos(), CollisionContext.empty()).isEmpty(); }
 
+    @SuppressWarnings("unused")
     public enum LiftState implements StringRepresentable {
         PLACED, STRUCTURE,
         ;
