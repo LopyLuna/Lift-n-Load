@@ -1,0 +1,11 @@
+{
+  "values": [
+    "minecraft:magma_cream",
+    "minecraft:wind_charge",
+    "#aeronautics:envelope",
+    "#c:storage_blocks/slime",
+    "#c:slime_balls",
+    "#c:slimeballs",
+    "create_lnl:contraption_lift"
+  ]
+}

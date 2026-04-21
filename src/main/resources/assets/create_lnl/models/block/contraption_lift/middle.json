@@ -1,0 +1,23 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by LopyLuna",
+	"texture_size": [32, 32],
+	"ambientocclusion": false,
+	"textures": {
+		"0": "create_lnl:block/lift",
+		"particle": "create_lnl:block/lift"
+	},
+	"elements": [
+		{
+			"from": [4.5, 5, 4.5],
+			"to": [11.5, 7, 11.5],
+			"rotation": {"angle": 45, "axis": "y", "origin": [8, -1, 8]},
+			"faces": {
+				"north": {"uv": [6.5, 13, 10, 13.5], "texture": "#0"},
+				"east": {"uv": [6.5, 13, 10, 13.5], "texture": "#0"},
+				"south": {"uv": [6.5, 13, 10, 13.5], "texture": "#0"},
+				"west": {"uv": [6.5, 13, 10, 13.5], "texture": "#0"}
+			}
+		}
+	]
+}

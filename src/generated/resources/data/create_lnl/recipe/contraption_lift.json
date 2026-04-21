@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "tag": "c:plates/brass"
+    },
+    "E": {
+      "item": "simulated:engine_assembly"
+    },
+    "I": {
+      "item": "create:industrial_iron_block"
+    },
+    "S": {
+      "item": "simulated:spring"
+    }
+  },
+  "pattern": [
+    "BBB",
+    " S ",
+    "IEI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_lnl:contraption_lift"
+  }
+}

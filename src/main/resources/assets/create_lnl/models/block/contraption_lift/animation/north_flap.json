@@ -1,0 +1,43 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made by LopyLuna",
+	"texture_size": [32, 32],
+	"ambientocclusion": false,
+	"textures": {
+		"0": "create_lnl:block/lift",
+		"particle": "create_lnl:block/lift"
+	},
+	"elements": [
+		{
+			"from": [2, 9, -4],
+			"to": [14, 12, 2],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 12, 2]},
+			"faces": {
+				"north": {"uv": [0, 0, 6, 1.5], "texture": "#0", "cullface": "north"},
+				"east": {"uv": [10, 10.5, 13, 12], "texture": "#0"},
+				"west": {"uv": [6.5, 10.5, 9.5, 12], "texture": "#0"},
+				"up": {"uv": [0, 2, 6, 5], "texture": "#0"},
+				"down": {"uv": [6.5, 0, 12.5, 3], "texture": "#0"}
+			}
+		},
+		{
+			"from": [6, 9, -2],
+			"to": [10, 12, -4],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 12, 2]},
+			"faces": {
+				"north": {"uv": [10.5, 12.5, 12.5, 14], "texture": "#0", "cullface": "north"},
+				"east": {"uv": [6.5, 10.5, 7.5, 12], "texture": "#0", "cullface": "north"},
+				"west": {"uv": [12, 10.5, 13, 12], "texture": "#0", "cullface": "north"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "north_flap",
+			"origin": [8, 0, 8],
+			"scope": 0,
+			"color": 0,
+			"children": [0, 1]
+		}
+	]
+}
