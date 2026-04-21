@@ -7,12 +7,14 @@ import dev.lopyluna.create_lnl.content.blocks.PhysicHoldingBEs;
 import dev.lopyluna.create_lnl.events.CommonEvents;
 import dev.lopyluna.create_lnl.register.LiftsBlocks;
 import dev.ryanhcode.sable.Sable;
+import dev.ryanhcode.sable.api.entity.EntitySubLevelUtil;
 import dev.ryanhcode.sable.api.physics.PhysicsPipeline;
 import dev.ryanhcode.sable.api.physics.constraint.ConstraintJointAxis;
 import dev.ryanhcode.sable.api.physics.constraint.PhysicsConstraintHandle;
 import dev.ryanhcode.sable.api.physics.constraint.free.FreeConstraintConfiguration;
 import dev.ryanhcode.sable.api.sublevel.ServerSubLevelContainer;
 import dev.ryanhcode.sable.api.sublevel.SubLevelContainer;
+import dev.ryanhcode.sable.companion.math.BoundingBox3ic;
 import dev.ryanhcode.sable.companion.math.JOMLConversion;
 import dev.ryanhcode.sable.sublevel.ServerSubLevel;
 import dev.ryanhcode.sable.sublevel.SubLevel;
@@ -29,13 +31,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Quaterniond;
 import org.joml.Vector3d;
 
@@ -52,7 +54,7 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
     public boolean initializing = true;
 
     public UUID subUUID;
-    public Vec3 pivot = worldPosition.getCenter();
+    public Vec3 pivot = worldPosition.getCenter().add(0, 4/16f, 0);
     public Vec3 oldPivot = pivot;
     protected AssemblyException lastException;
     private BindingSession session = null;
@@ -82,13 +84,18 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {}
 
-    public Map<Integer, VoxelShape> shape = new HashMap<>();
-
     public void blockAboveUpdate(BlockState state, BlockPos pos) {
-        CommonEvents.addPhysicHolder(this);
-        bind();
-        if (target > 3) return;
+        if (level == null || level.isClientSide) return;
+        if (session != null || subUUID != null) return;
+        if (state.isAir()) return;
 
+        final SimAssemblyHelper.AssemblyResult result = this.assembleBlockAbove(level, pos);
+        if (result == null) return;
+
+        this.subUUID = result.subLevel().getUniqueId();
+        this.setChanged();
+        this.sendData();
+        this.bind();
     }
 
     @Override
@@ -97,7 +104,9 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
         if (level == null) return;
         if (session != null) {
             session.tick();
-            if (session.markedForRemoval) session.remove();
+            if (session.markedForRemoval) {
+                clearSubLevelBinding();
+            }
         }
         if (structIndex > 0) {
             if (!(level.getBlockEntity(worldPosition.below(structIndex)) instanceof LiftBE lift)) return;
@@ -121,16 +130,27 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
             return;
         }
 
+        var pos = worldPosition;
+        var center = pos.getCenter();
+
+        if (placing) return;
+
+        if (level.isClientSide) {
+            var oldClientHeight = cHeight.getValue();
+            cHeight.tickChaser();
+            carryEntities(oldClientHeight, cHeight.getValue(), true);
+            return;
+        }
+
         var player = getUser();
         if (player == null) return;
-        var pos = worldPosition;
 
         check = ++check % 4;
         check(pos, player);
-        if (placing || !(level instanceof ServerLevel server)) return;
+        if (!(level instanceof ServerLevel)) return;
         move(player);
         oldHeight = height.getValue();
-        oldPivot = new Vec3(pos.getX() + 0.5f, pos.getY()+(12f/16f) + oldHeight, pos.getZ() + 0.5f);
+        oldPivot = new Vec3(center.x, pos.getY()+(12f/16f) + oldHeight + (1/16f), center.z);
         var abovePos = new BlockPos(worldPosition.getX(), Mth.floor(pivot.y + 1/16f), worldPosition.getZ());
         var aboveState = level.getBlockState(abovePos);
         if (!aboveState.isAir() && !aboveState.canBeReplaced() && !(aboveState.getBlock() instanceof LiftBlock) && delta >= 0) {
@@ -148,21 +168,7 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
 
         var height = this.height.getValue();
         structCheck(height);
-
-        pivot = new Vec3(pos.getX() + 0.5f, pos.getY()+(12f/16f) + height, pos.getZ() + 0.5f);
-        var box = new AABB(worldPosition).inflate(0.25).expandTowards(0, height+1, 0);
-        for (var e : level.getEntities(null, box)) {
-            var y = pivot.y + (height-oldHeight);
-            var eBox = e.getBoundingBox();
-            var maxY = eBox.maxY;
-            var minY = eBox.minY;
-
-            if (!level.noCollision(e, new AABB(eBox.minX, y, eBox.minZ, eBox.maxX, y + (maxY-minY), eBox.maxZ))) continue;
-            var p = e.position();
-            e.moveTo(p.x, y, p.z);
-            e.fallDistance = 0;
-            e.setOnGround(true);
-        }
+        carryEntities(oldHeight, height, false);
 
         var ticks = level.getGameTime();
         if (ticks % 2 != 0) return;
@@ -173,6 +179,55 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
             level.playSound(null, pivot.x, pivot.y, pivot.z, SimSoundEvents.DOCKING_CONNECTOR_EXTENDS.event(), SoundSource.BLOCKS, 0.05f + (level.random.nextFloat() * 0.05f), 0.5F + (level.random.nextFloat() * 0.1f) + ((height / 8f)));
         }
         if (delta == 0) sound = true;
+    }
+
+    private void carryEntities(float previousHeight, float currentHeight, boolean clientPrediction) {
+        if (level == null) return;
+
+        var pos = worldPosition;
+        var center = pos.getCenter();
+        Player liftUser = clientPrediction ? getUser() : null;
+        pivot = new Vec3(center.x, pos.getY()+(12f/16f) + currentHeight + (1/16f), center.z);
+        var moveY = currentHeight - previousHeight;
+        if (Math.abs(moveY) < 1.0E-5) return;
+
+        var minX = pos.getX() + 2 / 16f;
+        var minZ = pos.getZ() + 2 / 16f;
+        var maxX = pos.getX() + 14 / 16f;
+        var maxZ = pos.getZ() + 14 / 16f;
+        var oldTopY = pos.getY() + (12f/16f) + previousHeight;
+        var topY = pos.getY() + (12f/16f) + currentHeight;
+        var minY = Math.min(oldTopY, topY) - 0.35;
+        var maxY = Math.max(oldTopY, topY) + 1.0;
+        var box = new AABB(
+                minX,
+                minY,
+                minZ,
+                maxX,
+                maxY,
+                maxZ
+        );
+        var rideBand = new AABB(minX, oldTopY - 0.3, minZ, maxX, oldTopY + 0.45, maxZ);
+        var sweptRideBand = new AABB(minX, Math.min(oldTopY, topY) - 0.3, minZ, maxX, Math.max(oldTopY, topY) + 0.45, maxZ);
+
+        for (var e : level.getEntities(null, box)) {
+            if (Sable.HELPER.getContaining(e) != null || EntitySubLevelUtil.getTrackingSubLevel(e) != null) continue;
+            if (clientPrediction && e != liftUser) continue;
+
+            var eBox = e.getBoundingBox();
+            if (!eBox.intersects(rideBand) && !(moveY > 0 && eBox.intersects(sweptRideBand))) continue;
+
+            e.move(MoverType.SHULKER_BOX, new Vec3(0, moveY, 0));
+
+            var minEntityY = e.getBoundingBox().minY;
+            if (moveY > 0 && minEntityY < topY - 1.0E-3) {
+                var correction = topY - minEntityY + 1.0E-3;
+                e.setPos(e.getX(), e.getY() + correction, e.getZ());
+            }
+
+            e.fallDistance = 0;
+            e.setOnGround(true);
+        }
     }
 
     public void structCheck(float height) {
@@ -241,7 +296,7 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
 
     @Override
     public void physicsTick(final SubLevelPhysicsSystem physicsSystem) {
-        if (session == null) return;
+        if (session == null || level != physicsSystem.getLevel()) return;
         session.physicsTick(physicsSystem);
     }
 
@@ -250,28 +305,38 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
         if (!(level instanceof final ServerLevel server)) return;
         if (!(SubLevelContainer.getContainer(server) instanceof final ServerSubLevelContainer container)) return;
         if (!(container.getSubLevel(subUUID) instanceof final ServerSubLevel serverSubLevel)) return;
-        CommonEvents.addPhysicHolder(this);
         session = new BindingSession(this, serverSubLevel);
-        session.pivotRelativeGoal.set(pivot.x, pivot.y, pivot.z);
-        var plot = serverSubLevel.getPlot();
-        var center = plot.getCenterBlock();
-        session.plotAnchor.set(center.getX(), plot.getBoundingBox().minY(), center.getY());
+        session.pivotRelativeGoal.zero();
+        session.recenterAroundPivot(container.physicsSystem().getPipeline(), true);
+        CommonEvents.addPhysicHolder(this);
     }
 
     public void unbind() {
         if (session != null) {
             session.remove();
             CommonEvents.removePhysicHolder(this);
+            session = null;
         }
     }
 
-    public void assembleBlockAbove(Level level) {
+    private void clearSubLevelBinding() {
+        unbind();
+        if (subUUID != null) {
+            subUUID = null;
+            setChanged();
+            sendData();
+        }
+    }
+
+    public @Nullable SimAssemblyHelper.AssemblyResult assembleBlockAbove(Level level, BlockPos pos) {
         try {
-            SimAssemblyHelper.assembleFromSingleBlock(level, worldPosition, worldPosition.above(), true, true);
+            final SimAssemblyHelper.AssemblyResult result = SimAssemblyHelper.assembleFromSingleBlock(level, pos.below(), pos, true, true);
             this.lastException = null;
             this.sendData();
+            return result;
         } catch (final AssemblyException e) {
             this.assemblyFailed(e);
+            return null;
         }
     }
 
@@ -280,24 +345,77 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
         this.sendData();
     }
 
-    private @Nullable SubLevel getSubLevel(BlockPos pos) {
-        return Sable.HELPER.getContaining(level, pos);
+    public static Vec3 getLiftPivot(BlockPos pos) {
+        return pos.getCenter().add(0, 4 / 16f, 0);
     }
 
-    public double distance(AABB aabb) {
-        return getCenter(aabb).distanceTo(worldPosition.getCenter());
+    public static Vector3d getBottomCenter(BoundingBox3ic bb) {
+        return new Vector3d((bb.minX() + bb.maxX() + 1) / 2.0, bb.minY(), (bb.minZ() + bb.maxZ() + 1) / 2.0);
     }
-    public Vec3 getSize(AABB aabb) {
-        var x = aabb.maxX - aabb.minX;
-        var y = aabb.maxY - aabb.minY;
-        var z = aabb.maxZ - aabb.minZ;
-        return new Vec3(x, y, z);
+    public static Vector3d getClosestBottomCenterCandidate(@Nullable Vector3d currentBest, Vector3d target, double y, double x, double z) {
+        var candidateDistance = Mth.square(x - target.x) + Mth.square(z - target.z);
+        if (currentBest != null) {
+            var bestDistance = Mth.square(currentBest.x - target.x) + Mth.square(currentBest.z - target.z);
+            if (candidateDistance >= bestDistance) return currentBest;
+        }
+        return new Vector3d(x, y, z);
     }
-    public Vec3 getCenter(AABB aabb) {
-        var x = (aabb.maxX + aabb.minX) / 2f;
-        var y = (aabb.maxY + aabb.minY) / 2f;
-        var z = (aabb.maxZ + aabb.minZ) / 2f;
-        return new Vec3(x, y, z);
+    public static Vector3d getSupportedBottomCenter(SubLevel subLevel) {
+        var bb = subLevel.getPlot().getBoundingBox();
+        var target = getBottomCenter(bb);
+        var level = subLevel.getLevel();
+        var pos = new BlockPos.MutableBlockPos();
+        var sizeX = bb.maxX() - bb.minX() + 1;
+        var sizeZ = bb.maxZ() - bb.minZ() + 1;
+        var supports = new boolean[sizeX][sizeZ];
+        Vector3d best = null;
+        var foundSupport = false;
+
+        for (int x = bb.minX(); x <= bb.maxX(); x++) for (int z = bb.minZ(); z <= bb.maxZ(); z++) {
+            pos.set(x, bb.minY(), z);
+            var state = level.getBlockState(pos);
+            if (state.isAir() || state.getCollisionShape(level, pos).isEmpty()) continue;
+
+            foundSupport = true;
+            supports[x - bb.minX()][z - bb.minZ()] = true;
+            best = getClosestBottomCenterCandidate(best, target, bb.minY(), x + 0.5, z + 0.5);
+        }
+
+        if (!foundSupport) return target;
+
+        for (int z = 0; z < sizeZ; z++) {
+            var runStart = -1;
+            for (int x = 0; x <= sizeX; x++) {
+                var supported = x < sizeX && supports[x][z];
+                if (supported) {
+                    if (runStart < 0) runStart = x;
+                    continue;
+                }
+                if (runStart < 0) continue;
+                best = getClosestBottomCenterCandidate(best, target, bb.minY(),
+                        (bb.minX() + runStart + bb.minX() + x) / 2.0,
+                        bb.minZ() + z + 0.5);
+                runStart = -1;
+            }
+        }
+
+        for (int x = 0; x < sizeX; x++) {
+            var runStart = -1;
+            for (int z = 0; z <= sizeZ; z++) {
+                var supported = z < sizeZ && supports[x][z];
+                if (supported) {
+                    if (runStart < 0) runStart = z;
+                    continue;
+                }
+                if (runStart < 0) continue;
+                best = getClosestBottomCenterCandidate(best, target, bb.minY(),
+                        bb.minX() + x + 0.5,
+                        (bb.minZ() + runStart + bb.minZ() + z) / 2.0);
+                runStart = -1;
+            }
+        }
+
+        return best;
     }
 
     public int check;
@@ -377,16 +495,22 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
         }
 
         private void tick() {
-            if (this.subLevel.isRemoved()) this.markedForRemoval = true;;
+            if (this.subLevel.isRemoved()) this.markedForRemoval = true;
         }
 
         private void physicsTick(final SubLevelPhysicsSystem physicsSystem) {
-            if (this.subLevel.isRemoved()) return;
-            if (this.constraint != null) {
+            if (this.subLevel.isRemoved() || physicsSystem.getLevel() != this.subLevel.getLevel()) return;
+            final PhysicsPipeline pipeline = physicsSystem.getPipeline();
+            if (pipeline == null) return;
+
+            final boolean anchorChanged = this.recenterAroundPivot(pipeline, false);
+            if (anchorChanged && this.constraint != null) {
                 this.constraint.remove();
                 this.constraint = null;
             }
-            this.attachConstraint(physicsSystem);
+            if (this.constraint == null) this.attachConstraint(physicsSystem);
+
+            if (this.be.delta != 0) pipeline.wakeUp(this.subLevel);
 
             final SimPhysics config = SimConfigService.INSTANCE.server().physics;
             if (this.constraint != null) {
@@ -398,8 +522,11 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
                 for (final ConstraintJointAxis angularAxis : ConstraintJointAxis.ANGULAR) this.constraint.setMotor(angularAxis, 0.0, angularStiffness, angularDamping, false, 0.0);
 
                 final double partialTick = physicsSystem.getPartialPhysicsTick();
+                final double pivotX = Mth.lerp(partialTick, be.oldPivot.x, be.pivot.x);
+                final double pivotY = Mth.lerp(partialTick, be.oldPivot.y, be.pivot.y);
+                final double pivotZ = Mth.lerp(partialTick, be.oldPivot.z, be.pivot.z);
 
-                this.localGoal.set(this.pivotRelativeGoal).add(be.pivot.x, Mth.lerp(partialTick, be.oldPivot.y, be.pivot.y), be.pivot.z);
+                this.localGoal.set(this.pivotRelativeGoal).add(pivotX, pivotY, pivotZ);
                 this.orientation.transformInverse(this.localGoal);
 
                 this.constraint.setMotor(ConstraintJointAxis.LINEAR_X, this.localGoal.x(), linearStiffness, linearDamping, false, 0.0);
@@ -408,12 +535,31 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
             }
         }
 
-        private void attachConstraint(final SubLevelPhysicsSystem physicsSystem) {
-            final PhysicsPipeline pipeline = physicsSystem.getPipeline();
-            //if (pipeline == null) Lifts.LOGGER.info("Pipeline doesn't exist");
-            if (pipeline == null) return;
-            //Lifts.LOGGER.info("Attaching to Pipeline");
+        private boolean recenterAroundPivot(@Nullable final PhysicsPipeline pipeline, final boolean resetOrientation) {
+            final Vector3d bottomCenter = LiftBE.getSupportedBottomCenter(this.subLevel);
+            final var pose = this.subLevel.logicalPose();
+            if (!resetOrientation && this.plotAnchor.distanceSquared(bottomCenter) <= 1.0E-6) return false;
 
+            if (resetOrientation) {
+                pose.orientation().identity();
+                this.orientation.identity();
+            }
+            this.plotAnchor.set(bottomCenter);
+            pose.position().set(JOMLConversion.toJOML(this.be.pivot)
+                    .sub(pose.orientation().transform(new Vector3d(this.plotAnchor).sub(pose.rotationPoint()))));
+
+            if (pipeline != null) {
+                pipeline.resetVelocity(this.subLevel);
+                pipeline.teleport(this.subLevel, pose.position(), pose.orientation());
+            }
+            this.subLevel.updateLastPose();
+            return true;
+        }
+
+        private void attachConstraint(final SubLevelPhysicsSystem physicsSystem) {
+            if (physicsSystem.getLevel() != this.subLevel.getLevel()) return;
+            final PhysicsPipeline pipeline = physicsSystem.getPipeline();
+            if (pipeline == null) return;
             this.constraint = pipeline.addConstraint(null, this.subLevel,
                     new FreeConstraintConfiguration(JOMLConversion.ZERO, this.plotAnchor, this.orientation));
         }

@@ -10,6 +10,7 @@ import dev.lopyluna.create_lnl.Lifts;
 import dev.lopyluna.create_lnl.content.blocks.lift.LiftBlock;
 import dev.lopyluna.create_lnl.content.blocks.lift.LiftBlockItem;
 import dev.simulated_team.simulated.index.SimItems;
+import dev.simulated_team.simulated.index.SimTags;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -50,6 +51,7 @@ public class LiftsBlocks {
                     .define('E', SimItems.ENGINE_ASSEMBLY)
                     .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(LiftsTags.itemC("plates/brass")))
                     .save(p))
+            .tag(SimTags.Blocks.NON_MOVABLE)
             .item(LiftBlockItem::new)
             .tag(LiftsTags.ItemTags.SPRING_LIKE.tag)
             .model((c, p) -> {})

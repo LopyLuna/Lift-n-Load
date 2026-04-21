@@ -32,10 +32,10 @@ public class Lifts {
     public static final Logger LOGGER = LogUtils.getLogger();
     public static LiftsRegistry REGISTER = new LiftsRegistry(NAME, MOD_ID);
     public static CreateRegistrate REG = CreateRegistrate.create(MOD_ID);
+
     static {
         REG.setTooltipModifierFactory(item -> new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE).andThen(TooltipModifier.mapNull(create(item))));
     }
-
 
     public Lifts(IEventBus modEventBus, ModContainer modContainer) {
         REGISTER.register(modEventBus);

@@ -18,6 +18,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -54,13 +55,19 @@ public class LiftBlock extends Block implements IBE<LiftBE>, IWrenchable, BlockS
     }
 
     @Override
+    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+        super.entityInside(state, level, pos, entity);
+    }
+
+    @Override
     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         if (state.getValue(LIFT).structure()) {
             if (!canSurvive(state, level, pos) || getShape(state, level, pos, CollisionContext.empty()).isEmpty()) remove(level, pos, true);
+            else if (direction == Direction.UP && !(neighborState.getBlock() instanceof LiftBlock) && level.getBlockEntity(pos) instanceof LiftBE struct && level.getBlockEntity(pos.below(struct.structIndex)) instanceof LiftBE be) be.blockAboveUpdate(neighborState, neighborPos);
             return state;
         }
-        if (direction == Direction.UP && !(neighborState.getBlock() instanceof LiftBlock) && level.getBlockEntity(pos) instanceof LiftBE be) be.blockAboveUpdate(neighborState, neighborPos);
         if (!canSurvive(state, level, pos)) remove(level, pos, false);
+        else if (direction == Direction.UP && !(neighborState.getBlock() instanceof LiftBlock) && level.getBlockEntity(pos) instanceof LiftBE be) be.blockAboveUpdate(neighborState, neighborPos);
         return state;
     }
 
@@ -106,11 +113,11 @@ public class LiftBlock extends Block implements IBE<LiftBE>, IWrenchable, BlockS
     protected @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (state.getValue(LIFT).structure()) return super.useWithoutItem(state, level, pos, player, hitResult);
         if (level.getBlockEntity(pos) instanceof LiftBE be && !(player instanceof FakePlayer)) {
-            be.bind();
             if (be.userUUID == null) {
                 be.user = player;
                 be.userUUID = player.getUUID();
             }
+            be.bind();
             be.initializing = false;
             return super.useWithoutItem(state, level, pos, player, hitResult);
         }
@@ -127,6 +134,7 @@ public class LiftBlock extends Block implements IBE<LiftBE>, IWrenchable, BlockS
                 if (stack.has(LiftsDataComponents.SUBLEVEL_UUID)) be.subUUID = stack.get(LiftsDataComponents.SUBLEVEL_UUID);
                 stack.remove(LiftsDataComponents.SUBLEVEL_UUID);
             }
+            be.bind();
         }
     }
 
