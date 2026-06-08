@@ -1,4 +1,4 @@
-package dev.lopyluna.create_lnl.content.blocks.lift;
+package dev.lopyluna.create_lnl.content.blocks.contraption_lift;
 
 import com.simibubi.create.content.contraptions.AssemblyException;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -7,7 +7,6 @@ import dev.lopyluna.create_lnl.content.blocks.PhysicHoldingBEs;
 import dev.lopyluna.create_lnl.events.CommonEvents;
 import dev.lopyluna.create_lnl.register.LiftsBlocks;
 import dev.ryanhcode.sable.Sable;
-import dev.ryanhcode.sable.api.entity.EntitySubLevelUtil;
 import dev.ryanhcode.sable.api.physics.PhysicsPipeline;
 import dev.ryanhcode.sable.api.physics.constraint.ConstraintJointAxis;
 import dev.ryanhcode.sable.api.physics.constraint.PhysicsConstraintHandle;
@@ -42,7 +41,9 @@ import org.joml.Quaterniond;
 import org.joml.Vector3d;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //implements IDisplayAssemblyExceptions, SimMagnet, BlockEntitySubLevelActor
     public List<Integer> deltaList = new ArrayList<>();
@@ -70,10 +71,11 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
     public boolean placing = true;
     public boolean placed = false;
     public float progress = -1/16f;
-    public LerpedFloat angleFlap = LerpedFloat.angular().chase(89, 0.1, LerpedFloat.Chaser.EXP);
+    public LerpedFloat angleFlap = LerpedFloat.angular().chase(89, 0.3, LerpedFloat.Chaser.EXP);
 
     //STRUCTURE
     public int structIndex;
+    private int lastStructCheckIndex = -1;
 
     public LiftBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -106,11 +108,10 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
         if (level == null) return;
         if (session != null) {
             session.tick();
-            if (session.markedForRemoval) {
-                clearSubLevelBinding();
-            }
+            if (session.markedForRemoval) clearSubLevelBinding();
         }
         if (structIndex > 0) {
+            if (level.getGameTime() % 8 == 0 && !(level.getBlockState(worldPosition.below()).getBlock() instanceof LiftBlock)) LiftBlock.remove(level, worldPosition, false);
             if (!(level.getBlockEntity(worldPosition.below(structIndex)) instanceof LiftBE lift)) return;
             height = lift.height;
             cHeight = lift.cHeight;
@@ -205,20 +206,14 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
         var topY = pos.getY() + (12f/16f) + currentHeight;
         var minY = Math.min(oldTopY, topY) - 0.35;
         var maxY = Math.max(oldTopY, topY) + 1.0;
-        var box = new AABB(
-                minX,
-                minY,
-                minZ,
-                maxX,
-                maxY,
-                maxZ
-        );
+        var box = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
         var rideBand = new AABB(minX, oldTopY - 0.3, minZ, maxX, oldTopY + 0.45, maxZ);
         var sweptRideBand = new AABB(minX, Math.min(oldTopY, topY) - 0.3, minZ, maxX, Math.max(oldTopY, topY) + 0.45, maxZ);
 
         for (var e : level.getEntities(null, box)) {
-            if (Sable.HELPER.getContaining(e) != null || EntitySubLevelUtil.getTrackingSubLevel(e) != null) continue;
+            if (Sable.HELPER.getContaining(e) != null || Sable.HELPER.getTrackingSubLevel(e) != null) continue;
             if (clientPrediction && e != liftUser) continue;
+
 
             var eBox = e.getBoundingBox();
             if (!eBox.intersects(rideBand) && !(moveY > 0 && eBox.intersects(sweptRideBand))) continue;
@@ -240,8 +235,10 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
         if (level == null) return;
         var h = ((height + 12/16f) * 100f) / 100f;
         var index = Mth.floor(h-0.001f);
+        if (index == lastStructCheckIndex) return;
+        lastStructCheckIndex = index;
         //if (getUser() instanceof Player player) player.displayClientMessage(Component.literal("i"+index+" h"+(int)((height + 12/16f) * 16)), true);
-        if (index > 0) for (int i = 1; i <= 8; i++) {
+        for (int i = 1; i <= 8; i++) {
             var pos = worldPosition.above(i);
             boolean shouldExist = i <= index;
             if (shouldExist) {
@@ -358,23 +355,13 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
     public static Vector3d getBottomCenter(BoundingBox3ic bb) {
         return new Vector3d((bb.minX() + bb.maxX() + 1) / 2.0, bb.minY(), (bb.minZ() + bb.maxZ() + 1) / 2.0);
     }
-    public static Vector3d getClosestBottomCenterCandidate(@Nullable Vector3d currentBest, Vector3d target, double y, double x, double z) {
-        var candidateDistance = Mth.square(x - target.x) + Mth.square(z - target.z);
-        if (currentBest != null) {
-            var bestDistance = Mth.square(currentBest.x - target.x) + Mth.square(currentBest.z - target.z);
-            if (candidateDistance >= bestDistance) return currentBest;
-        }
-        return new Vector3d(x, y, z);
-    }
     public static Vector3d getSupportedBottomCenter(SubLevel subLevel) {
         var bb = subLevel.getPlot().getBoundingBox();
         var target = getBottomCenter(bb);
         var level = subLevel.getLevel();
         var pos = new BlockPos.MutableBlockPos();
-        var sizeX = bb.maxX() - bb.minX() + 1;
-        var sizeZ = bb.maxZ() - bb.minZ() + 1;
-        var supports = new boolean[sizeX][sizeZ];
         Vector3d best = null;
+        var bestDistance = Double.POSITIVE_INFINITY;
         var foundSupport = false;
 
         for (int x = bb.minX(); x <= bb.maxX(); x++) for (int z = bb.minZ(); z <= bb.maxZ(); z++) {
@@ -383,43 +370,16 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
             if (state.isAir() || state.getCollisionShape(level, pos).isEmpty()) continue;
 
             foundSupport = true;
-            supports[x - bb.minX()][z - bb.minZ()] = true;
-            best = getClosestBottomCenterCandidate(best, target, bb.minY(), x + 0.5, z + 0.5);
+            var candidateX = Mth.clamp(target.x, x, x + 1.0);
+            var candidateZ = Mth.clamp(target.z, z, z + 1.0);
+            var candidateDistance = Mth.square(candidateX - target.x) + Mth.square(candidateZ - target.z);
+            if (candidateDistance >= bestDistance) continue;
+
+            bestDistance = candidateDistance;
+            best = new Vector3d(candidateX, bb.minY(), candidateZ);
         }
 
         if (!foundSupport) return target;
-
-        for (int z = 0; z < sizeZ; z++) {
-            var runStart = -1;
-            for (int x = 0; x <= sizeX; x++) {
-                var supported = x < sizeX && supports[x][z];
-                if (supported) {
-                    if (runStart < 0) runStart = x;
-                    continue;
-                }
-                if (runStart < 0) continue;
-                best = getClosestBottomCenterCandidate(best, target, bb.minY(),
-                        (bb.minX() + runStart + bb.minX() + x) / 2.0,
-                        bb.minZ() + z + 0.5);
-                runStart = -1;
-            }
-        }
-
-        for (int x = 0; x < sizeX; x++) {
-            var runStart = -1;
-            for (int z = 0; z <= sizeZ; z++) {
-                var supported = z < sizeZ && supports[x][z];
-                if (supported) {
-                    if (runStart < 0) runStart = z;
-                    continue;
-                }
-                if (runStart < 0) continue;
-                best = getClosestBottomCenterCandidate(best, target, bb.minY(),
-                        bb.minX() + x + 0.5,
-                        (bb.minZ() + runStart + bb.minZ() + z) / 2.0);
-                runStart = -1;
-            }
-        }
 
         return best;
     }

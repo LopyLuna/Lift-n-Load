@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "c:storage_blocks/slime"
+    },
+    {
+      "item": "offroad:large_tire"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_lnl:large_slime_tire"
+  }
+}

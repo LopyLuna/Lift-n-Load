@@ -1,7 +1,7 @@
-package dev.lopyluna.create_lnl.content.blocks.lift;
+package dev.lopyluna.create_lnl.content.blocks.contraption_lift;
 
 import com.simibubi.create.AllSoundEvents;
-import dev.lopyluna.create_lnl.register.LiftsDataComponents;
+import dev.lopyluna.create_lnl.register.LiftsDataComps;
 import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.api.sublevel.SubLevelContainer;
 import dev.ryanhcode.sable.companion.math.BoundingBox3ic;
@@ -12,8 +12,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
@@ -40,7 +40,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.neoforged.neoforge.common.util.FakePlayer;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
@@ -48,8 +47,9 @@ import javax.annotation.Nullable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+@SuppressWarnings("NullableProblems")
 public class LiftBlockItem extends BlockItem {
-    private static final int MAX_PICKUP_DIMENSION = 48;
+    private static final int MAX_PICKUP_DIMENSION = 24;
     private static final int MAX_MARKED_BLOCKS = 32;
     private static final DustParticleOptions BLOCKED_PLACEMENT_PARTICLE = new DustParticleOptions(new Vector3f(1.0F, 0.25F, 0.25F), 1.0F);
 
@@ -58,14 +58,14 @@ public class LiftBlockItem extends BlockItem {
     }
 
     @Override
-    public @NotNull InteractionResult useOn(UseOnContext ctx) {
+    public InteractionResult useOn(UseOnContext ctx) {
         if (ctx.getPlayer() instanceof Player player && !(player instanceof FakePlayer)) {
             var level = ctx.getLevel();
             var stack = ctx.getItemInHand();
             if (player.isShiftKeyDown()) {
                 onPlaced(player, level, null);
                 player.getCooldowns().addCooldown(this, 10);
-                stack.remove(LiftsDataComponents.SUBLEVEL_UUID);
+                stack.remove(LiftsDataComps.SUBLEVEL_UUID);
             } else {
                 final var loc = ctx.getClickLocation();
                 final var subLevel = Sable.HELPER.getContaining(level, loc);
@@ -76,7 +76,7 @@ public class LiftBlockItem extends BlockItem {
                     return InteractionResult.FAIL;
                 }
                 var uuid = subLevel.getUniqueId();
-                stack.set(LiftsDataComponents.SUBLEVEL_UUID, uuid);
+                stack.set(LiftsDataComps.SUBLEVEL_UUID, uuid);
                 AllSoundEvents.CONFIRM.play(level, player, player.blockPosition());
             }
             return InteractionResult.sidedSuccess(level.isClientSide);
@@ -86,10 +86,10 @@ public class LiftBlockItem extends BlockItem {
 
     @Override
     public boolean isFoil(ItemStack stack) {
-        return stack.has(LiftsDataComponents.SUBLEVEL_UUID);
+        return stack.has(LiftsDataComps.SUBLEVEL_UUID);
     }
 
-    public @NotNull InteractionResult place(BlockPlaceContext ctx) {
+    public InteractionResult place(BlockPlaceContext ctx) {
         if (!this.getBlock().isEnabled(ctx.getLevel().enabledFeatures()) || !ctx.canPlace()) return InteractionResult.FAIL;
         var placeCtx = this.updatePlacementContext(ctx);
         if (placeCtx == null) return InteractionResult.FAIL;
@@ -154,7 +154,7 @@ public class LiftBlockItem extends BlockItem {
     }
 
     @Override
-    protected @NotNull SoundEvent getPlaceSound(BlockState state, @NotNull Level level, @NotNull BlockPos pos, @Nullable Player player) {
+    protected SoundEvent getPlaceSound(BlockState state, Level level, BlockPos pos, @Nullable Player player) {
         return state.getSoundType(level, pos, player).getPlaceSound();
     }
 
@@ -181,12 +181,12 @@ public class LiftBlockItem extends BlockItem {
 
     private static Set<BlockPos> getStoredSubLevelObstructions(Level level, BlockPos liftPos, ItemStack stack) {
         final Set<BlockPos> blockingBlocks = new LinkedHashSet<>();
-        if (!stack.has(LiftsDataComponents.SUBLEVEL_UUID)) return blockingBlocks;
+        if (!stack.has(LiftsDataComps.SUBLEVEL_UUID)) return blockingBlocks;
 
         final SubLevelContainer container = SubLevelContainer.getContainer(level);
         if (container == null) return blockingBlocks;
 
-        final var uuid = stack.get(LiftsDataComponents.SUBLEVEL_UUID);
+        final var uuid = stack.get(LiftsDataComps.SUBLEVEL_UUID);
         if (uuid == null) return blockingBlocks;
 
         final SubLevel subLevel = container.getSubLevel(uuid);

@@ -1,0 +1,6 @@
+{
+  "parent": "offroad:item/small_tire/small_tire",
+  "textures": {
+    "tire_0": "create_lnl:block/tire/slime_0"
+  }
+}

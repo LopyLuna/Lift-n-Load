@@ -1,10 +1,10 @@
-package dev.lopyluna.create_lnl.content.blocks.lift;
+package dev.lopyluna.create_lnl.content.blocks.contraption_lift;
 
 import com.mojang.serialization.Codec;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
 import dev.lopyluna.create_lnl.register.LiftsBETypes;
-import dev.lopyluna.create_lnl.register.LiftsDataComponents;
+import dev.lopyluna.create_lnl.register.LiftsDataComps;
 import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.api.block.BlockSubLevelAssemblyListener;
 import dev.ryanhcode.sable.sublevel.SubLevel;
@@ -38,9 +38,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.util.FakePlayer;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
@@ -109,7 +108,7 @@ public class LiftBlock extends Block implements IBE<LiftBE>, IWrenchable, BlockS
     }
 
     @Override
-    protected @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (state.getValue(LIFT).structure()) return super.useWithoutItem(state, level, pos, player, hitResult);
         if (level.getBlockEntity(pos) instanceof LiftBE be && !(player instanceof FakePlayer)) {
             if (be.userUUID == null) {
@@ -130,8 +129,8 @@ public class LiftBlock extends Block implements IBE<LiftBE>, IWrenchable, BlockS
             be.userUUID = placer.getUUID();
             be.initializing = false;
             if (stack != null) {
-                if (stack.has(LiftsDataComponents.SUBLEVEL_UUID)) be.subUUID = stack.get(LiftsDataComponents.SUBLEVEL_UUID);
-                stack.remove(LiftsDataComponents.SUBLEVEL_UUID);
+                if (stack.has(LiftsDataComps.SUBLEVEL_UUID)) be.subUUID = stack.get(LiftsDataComps.SUBLEVEL_UUID);
+                stack.remove(LiftsDataComps.SUBLEVEL_UUID);
             }
             be.bind();
         }
@@ -161,6 +160,7 @@ public class LiftBlock extends Block implements IBE<LiftBE>, IWrenchable, BlockS
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) remove(level, pos, movedByPiston);
         super.onRemove(state, level, pos, newState, movedByPiston);
+        if (state.hasBlockEntity() && (!state.is(newState.getBlock()) || !newState.hasBlockEntity())) level.removeBlockEntity(pos);
     }
 
     @Override

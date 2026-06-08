@@ -36,7 +36,7 @@ neoForge {
         }
         data {
             data()
-            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath(), '--existing-mod', 'create', '--existing-mod', 'aeronautics', '--existing-mod', 'simulated'
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath(), '--existing-mod', 'create', '--existing-mod', 'aeronautics', '--existing-mod', 'simulated', '--existing-mod', 'offroad'
             systemProperty "neoforge.disableModLoading", "true"
         }
         configureEach {
@@ -73,9 +73,9 @@ repositories {
 
 dependencies {
     compileOnly("dev.ryanhcode.sable:sable-neoforge-${minecraft_version}:${sable_version}")
-    implementation("dev.ryanhcode.offroad:offroad-neoforge-${minecraft_version}:${offroad_version}")
-    implementation("dev.simulated_team.simulated:simulated-neoforge-${minecraft_version}:${simulated_version}")
-    implementation("dev.eriksonn.aeronautics:aeronautics-neoforge-${minecraft_version}:${aeronautics_version}")
+    implementation("dev.ryanhcode.offroad:offroad-neoforge-${minecraft_version}:${bundled_version}")
+    implementation("dev.simulated_team.simulated:simulated-neoforge-${minecraft_version}:${bundled_version}")
+    implementation("dev.eriksonn.aeronautics:aeronautics-neoforge-${minecraft_version}:${bundled_version}")
 
     implementation("com.simibubi.create:create-${minecraft_version}:${create_version}") { transitive = false }
 

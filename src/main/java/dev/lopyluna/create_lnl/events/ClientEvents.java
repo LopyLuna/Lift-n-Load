@@ -1,7 +1,8 @@
 package dev.lopyluna.create_lnl.events;
 
 import dev.lopyluna.create_lnl.Lifts;
-import dev.lopyluna.create_lnl.content.blocks.lift.LiftActions;
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftActions;
+import dev.lopyluna.create_lnl.content.utils.LiftSoundDistUtil;
 import dev.lopyluna.create_lnl.register.client.LiftKeys;
 import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.Minecraft;
@@ -28,6 +29,7 @@ public class ClientEvents {
         if (!isGameActive()) return;
         var mc = Minecraft.getInstance();
         if (mc.level == null || isPreEvent) return; //mc.level.getGameTime() % 2 != 0
+        LiftSoundDistUtil.tickGlobalThrusterSound();
 
         int delta;
         if (LiftKeys.RAISE_LIFT.getKeybind().isDown()) delta = 1;

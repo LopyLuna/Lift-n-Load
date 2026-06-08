@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/barrier",
+  "textures": {
+    "particle": "create:block/belt"
+  }
+}

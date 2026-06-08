@@ -1,0 +1,9 @@
+{
+  "priority": 2500,
+  "title": {
+    "text": { "translate": "create_lnl.simulated_section.create_lnl" },
+    "background": "#BB1F212B"
+  },
+  "sprite": "create_lnl:banner",
+  "only_animate_on_hover": true
+}

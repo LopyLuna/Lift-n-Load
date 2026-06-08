@@ -1,7 +1,7 @@
 package dev.lopyluna.create_lnl.register;
 
 import dev.lopyluna.create_lnl.Lifts;
-import dev.lopyluna.create_lnl.content.blocks.lift.LiftActions;
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftActions;
 import net.createmod.catnip.net.base.BasePacketPayload;
 import net.createmod.catnip.net.base.CatnipPacketRegistry;
 import net.minecraft.network.RegistryFriendlyByteBuf;

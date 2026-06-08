@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "create:andesite_alloy"
+    },
+    "B": {
+      "tag": "c:ingots/brass"
+    },
+    "I": {
+      "item": "create:industrial_iron_block"
+    },
+    "R": {
+      "tag": "c:dusts/redstone"
+    },
+    "S": {
+      "tag": "c:plates/brass"
+    }
+  },
+  "pattern": [
+    "IAS",
+    "BR ",
+    "IAS"
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_lnl:thruster"
+  }
+}

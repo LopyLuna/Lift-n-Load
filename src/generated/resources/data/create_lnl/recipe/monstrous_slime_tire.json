@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "c:storage_blocks/slime"
+    },
+    {
+      "tag": "c:storage_blocks/slime"
+    },
+    {
+      "item": "offroad:monstrous_tire"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_lnl:monstrous_slime_tire"
+  }
+}

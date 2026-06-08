@@ -5,7 +5,7 @@
 	"ambientocclusion": false,
 	"textures": {
 		"0": "create_lnl:block/lift",
-		"particle": "create_lnl:block/lift"
+		"particle": "create:block/smart_observer_front"
 	},
 	"elements": [
 		{

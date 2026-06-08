@@ -1,5 +1,14 @@
 {
   "block.create_lnl.contraption_lift": "ʇɟıꞀ uoıʇdɐɹʇuoƆ",
+  "block.create_lnl.thruster": "ɹǝʇsnɹɥ⟘",
+  "block.create_lnl.thruster_structure": "ɹǝʇsnɹɥ⟘",
+  "block.create_lnl.wheel": "ןǝǝɥM",
   "create_lnl.keyinfo.lower_lift": "ʇɟıꞀ uoıʇdɐɹʇuoƆ ɹnoʎ ɹǝʍoꞀ",
-  "create_lnl.keyinfo.raise_lift": "ʇɟıꞀ uoıʇdɐɹʇuoƆ ɹnoʎ ǝsıɐᴚ"
+  "create_lnl.keyinfo.raise_lift": "ʇɟıꞀ uoıʇdɐɹʇuoƆ ɹnoʎ ǝsıɐᴚ",
+  "create_lnl.simulated_section.create_lnl": "pɐoꞀ ,u ʇɟıꞀ",
+  "item.create_lnl.large_slime_tire": "ǝɹı⟘ ǝɯıןS ǝbɹɐꞀ",
+  "item.create_lnl.monstrous_slime_tire": "ǝɹı⟘ ǝɯıןS snoɹʇsuoW",
+  "item.create_lnl.physic_welder": "ɹǝpןǝM ɔısʎɥԀ",
+  "item.create_lnl.slime_tire": "ǝɹı⟘ ǝɯıןS",
+  "item.create_lnl.small_slime_tire": "ǝɹı⟘ ǝɯıןS ןןɐɯS"
 }

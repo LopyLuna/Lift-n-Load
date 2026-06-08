@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "c:slime_balls"
+    },
+    {
+      "item": "offroad:small_tire"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_lnl:small_slime_tire"
+  }
+}

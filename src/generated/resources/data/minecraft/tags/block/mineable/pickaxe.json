@@ -1,5 +1,8 @@
 {
   "values": [
-    "create_lnl:contraption_lift"
+    "create_lnl:contraption_lift",
+    "create_lnl:thruster",
+    "create_lnl:thruster_structure",
+    "create_lnl:wheel"
   ]
 }

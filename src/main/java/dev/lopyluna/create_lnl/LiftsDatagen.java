@@ -12,6 +12,7 @@ import java.util.function.BiConsumer;
 
 import static dev.lopyluna.create_lnl.Lifts.MOD_ID;
 
+@SuppressWarnings("unused")
 public class LiftsDatagen {
     public static void gatherDataHighPriority(GatherDataEvent event) {
         if (event.getMods().contains(MOD_ID)) addExtraRegistrateData();
@@ -24,6 +25,7 @@ public class LiftsDatagen {
         var output = gen.getPackOutput();
         var provider = event.getLookupProvider();
         var helper = event.getExistingFileHelper();
+
         //gen.addProvider(event.includeClient(), GearsSoundEvents.provider(gen));
 
        //gen.addProvider(event.includeServer(), new VanillaRecipeGen(output, provider));

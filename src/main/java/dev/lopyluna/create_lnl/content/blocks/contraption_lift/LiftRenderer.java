@@ -1,4 +1,4 @@
-package dev.lopyluna.create_lnl.content.blocks.lift;
+package dev.lopyluna.create_lnl.content.blocks.contraption_lift;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.blockEntity.renderer.SmartBlockEntityRenderer;

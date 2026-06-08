@@ -1,4 +1,4 @@
-package dev.lopyluna.create_lnl.content.blocks.lift;
+package dev.lopyluna.create_lnl.content.blocks.contraption_lift;
 
 import dev.lopyluna.create_lnl.register.LiftsPackets;
 import io.netty.buffer.ByteBuf;
