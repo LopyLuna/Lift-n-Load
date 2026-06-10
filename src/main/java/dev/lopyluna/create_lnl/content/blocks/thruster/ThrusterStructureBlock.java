@@ -1,12 +1,13 @@
 package dev.lopyluna.create_lnl.content.blocks.thruster;
 
+import com.simibubi.create.api.contraption.BlockMovementChecks;
 import com.simibubi.create.api.equipment.goggles.IProxyHoveringInformation;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.render.MultiPosDestructionHandler;
+import com.simibubi.create.impl.contraption.BlockMovementChecksImpl;
 import dev.lopyluna.create_lnl.register.LiftShapes;
 import dev.lopyluna.create_lnl.register.LiftsBlocks;
 import net.createmod.catnip.data.Pair;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -46,6 +47,33 @@ public class ThrusterStructureBlock extends Block implements IWrenchable, IProxy
 
     public ThrusterStructureBlock(Properties properties) {
         super(properties);
+    }
+
+
+    static {
+        BlockMovementChecksImpl.registerAttachedCheck((state, level, pos, direction) -> {
+            var block = state.getBlock();
+            var thruster = block instanceof ThrusterBlock;
+            var struct = block instanceof ThrusterStructureBlock;
+            if (!(thruster || struct)) return BlockMovementChecks.CheckResult.PASS;
+            final var facing = state.getValue(FACING);
+            if (facing != direction) return BlockMovementChecks.CheckResult.PASS;
+
+            var rel = pos.relative(facing);
+            var rState = level.getBlockState(rel);
+            var rBlock = rState.getBlock();
+
+            var rThruster = rBlock instanceof ThrusterBlock;
+            var rStruct = rBlock instanceof ThrusterStructureBlock;
+
+            if (!(thruster == rStruct || rThruster == struct)) return BlockMovementChecks.CheckResult.PASS;
+
+            final var rFacing = rState.getValue(FACING);
+            if (rFacing.getOpposite() != direction) return BlockMovementChecks.CheckResult.PASS;
+
+            return BlockMovementChecks.CheckResult.SUCCESS;
+        }
+        );
     }
 
     @Override
@@ -143,7 +171,17 @@ public class ThrusterStructureBlock extends Block implements IWrenchable, IProxy
     @Override
     public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
         var master = getMaster(pLevel, pPos, pState);
-        if (!master.getFirst().isEmpty()) pLevel.destroyBlock(master.getSecond(), true);
+        if (!master.getFirst().isEmpty()) {
+            if (!pIsMoving) pLevel.destroyBlock(master.getSecond(), true);
+            else pLevel.setBlockAndUpdate(master.getSecond(), Blocks.AIR.defaultBlockState());
+        }
+    }
+
+    @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        var master = getMaster(level, pos, state);
+        if (master.getFirst().isEmpty()) level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
     }
 
     public BlockState playerWillDestroy(Level pLevel, BlockPos pPos, BlockState pState, Player pPlayer) {
@@ -218,7 +256,7 @@ public class ThrusterStructureBlock extends Block implements IWrenchable, IProxy
 
         @Override
         @Nullable
-        public Set<BlockPos> getExtraPositions(ClientLevel level, BlockPos pos, BlockState blockState, int progress) {
+        public Set<BlockPos> getExtraPositions(net.minecraft.client.multiplayer.ClientLevel level, BlockPos pos, BlockState blockState, int progress) {
             var master = getMaster(level, pos, blockState);
             if (master.getFirst().isEmpty()) return null;
             HashSet<BlockPos> set = new HashSet<>();

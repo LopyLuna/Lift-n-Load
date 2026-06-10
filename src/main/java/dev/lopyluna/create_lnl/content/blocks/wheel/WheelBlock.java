@@ -10,6 +10,7 @@ import dev.ryanhcode.offroad.Offroad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.Containers;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -128,8 +129,25 @@ public class WheelBlock extends RotatedPillarKineticBlock implements IBE<WheelBE
     }
 
     @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (level.getBlockEntity(pos) instanceof WheelBE be) be.dropped = player.isCreative();
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
         super.onPlace(state, level, pos, oldState, isMoving);
         if (level.getBlockEntity(pos) instanceof WheelBE be) be.update();
+    }
+
+    @Override
+    public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
+        if (pLevel.getBlockEntity(pPos) instanceof WheelBE be && !be.dropped) Containers.dropItemStack(pLevel, pPos.getX(), pPos.getY(), pPos.getZ(), switch (be.type) {
+            case MONSTROUS -> be.sticky ? LiftsItems.SLIME_MONSTROUS_TIRE.asStack() : BuiltInRegistries.ITEM.get(Offroad.path("monstrous_tire")).getDefaultInstance();
+            case LARGE -> be.sticky ? LiftsItems.SLIME_LARGE_TIRE.asStack() : BuiltInRegistries.ITEM.get(Offroad.path("large_tire")).getDefaultInstance();
+            case NORMAL -> be.sticky ? LiftsItems.SLIME_TIRE.asStack() : BuiltInRegistries.ITEM.get(Offroad.path("tire")).getDefaultInstance();
+            case SMALL -> be.sticky ? LiftsItems.SLIME_SMALL_TIRE.asStack() : BuiltInRegistries.ITEM.get(Offroad.path("small_tire")).getDefaultInstance();
+        });
+        super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
     }
 }

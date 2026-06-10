@@ -8,6 +8,7 @@ import dev.lopyluna.create_lnl.register.LiftsBlocks;
 import dev.simulated_team.simulated.content.blocks.portable_engine.PortableEngineBlockEntity;
 import dev.simulated_team.simulated.multiloader.inventory.ItemInfoWrapper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -21,8 +22,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -219,6 +222,12 @@ public class ThrusterBlock extends Block implements IBE<ThrusterBE> {
     }
 
     @Override
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+        if (!level.getBlockTicks().hasScheduledTick(pos, this)) level.scheduleTick(pos, this, 1);
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+    }
+
+    @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         super.tick(state, level, pos, random);
         var dir = state.getValue(FACING);
@@ -255,5 +264,6 @@ public class ThrusterBlock extends Block implements IBE<ThrusterBE> {
             if (!be.inventory.isEmpty()) Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), be.inventory.getItem(0));
             level.removeBlockEntity(pos);
         }
+        if (level.getBlockState(pos.relative(state.getValue(FACING))).getBlock() instanceof ThrusterStructureBlock) level.setBlockAndUpdate(pos.relative(state.getValue(FACING)), Blocks.AIR.defaultBlockState());
     }
 }

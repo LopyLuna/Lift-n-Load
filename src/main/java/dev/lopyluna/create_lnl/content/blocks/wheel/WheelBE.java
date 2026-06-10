@@ -69,6 +69,8 @@ public class WheelBE extends KineticBlockEntity implements BlockEntitySubLevelAc
 
     public List<Couple<Vec3>> castPoints;
 
+    public boolean dropped = false;
+
     public WheelBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         update();

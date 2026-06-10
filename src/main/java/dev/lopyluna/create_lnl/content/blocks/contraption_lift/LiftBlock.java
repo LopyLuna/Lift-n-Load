@@ -10,7 +10,6 @@ import dev.ryanhcode.sable.api.block.BlockSubLevelAssemblyListener;
 import dev.ryanhcode.sable.sublevel.SubLevel;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.lang.Lang;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -70,9 +69,9 @@ public class LiftBlock extends Block implements IBE<LiftBE>, IWrenchable, BlockS
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if (level.getBlockEntity(pos) instanceof LiftBE be) {
-            var height = Math.round((level instanceof ClientLevel ? be.cHeight.getValue(AnimationTickHolder.getPartialTicks()) : be.height.getValue()) * 100f) / 100f;
+    protected VoxelShape getShape(BlockState state, BlockGetter getter, BlockPos pos, CollisionContext context) {
+        if (getter.getBlockEntity(pos) instanceof LiftBE be) {
+            var height = Math.round((getter instanceof Level level && level.isClientSide ? be.cHeight.getValue(AnimationTickHolder.getPartialTicks()) : be.height.getValue()) * 100f) / 100f;
             height -= be.structIndex ;
             var topYA = Math.clamp(12/16f + height, 0, 1);
             var topYB = Math.clamp(9/16f + height, 0, 1);
