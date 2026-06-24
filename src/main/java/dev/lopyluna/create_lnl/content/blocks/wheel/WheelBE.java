@@ -201,7 +201,6 @@ public class WheelBE extends KineticBlockEntity implements BlockEntitySubLevelAc
     private static final double CONTACT_NORMAL_DOT_THRESHOLD = 0.5;
     private static final double SUSPENSION_STRENGTH = 10.0;
     private static final double STICK_STRENGTH = 600.0;
-    public static final double STICK_MOUNT_STRENGTH = 4800.0;
     private static final double STICKY_SNAP_RANGE = 0.5;
     private static final float STICKY_VISUAL_START_INSET = 2f / 16f;
     private static final float STICKY_VISUAL_END_EXTRA = 0.25f;
@@ -274,7 +273,8 @@ public class WheelBE extends KineticBlockEntity implements BlockEntitySubLevelAc
             final double stickyTargetExtension = getRadius() + 8/16f;
             final double stickyError = maxExtension - stickyTargetExtension;
             if (stickyError <= STICKY_SNAP_RANGE) {
-                final double stickyImpulse = Mth.clamp(-stickyError * STICK_STRENGTH * timeStep, -STICK_STRENGTH * timeStep, STICK_STRENGTH * timeStep);
+                var stickyMass = normalMass/4f;
+                final double stickyImpulse = Mth.clamp(-stickyError * STICK_STRENGTH * stickyMass * timeStep, -STICK_STRENGTH * stickyMass * timeStep, STICK_STRENGTH * stickyMass * timeStep);
                 queuedForce.fma(stickyImpulse, normal);
             }
         }

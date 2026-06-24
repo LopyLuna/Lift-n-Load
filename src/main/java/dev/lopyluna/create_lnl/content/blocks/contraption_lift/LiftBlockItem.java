@@ -49,7 +49,7 @@ import java.util.Set;
 
 @SuppressWarnings("NullableProblems")
 public class LiftBlockItem extends BlockItem {
-    private static final int MAX_PICKUP_DIMENSION = 24;
+    private static final int MAX_PICKUP_DIMENSION = 64;
     private static final int MAX_MARKED_BLOCKS = 32;
     private static final DustParticleOptions BLOCKED_PLACEMENT_PARTICLE = new DustParticleOptions(new Vector3f(1.0F, 0.25F, 0.25F), 1.0F);
 

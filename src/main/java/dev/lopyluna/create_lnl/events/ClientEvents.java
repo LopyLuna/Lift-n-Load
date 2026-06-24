@@ -24,21 +24,29 @@ public class ClientEvents {
         onTick(false);
     }
 
-    private static int oDelta;
+    private static int oMovDelta;
+    private static int oRotDelta;
     public static void onTick(boolean isPreEvent) {
         if (!isGameActive()) return;
         var mc = Minecraft.getInstance();
         if (mc.level == null || isPreEvent) return; //mc.level.getGameTime() % 2 != 0
         LiftSoundDistUtil.tickGlobalThrusterSound();
 
-        int delta;
-        if (LiftKeys.RAISE_LIFT.getKeybind().isDown()) delta = 1;
-        else if (LiftKeys.LOWER_LIFT.getKeybind().isDown()) delta = -1;
-        else delta = 0;
+        int movDelta;
+        int rotDelta;
 
-        if (oDelta != delta) {
-            oDelta = delta;
-            CatnipServices.NETWORK.sendToServer(new LiftActions(delta));
+        if (LiftKeys.RAISE_LIFT.getKeybind().isDown()) movDelta = 1;
+        else if (LiftKeys.LOWER_LIFT.getKeybind().isDown()) movDelta = -1;
+        else movDelta = 0;
+
+        if (LiftKeys.R0T_CC_LIFT.getKeybind().isDown()) rotDelta = 1;
+        else if (LiftKeys.ROT_C_LIFT.getKeybind().isDown()) rotDelta = -1;
+        else rotDelta = 0;
+
+        if (oMovDelta != movDelta || oRotDelta != rotDelta) {
+            oMovDelta = movDelta;
+            oRotDelta = rotDelta;
+            CatnipServices.NETWORK.sendToServer(new LiftActions(movDelta, rotDelta));
         }
     }
 

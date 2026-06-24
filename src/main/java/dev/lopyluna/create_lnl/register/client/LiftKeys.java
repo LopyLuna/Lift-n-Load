@@ -16,10 +16,13 @@ import java.util.function.BiConsumer;
 import static dev.lopyluna.create_lnl.Lifts.MOD_ID;
 import static dev.lopyluna.create_lnl.Lifts.NAME;
 
+@SuppressWarnings("unused")
 @EventBusSubscriber(modid = MOD_ID, value = Dist.CLIENT)
 public enum LiftKeys {
     RAISE_LIFT("raise_lift",GLFW.GLFW_KEY_UP  , "Raise your Contraption Lift"),
     LOWER_LIFT("lower_lift", GLFW.GLFW_KEY_DOWN, "Lower your Contraption Lift"),
+    ROT_C_LIFT("c_lift",GLFW.GLFW_KEY_RIGHT  , "Rotate Clockwise Contraption on Lift"),
+    R0T_CC_LIFT("cc_lift", GLFW.GLFW_KEY_LEFT, "Rotate C-Clockwise Contraption Lift"),
     ;
 
     private KeyMapping keybind;

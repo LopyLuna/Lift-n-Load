@@ -9,8 +9,8 @@ import dev.lopyluna.create_lnl.register.LiftsBlocks;
 import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.api.physics.PhysicsPipeline;
 import dev.ryanhcode.sable.api.physics.constraint.ConstraintJointAxis;
+import dev.ryanhcode.sable.api.physics.constraint.FixedConstraintConfiguration;
 import dev.ryanhcode.sable.api.physics.constraint.PhysicsConstraintHandle;
-import dev.ryanhcode.sable.api.physics.constraint.free.FreeConstraintConfiguration;
 import dev.ryanhcode.sable.api.sublevel.ServerSubLevelContainer;
 import dev.ryanhcode.sable.api.sublevel.SubLevelContainer;
 import dev.ryanhcode.sable.companion.math.BoundingBox3ic;
@@ -48,9 +48,12 @@ import java.util.UUID;
 public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //implements IDisplayAssemblyExceptions, SimMagnet, BlockEntitySubLevelActor
     public List<Integer> deltaList = new ArrayList<>();
 
-    public int delta = 0;
+    public float deltaRot = 0;
+    public int deltaMov = 0;
+    public float angle = 0;
     public int target = 0;
     public float oldHeight;
+    public LerpedFloat lerpAngle = LerpedFloat.linear().chase(0, 0.2, LerpedFloat.Chaser.EXP);
     public LerpedFloat height = LerpedFloat.linear().chase(0, 0.15678, LerpedFloat.Chaser.EXP);
     public LerpedFloat cHeight = LerpedFloat.linear().chase(0, 0.15678, LerpedFloat.Chaser.EXP);
 
@@ -106,6 +109,7 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
     public void tick() {
         super.tick();
         if (level == null) return;
+        bind();
         if (session != null) {
             session.tick();
             if (session.markedForRemoval) clearSubLevelBinding();
@@ -152,17 +156,30 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
         check(pos, player);
         if (!(level instanceof ServerLevel)) return;
         move(player);
+        if (subUUID != null) {
+            rotate(player);
+            angle += deltaRot;
+            lerpAngle.updateChaseTarget(angle);
+            lerpAngle.tickChaser();
+
+            var val = lerpAngle.getChaseTarget();
+            if (val > 360) val = -360;
+            else if (val < 0) val = 360;
+            else val = 0;
+            if (val != 0) lerpAngle.updateChaseTarget(lerpAngle.getChaseTarget() + val);
+        }
         oldHeight = height.getValue();
         oldPivot = new Vec3(center.x, pos.getY()+(12f/16f) + oldHeight + (1/16f), center.z);
         var abovePos = new BlockPos(worldPosition.getX(), Mth.floor(pivot.y + 1/16f), worldPosition.getZ());
         var aboveState = level.getBlockState(abovePos);
-        if (!aboveState.isAir() && !aboveState.canBeReplaced() && !(aboveState.getBlock() instanceof LiftBlock) && delta >= 0) {
+        if (!aboveState.isAir() && !aboveState.canBeReplaced() && !(aboveState.getBlock() instanceof LiftBlock) && deltaMov >= 0) {
             target = Mth.floor(oldHeight*16f);
             height.updateChaseTarget(oldHeight);
+            if (subUUID != null) notifyUpdate();
             return;
         }
 
-        target += delta;
+        target += deltaMov;
         if (!deltaList.isEmpty()) {
             for (var d : deltaList) target += d;
             deltaList.clear();
@@ -180,12 +197,12 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
         var ticks = level.getGameTime();
         if (ticks % 2 != 0) return;
 
-        if ((sound && delta != 0) || (delta != 0 && (ticks % 3 == 0 || (ticks % 5 == 0 && level.random.nextBoolean())))) {
+        if ((sound && deltaMov != 0) || (deltaMov != 0 && (ticks % 3 == 0 || (ticks % 5 == 0 && level.random.nextBoolean())))) {
             sound = false;
             level.playSound(null, worldPosition, SimSoundEvents.DOCKING_CONNECTOR_EXTENDS.event(), SoundSource.BLOCKS, 0.15f + (level.random.nextFloat() * 0.25f), 0.55F + (level.random.nextFloat() * 0.15f) + ((height / 8f) * 0.5f));
             level.playSound(null, pivot.x, pivot.y, pivot.z, SimSoundEvents.DOCKING_CONNECTOR_EXTENDS.event(), SoundSource.BLOCKS, 0.05f + (level.random.nextFloat() * 0.05f), 0.5F + (level.random.nextFloat() * 0.1f) + ((height / 8f)));
         }
-        if (delta == 0) sound = true;
+        if (deltaMov == 0) sound = true;
     }
 
     private void carryEntities(float previousHeight, float currentHeight, boolean clientPrediction) {
@@ -264,6 +281,9 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
         tag.putFloat("OldHeight", oldHeight);
         tag.putFloat("Height", height.getValue());
         tag.putFloat("Chase", height.getChaseTarget());
+        tag.putFloat("AngleHeight", lerpAngle.getValue());
+        tag.putFloat("AngleChase", lerpAngle.getChaseTarget());
+        tag.putFloat("Angle", angle);
         tag.putInt("Target", target);
         tag.putBoolean("Placed", placed);
         if (subUUID != null) tag.putUUID("SubLevelID", subUUID);
@@ -278,7 +298,10 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
         oldHeight = tag.getFloat("OldHeight");
         height.setValue(tag.getFloat("Height"));
         height.updateChaseTarget(tag.getFloat("Chase"));
+        lerpAngle.setValue(tag.getFloat("AngleHeight"));
+        lerpAngle.updateChaseTarget(tag.getFloat("AngleChase"));
         if (clientPacket) cHeight.updateChaseTarget(height.getValue());
+        angle = tag.getFloat("Angle");
         target = tag.getInt("Target");
         placed = tag.getBoolean("Placed");
         if (tag.contains("SubLevelID")) subUUID = tag.getUUID("SubLevelID");
@@ -310,7 +333,7 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
         if (!(container.getSubLevel(subUUID) instanceof final ServerSubLevel serverSubLevel)) return;
         session = new BindingSession(this, serverSubLevel);
         session.pivotRelativeGoal.zero();
-        session.recenterAroundPivot(container.physicsSystem().getPipeline(), true);
+        session.recenterAroundPivot(container.physicsSystem().getPipeline(), 0, true);
         CommonEvents.addPhysicHolder(this);
     }
 
@@ -391,15 +414,22 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
     }
 
     public void move(@Nullable Player player) {
-        var move = getMoveDelta(player);
-        if (target >= 16*8 && move > 0) move = 0;
-        if (0 >= target && 0 > move) move = 0;
-        delta = move;
+        var mov = getMovDelta(player);
+        if (target >= 16*8 && mov > 0) mov = 0;
+        if (0 >= target && 0 > mov) mov = 0;
+        deltaMov = mov;
+    }
+    public void rotate(@Nullable Player player) {
+        deltaRot = getRotDelta(player) * 5.625f;
     }
 
-    public int getMoveDelta(@Nullable Player player) {
-        if (player != null) return (int) LiftBE.getMoveDelta(LiftBE.getOrCreateLiftNbt(player)) * 2;
+    public int getMovDelta(@Nullable Player player) {
+        if (player != null) return (int) LiftBE.getMovDelta(LiftBE.getOrCreateLiftNbt(player)) * 2;
         return target > 0 ? -2 : 0;
+    }
+    public int getRotDelta(@Nullable Player player) {
+        if (player != null) return (int) LiftBE.getRotDelta(LiftBE.getOrCreateLiftNbt(player)) * 2;
+        return 0;
     }
     public Player getUser() {
         if (user != null) return user;
@@ -429,11 +459,17 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
         unbind();
     }
 
-    public static double getMoveDelta(CompoundTag nbt) {
-        return nbt.contains("MoveDelta") ? nbt.getDouble("MoveDelta") : 0;
+    public static double getMovDelta(CompoundTag nbt) {
+        return nbt.contains("MovDelta") ? nbt.getDouble("MovDelta") : 0;
     }
-    public static void setMoveDelta(CompoundTag nbt, double moveDelta) {
-        nbt.putDouble("MoveDelta", moveDelta);
+    public static double getRotDelta(CompoundTag nbt) {
+        return nbt.contains("RotDelta") ? nbt.getDouble("RotDelta") : 0;
+    }
+    public static void setRotDelta(CompoundTag nbt, double movDelta) {
+        nbt.putDouble("RotDelta", movDelta);
+    }
+    public static void setMovDelta(CompoundTag nbt, double rotDelta) {
+        nbt.putDouble("MovDelta", rotDelta);
     }
     public static void saveLiftNbt(Player player, CompoundTag nbt) {
         player.getPersistentData().put("Lift", nbt);
@@ -469,14 +505,16 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
             final PhysicsPipeline pipeline = physicsSystem.getPipeline();
             if (pipeline == null) return;
 
-            final boolean anchorChanged = this.recenterAroundPivot(pipeline, false);
+            final double partialTick = physicsSystem.getPartialPhysicsTick();
+            double angleRad = Math.toRadians(Mth.wrapDegrees(be.lerpAngle.getValue((float) partialTick)) + 180);
+            final boolean anchorChanged = this.recenterAroundPivot(pipeline, angleRad, false);
             if (anchorChanged && this.constraint != null) {
                 this.constraint.remove();
                 this.constraint = null;
             }
             if (this.constraint == null) this.attachConstraint(physicsSystem);
 
-            if (this.be.delta != 0) pipeline.wakeUp(this.subLevel);
+            if (this.be.deltaMov != 0 || this.be.deltaRot != 0) pipeline.wakeUp(this.subLevel);
 
             final SimPhysics config = SimConfigService.INSTANCE.server().physics;
             if (this.constraint != null) {
@@ -485,9 +523,9 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
                 final float linearStiffness = config.physicsStaffLinearStiffness.getF();
                 final float linearDamping = config.physicsStaffLinearDamping.getF();
 
-                for (final ConstraintJointAxis angularAxis : ConstraintJointAxis.ANGULAR) this.constraint.setMotor(angularAxis, 0.0, angularStiffness, angularDamping, false, 0.0);
+                for (final ConstraintJointAxis angularAxis : ConstraintJointAxis.ANGULAR)
+                    this.constraint.setMotor(angularAxis, 0.0, angularStiffness, angularDamping, false, 0.0);
 
-                final double partialTick = physicsSystem.getPartialPhysicsTick();
                 final double pivotX = Mth.lerp(partialTick, be.oldPivot.x, be.pivot.x);
                 final double pivotY = Mth.lerp(partialTick, be.oldPivot.y, be.pivot.y);
                 final double pivotZ = Mth.lerp(partialTick, be.oldPivot.z, be.pivot.z);
@@ -495,26 +533,37 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
                 this.localGoal.set(this.pivotRelativeGoal).add(pivotX, pivotY, pivotZ);
                 this.orientation.transformInverse(this.localGoal);
 
+                this.constraint.setMotor(ConstraintJointAxis.ANGULAR_Y, angleRad, angularStiffness, angularDamping, false, 0.0);
                 this.constraint.setMotor(ConstraintJointAxis.LINEAR_X, this.localGoal.x(), linearStiffness, linearDamping, false, 0.0);
                 this.constraint.setMotor(ConstraintJointAxis.LINEAR_Y, this.localGoal.y(), linearStiffness, linearDamping, false, 0.0);
                 this.constraint.setMotor(ConstraintJointAxis.LINEAR_Z, this.localGoal.z(), linearStiffness, linearDamping, false, 0.0);
             }
         }
 
-        private boolean recenterAroundPivot(@Nullable final PhysicsPipeline pipeline, final boolean resetOrientation) {
+        private boolean recenterAroundPivot(@Nullable final PhysicsPipeline pipeline, final double angle, final boolean resetOrientation) {
             final Vector3d bottomCenter = LiftBE.getSupportedBottomCenter(this.subLevel);
             final var pose = this.subLevel.logicalPose();
-            if (!resetOrientation && this.plotAnchor.distanceSquared(bottomCenter) <= 1.0E-6) return false;
+
+            Vector3d desiredPos = JOMLConversion.toJOML(this.be.pivot).sub(new Quaterniond().rotateY(angle).transform(new Vector3d(bottomCenter).sub(pose.rotationPoint())));
+
+            if (!resetOrientation
+                    && this.plotAnchor.distanceSquared(bottomCenter) <= 1.0E-6
+                    && new Quaterniond().rotateY(angle).equals(pose.orientation(), 1e-6)
+                    && desiredPos.distanceSquared(pose.position()) <= 1.0E-6
+            ) return false;
 
             if (resetOrientation) {
                 pose.orientation().identity();
                 this.orientation.identity();
             }
             this.plotAnchor.set(bottomCenter);
+
+            pose.orientation().identity().rotateY(angle);
             pose.position().set(JOMLConversion.toJOML(this.be.pivot)
                     .sub(pose.orientation().transform(new Vector3d(this.plotAnchor).sub(pose.rotationPoint()))));
 
             if (pipeline != null) {
+                pipeline.wakeUp(this.subLevel);
                 pipeline.resetVelocity(this.subLevel);
                 pipeline.teleport(this.subLevel, pose.position(), pose.orientation());
             }
@@ -526,8 +575,10 @@ public class LiftBE extends SmartBlockEntity implements PhysicHoldingBEs { //imp
             if (physicsSystem.getLevel() != this.subLevel.getLevel()) return;
             final PhysicsPipeline pipeline = physicsSystem.getPipeline();
             if (pipeline == null) return;
+
+            final var pose = this.subLevel.logicalPose();
             this.constraint = pipeline.addConstraint(null, this.subLevel,
-                    new FreeConstraintConfiguration(JOMLConversion.ZERO, this.plotAnchor, this.orientation));
+                    new FixedConstraintConfiguration(pose.position(), pose.rotationPoint(), pose.orientation()));
         }
 
         public void remove() {

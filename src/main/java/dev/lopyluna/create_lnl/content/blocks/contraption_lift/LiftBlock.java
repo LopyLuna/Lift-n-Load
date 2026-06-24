@@ -81,7 +81,7 @@ public class LiftBlock extends Block implements IBE<LiftBE>, IWrenchable, BlockS
                 topA = Shapes.box(2 / 16f, topYB, -4 / 16f, 14 / 16f, topYA, 20 / 16f);
                 topB = Shapes.box(-4 / 16f, topYB, 2 / 16f, 20 / 16f, topYA, 14 / 16f);
             }
-            var middle = 3/16f < topYB ? Shapes.box(4/16f, 3/16f, 4/16f, 12/16f, topYB, 12/16f) : Shapes.empty();
+            var middle = 3/16f < topYB ? Shapes.box(4/16f, 0f, 4/16f, 12/16f, topYB, 12/16f) : Shapes.empty();
             if (be.structIndex > 0) return Stream.of(topA, topB, middle).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).orElse(Shapes.empty()).optimize();
             var bottom = Shapes.box(2/16f, 0, 2/16f, 14/16f, 3/16f, 14/16f);
             var bottomA = Shapes.box(2/16f, 0, -4/16f, 14/16f, 3/16f, 20/16f);

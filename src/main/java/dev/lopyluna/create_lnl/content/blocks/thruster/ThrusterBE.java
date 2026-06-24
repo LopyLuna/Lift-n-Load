@@ -179,7 +179,7 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
         final BlockPos pos = BlockPos.containing(worldPos);
         if (!level.isLoaded(pos)) return false;
         final var state = level.getBlockState(pos);
-        return level.getFluidState(pos).is(FluidTags.WATER) || !state.isEmpty() || !canPass(level, pos);
+        return level.getFluidState(pos).is(FluidTags.WATER) || !state.isEmpty() && !state.getCollisionShape(level, pos).isEmpty() || !canPass(level, pos);
     }
 
     public boolean canPass(Level level, BlockPos pos) {

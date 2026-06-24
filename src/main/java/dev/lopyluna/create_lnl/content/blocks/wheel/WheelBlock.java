@@ -142,7 +142,7 @@ public class WheelBlock extends RotatedPillarKineticBlock implements IBE<WheelBE
 
     @Override
     public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
-        if (pLevel.getBlockEntity(pPos) instanceof WheelBE be && !be.dropped) Containers.dropItemStack(pLevel, pPos.getX(), pPos.getY(), pPos.getZ(), switch (be.type) {
+        if (pLevel.getBlockEntity(pPos) instanceof WheelBE be && !be.dropped && !pIsMoving) Containers.dropItemStack(pLevel, pPos.getX(), pPos.getY(), pPos.getZ(), switch (be.type) {
             case MONSTROUS -> be.sticky ? LiftsItems.SLIME_MONSTROUS_TIRE.asStack() : BuiltInRegistries.ITEM.get(Offroad.path("monstrous_tire")).getDefaultInstance();
             case LARGE -> be.sticky ? LiftsItems.SLIME_LARGE_TIRE.asStack() : BuiltInRegistries.ITEM.get(Offroad.path("large_tire")).getDefaultInstance();
             case NORMAL -> be.sticky ? LiftsItems.SLIME_TIRE.asStack() : BuiltInRegistries.ITEM.get(Offroad.path("tire")).getDefaultInstance();
