@@ -3,6 +3,8 @@
   "block.create_lnl.thruster": "Thruster",
   "block.create_lnl.thruster_structure": "Thruster",
   "block.create_lnl.wheel": "Wheel",
+  "create_lnl.keyinfo.c_lift": "Rotate Clockwise Contraption on Lift",
+  "create_lnl.keyinfo.cc_lift": "Rotate C-Clockwise Contraption Lift",
   "create_lnl.keyinfo.lower_lift": "Lower your Contraption Lift",
   "create_lnl.keyinfo.raise_lift": "Raise your Contraption Lift",
   "create_lnl.simulated_section.create_lnl": "Lift n' Load",
