@@ -1,10 +1,12 @@
 package dev.lopyluna.create_lnl.content.blocks.spring_shaft;
 
 import com.simibubi.create.AllSoundEvents;
+import com.simibubi.create.api.contraption.BlockMovementChecks;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
 import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.foundation.block.IBE;
+import com.simibubi.create.impl.contraption.BlockMovementChecksImpl;
 import dev.lopyluna.create_lnl.content.blocks.IBlockFromHandInteraction;
 import dev.lopyluna.create_lnl.register.LiftsBETypes;
 import dev.ryanhcode.sable.Sable;
@@ -39,6 +41,14 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 @SuppressWarnings("NullableProblems")
 public class SpringShaftBlock extends DirectionalKineticBlock implements IBE<SpringShaftBE>, BlockSubLevelAssemblyListener, IWrenchable, IBlockFromHandInteraction {
     public static final EnumProperty<SpringBlock.Size> SIZE = SpringBlock.SIZE;
+
+    static {
+        BlockMovementChecksImpl.registerAttachedCheck((state, level, pos, direction) -> {
+            var block = state.getBlock();
+            if (block instanceof SpringShaftBlock) return direction.getOpposite() == state.getValue(FACING) ? BlockMovementChecks.CheckResult.SUCCESS : BlockMovementChecks.CheckResult.FAIL;
+            return BlockMovementChecks.CheckResult.PASS;
+        });
+    }
 
     public SpringShaftBlock(Properties properties) {
         super(properties);
