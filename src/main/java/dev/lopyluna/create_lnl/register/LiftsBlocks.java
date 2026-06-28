@@ -2,6 +2,7 @@ package dev.lopyluna.create_lnl.register;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
+import com.simibubi.create.AllTags;
 import com.simibubi.create.foundation.data.AssetLookup;
 import com.simibubi.create.foundation.data.BlockStateGen;
 import com.simibubi.create.foundation.data.SharedProperties;
@@ -12,11 +13,14 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.lopyluna.create_lnl.Lifts;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftBlock;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftBlockItem;
+import dev.lopyluna.create_lnl.content.blocks.spring_shaft.SpringShaftBlock;
 import dev.lopyluna.create_lnl.content.blocks.thruster.ThrusterBlock;
 import dev.lopyluna.create_lnl.content.blocks.thruster.ThrusterStructureBlock;
 import dev.lopyluna.create_lnl.content.blocks.wheel.WheelBlock;
 import dev.lopyluna.create_lnl.content.configs.server.kinetics.LStress;
 import dev.ryanhcode.offroad.Offroad;
+import dev.simulated_team.simulated.Simulated;
+import dev.simulated_team.simulated.content.blocks.spring.SpringBlock;
 import dev.simulated_team.simulated.index.SimItems;
 import dev.simulated_team.simulated.index.SimTags;
 import net.minecraft.client.renderer.RenderType;
@@ -120,6 +124,15 @@ public class LiftsBlocks {
                 models.withExistingParent("item/slime_tire/block", Offroad.path("item/tire/block"));
                 models.withExistingParent("item/small_slime_tire/block", Offroad.path("item/small_tire/block"));
             }).register();
+
+    public static final BlockEntry<SpringShaftBlock> SPRING_SHAFT = REG.block("spring_shaft", SpringShaftBlock::new)
+            .initialProperties(SharedProperties::softMetal)
+            .transform(pickaxeOnly())
+            .blockstate((c, p) -> p.directionalBlock(c.getEntry(), s -> p.models().getExistingFile(
+                    Simulated.path("block/spring/" + (s.getValue(SpringBlock.SIZE) == SpringBlock.Size.MEDIUM ? "" : (s.getValue(SpringBlock.SIZE).getSerializedName() + "_")) + "block"))))
+            .tag(AllTags.AllBlockTags.SAFE_NBT.tag, AllTags.AllBlockTags.BRITTLE.tag, AllTags.AllBlockTags.NON_MOVABLE.tag, SimTags.Blocks.LIGHT)
+            .loot((tables, block) -> tables.add(block, tables.createSingleItemTable(LiftsItems.SPRING_SHAFT)))
+            .register();
 
     protected static String getItemName(ItemLike pItemLike) {
         return BuiltInRegistries.ITEM.getKey(pItemLike.asItem()).getPath();

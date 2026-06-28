@@ -1,5 +1,6 @@
 {
   "block.create_lnl.contraption_lift": "Contraption Lift",
+  "block.create_lnl.spring_shaft": "Spring Shaft",
   "block.create_lnl.thruster": "Thruster",
   "block.create_lnl.thruster_structure": "Thruster",
   "block.create_lnl.wheel": "Wheel",
@@ -12,5 +13,6 @@
   "item.create_lnl.monstrous_slime_tire": "Monstrous Slime Tire",
   "item.create_lnl.physic_welder": "Physic Welder",
   "item.create_lnl.slime_tire": "Slime Tire",
-  "item.create_lnl.small_slime_tire": "Small Slime Tire"
+  "item.create_lnl.small_slime_tire": "Small Slime Tire",
+  "item.create_lnl.spring_shaft": "Spring Shaft"
 }

@@ -2,10 +2,12 @@ package dev.lopyluna.create_lnl.events;
 
 import dev.lopyluna.create_lnl.Lifts;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftActions;
+import dev.lopyluna.create_lnl.content.blocks.spring_shaft.SpringShaftItem;
 import dev.lopyluna.create_lnl.content.utils.LiftSoundDistUtil;
 import dev.lopyluna.create_lnl.register.client.LiftKeys;
 import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -30,6 +32,13 @@ public class ClientEvents {
         if (!isGameActive()) return;
         var mc = Minecraft.getInstance();
         if (mc.level == null || isPreEvent) return; //mc.level.getGameTime() % 2 != 0
+        if (mc.player != null) {
+            var main = mc.player.getMainHandItem();
+            var off = mc.player.getOffhandItem();
+            var hit = mc.hitResult;
+            if (main.getItem() instanceof SpringShaftItem item) item.tick(mc.level, main, hit instanceof BlockHitResult result ? result : null);
+            else if (off.getItem() instanceof SpringShaftItem item) item.tick(mc.level, off, hit instanceof BlockHitResult result ? result : null);
+        }
         LiftSoundDistUtil.tickGlobalThrusterSound();
 
         int movDelta;

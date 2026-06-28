@@ -1,6 +1,7 @@
 package dev.lopyluna.create_lnl.events;
 
 import dev.lopyluna.create_lnl.Lifts;
+import dev.lopyluna.create_lnl.content.blocks.IBlockFromHandInteraction;
 import dev.lopyluna.create_lnl.content.blocks.PhysicHoldingBEs;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftBlock;
 import dev.lopyluna.create_lnl.content.blocks.wheel.WheelBE;
@@ -13,6 +14,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
 import java.util.ArrayList;
@@ -38,6 +40,21 @@ public class CommonEvents {
             var pos = NBTHelper.readBlockPos(data, "LiftPos");
             if (event.getEntity().level().getBlockState(pos).getBlock() instanceof LiftBlock) event.getEntity().level().removeBlock(pos, false);
             event.getEntity().getPersistentData().remove("LiftPos");
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRightClickBlock(final PlayerInteractEvent.RightClickBlock event) {
+        var level = event.getLevel();
+        var pos = event.getPos();
+        var state = level.getBlockState(pos);
+
+        if (state.getBlock() instanceof IBlockFromHandInteraction interactable) {
+            var result = interactable.rightClickBlock(event.getItemStack(), state, event.getLevel(), pos, event.getEntity(), event.getHand(), event.getHitVec());
+            if (result != null) {
+                event.setCancellationResult(result);
+                event.setCanceled(true);
+            }
         }
     }
 

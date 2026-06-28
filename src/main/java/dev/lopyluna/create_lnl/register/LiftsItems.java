@@ -1,15 +1,19 @@
 package dev.lopyluna.create_lnl.register;
 
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.foundation.data.AssetLookup;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.lopyluna.create_lnl.content.blocks.overwrite.TireBlockItem;
+import dev.lopyluna.create_lnl.content.blocks.spring_shaft.SpringShaftItem;
 import dev.lopyluna.create_lnl.content.blocks.wheel.WheelBE;
 import dev.lopyluna.create_lnl.content.items.physic_welder.PhysicWelderItem;
 import dev.ryanhcode.offroad.Offroad;
 import dev.ryanhcode.offroad.content.components.TireLike;
 import dev.ryanhcode.offroad.index.OffroadDataComponents;
+import dev.simulated_team.simulated.index.SimItems;
+import dev.simulated_team.simulated.index.SimTags;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -23,6 +27,12 @@ import static dev.lopyluna.create_lnl.Lifts.REG;
 
 @SuppressWarnings("unused")
 public class LiftsItems {
+    public static final ItemEntry<SpringShaftItem> SPRING_SHAFT = REG.item("spring_shaft", SpringShaftItem::new)
+            .recipe((ctx, prov) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 2)
+                    .pattern("S").pattern("N").pattern("S").define('S', SimItems.SPRING).define('N', AllBlocks.SHAFT)
+                    .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(SimItems.SPRING)).save(prov))
+            .tag(SimTags.Items.SPRING_ADJUSTER)
+            .register();
 
     public static final ItemEntry<PhysicWelderItem> PHYSIC_WELDER = REG.item("physic_welder", PhysicWelderItem::new)
             .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get(), 1)
