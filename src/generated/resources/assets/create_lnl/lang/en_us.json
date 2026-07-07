@@ -1,5 +1,6 @@
 {
   "block.create_lnl.contraption_lift": "Contraption Lift",
+  "block.create_lnl.node_link": "Node Link",
   "block.create_lnl.spring_shaft": "Spring Shaft",
   "block.create_lnl.thruster": "Thruster",
   "block.create_lnl.thruster_structure": "Thruster",
@@ -10,8 +11,11 @@
   "create_lnl.keyinfo.raise_lift": "Raise your Contraption Lift",
   "create_lnl.simulated_section.create_lnl": "Lift n' Load",
   "item.create_lnl.large_slime_tire": "Large Slime Tire",
+  "item.create_lnl.lunar_diamond": "Lunar Diamond",
   "item.create_lnl.monstrous_slime_tire": "Monstrous Slime Tire",
+  "item.create_lnl.node_plug": "Node Plug",
   "item.create_lnl.physic_welder": "Physic Welder",
+  "item.create_lnl.polished_lunar_diamond": "Polished Lunar Diamond",
   "item.create_lnl.slime_tire": "Slime Tire",
   "item.create_lnl.small_slime_tire": "Small Slime Tire",
   "item.create_lnl.spring_shaft": "Spring Shaft"

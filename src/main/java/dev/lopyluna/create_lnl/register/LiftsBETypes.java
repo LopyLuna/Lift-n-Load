@@ -7,6 +7,8 @@ import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import dev.engine_room.flywheel.lib.model.Models;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftBE;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftRenderer;
+import dev.lopyluna.create_lnl.content.blocks.node_link.NodeLinkBE;
+import dev.lopyluna.create_lnl.content.blocks.node_link.NodeLinkRenderer;
 import dev.lopyluna.create_lnl.content.blocks.spring_shaft.SpringShaftBE;
 import dev.lopyluna.create_lnl.content.blocks.spring_shaft.SpringShaftRenderer;
 import dev.lopyluna.create_lnl.content.blocks.thruster.ThrusterBE;
@@ -19,6 +21,12 @@ import net.minecraft.core.Direction;
 import static dev.lopyluna.create_lnl.Lifts.REG;
 
 public class LiftsBETypes {
+
+    public static final BlockEntityEntry<NodeLinkBE> NODE_LINK = REG
+            .blockEntity("node_link", NodeLinkBE::new)
+            .validBlocks(LiftsBlocks.NODE_LINK)
+            .renderer(() -> NodeLinkRenderer::new)
+            .register();
 
     public static final BlockEntityEntry<SpringShaftBE> SPRING_SHAFT = REG
             .blockEntity("spring_shaft", SpringShaftBE::new)

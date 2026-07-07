@@ -1,5 +1,6 @@
 {
   "values": [
-    "create_lnl:wheel"
+    "create_lnl:wheel",
+    "create_lnl:node_link"
   ]
 }

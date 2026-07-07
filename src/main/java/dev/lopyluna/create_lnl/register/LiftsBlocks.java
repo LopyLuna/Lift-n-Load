@@ -13,6 +13,7 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.lopyluna.create_lnl.Lifts;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftBlock;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftBlockItem;
+import dev.lopyluna.create_lnl.content.blocks.node_link.NodeLinkBlock;
 import dev.lopyluna.create_lnl.content.blocks.spring_shaft.SpringShaftBlock;
 import dev.lopyluna.create_lnl.content.blocks.thruster.ThrusterBlock;
 import dev.lopyluna.create_lnl.content.blocks.thruster.ThrusterStructureBlock;
@@ -25,9 +26,11 @@ import dev.simulated_team.simulated.index.SimItems;
 import dev.simulated_team.simulated.index.SimTags;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ItemLike;
@@ -36,10 +39,13 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.common.Tags;
 
 import java.util.function.Function;
 
+import static com.simibubi.create.foundation.data.ModelGen.customItemModel;
 import static com.simibubi.create.foundation.data.TagGen.axeOrPickaxe;
 import static com.simibubi.create.foundation.data.TagGen.pickaxeOnly;
 import static dev.lopyluna.create_lnl.Lifts.REG;
@@ -134,12 +140,39 @@ public class LiftsBlocks {
             .loot((tables, block) -> tables.add(block, tables.createSingleItemTable(LiftsItems.SPRING_SHAFT)))
             .register();
 
+    public static final BlockEntry<NodeLinkBlock> NODE_LINK = REG.block("node_link", NodeLinkBlock::new)
+            .initialProperties(SharedProperties::wooden)
+            .properties(p -> p.mapColor(MapColor.TERRACOTTA_BROWN).forceSolidOn())
+            .transform(axeOrPickaxe())
+            .tag(AllTags.AllBlockTags.BRITTLE.tag, AllTags.AllBlockTags.SAFE_NBT.tag)
+            .blockstate((c, p) -> p.getVariantBuilder(c.get()).forAllStates(state -> {
+                var receiver = state.getValue(NodeLinkBlock.RECEIVER);
+                var facing = state.getValue(NodeLinkBlock.FACING);
+                return ConfiguredModel.builder()
+                        .modelFile(p.models().getExistingFile(p.modLoc("block/node_link/" + ((receiver ? "receiver" : "transmitter") + (facing.getAxis().isHorizontal() ? "_vertical" : "")))))
+                        .rotationX((facing == Direction.UP ? 0 : facing == Direction.DOWN ? 180 : 270 + 360) % 360)
+                        .rotationY((facing.getAxis().isVertical() ? 180 : horizontalAngle(facing) + 360) % 360)
+                        .build();
+            })).addLayer(() -> RenderType::cutoutMipped)
+            .recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, c.get(), 2)
+                    .requires(LiftsItems.NODE_PLUG).requires(AllBlocks.BRASS_CASING).requires(Tags.Items.DUSTS_REDSTONE)
+                    .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(LiftsItems.NODE_PLUG))
+                    .save(p))
+            .item()
+            .transform(customItemModel("_", "transmitter"))
+            .register();
+
+
     protected static String getItemName(ItemLike pItemLike) {
         return BuiltInRegistries.ITEM.getKey(pItemLike.asItem()).getPath();
     }
 
     public static <T extends Block> Function<BlockState, ModelFile> getBlockModel(boolean customItem, DataGenContext<Block, T> c, RegistrateBlockstateProvider p) {
         return $ -> customItem ? AssetLookup.partialBaseModel(c, p) : AssetLookup.standardModel(c, p);
+    }
+    public static int horizontalAngle(Direction direction) {
+        if (direction.getAxis().isVertical()) return 0;
+        return (int) direction.toYRot();
     }
 
     private static boolean never(BlockState state, BlockGetter blockGetter, BlockPos pos) {

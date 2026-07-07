@@ -1,5 +1,6 @@
 {
   "block.create_lnl.contraption_lift": "ʇɟıꞀ uoıʇdɐɹʇuoƆ",
+  "block.create_lnl.node_link": "ʞuıꞀ ǝpoN",
   "block.create_lnl.spring_shaft": "ʇɟɐɥS buıɹdS",
   "block.create_lnl.thruster": "ɹǝʇsnɹɥ⟘",
   "block.create_lnl.thruster_structure": "ɹǝʇsnɹɥ⟘",
@@ -10,8 +11,11 @@
   "create_lnl.keyinfo.raise_lift": "ʇɟıꞀ uoıʇdɐɹʇuoƆ ɹnoʎ ǝsıɐᴚ",
   "create_lnl.simulated_section.create_lnl": "pɐoꞀ ,u ʇɟıꞀ",
   "item.create_lnl.large_slime_tire": "ǝɹı⟘ ǝɯıןS ǝbɹɐꞀ",
+  "item.create_lnl.lunar_diamond": "puoɯɐıᗡ ɹɐunꞀ",
   "item.create_lnl.monstrous_slime_tire": "ǝɹı⟘ ǝɯıןS snoɹʇsuoW",
+  "item.create_lnl.node_plug": "bnןԀ ǝpoN",
   "item.create_lnl.physic_welder": "ɹǝpןǝM ɔısʎɥԀ",
+  "item.create_lnl.polished_lunar_diamond": "puoɯɐıᗡ ɹɐunꞀ pǝɥsıןoԀ",
   "item.create_lnl.slime_tire": "ǝɹı⟘ ǝɯıןS",
   "item.create_lnl.small_slime_tire": "ǝɹı⟘ ǝɯıןS ןןɐɯS",
   "item.create_lnl.spring_shaft": "ʇɟɐɥS buıɹdS"

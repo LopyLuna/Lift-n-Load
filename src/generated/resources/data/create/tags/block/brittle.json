@@ -1,5 +1,6 @@
 {
   "values": [
-    "create_lnl:spring_shaft"
+    "create_lnl:spring_shaft",
+    "create_lnl:node_link"
   ]
 }

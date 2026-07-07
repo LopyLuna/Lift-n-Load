@@ -1,7 +1,8 @@
 package dev.lopyluna.create_lnl.register;
 
 import dev.lopyluna.create_lnl.Lifts;
-import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftActions;
+import dev.lopyluna.create_lnl.content.blocks.connectors.packets.ConnectionProcessorCTS;
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.packets.LiftActions;
 import net.createmod.catnip.net.base.BasePacketPayload;
 import net.createmod.catnip.net.base.CatnipPacketRegistry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -11,7 +12,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.Locale;
 
 public enum LiftsPackets implements BasePacketPayload.PacketTypeProvider {
-    LIFT_ACTIONS(LiftActions.class, LiftActions.STREAM_CODEC)
+    LIFT_ACTIONS(LiftActions.class, LiftActions.STREAM_CODEC),
+    CONNECTION_PROCESSOR(ConnectionProcessorCTS.class, ConnectionProcessorCTS.STREAM_CODEC)
     ;
 
     private final CatnipPacketRegistry.PacketType<?> type;

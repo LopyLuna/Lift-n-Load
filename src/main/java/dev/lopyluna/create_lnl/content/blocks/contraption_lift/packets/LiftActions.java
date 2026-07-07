@@ -1,5 +1,6 @@
-package dev.lopyluna.create_lnl.content.blocks.contraption_lift;
+package dev.lopyluna.create_lnl.content.blocks.contraption_lift.packets;
 
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftBE;
 import dev.lopyluna.create_lnl.register.LiftsPackets;
 import io.netty.buffer.ByteBuf;
 import net.createmod.catnip.net.base.ServerboundPacketPayload;

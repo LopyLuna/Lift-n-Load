@@ -16,6 +16,9 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class LiftsPartialModels {
     public static final PartialModel
+            NODE_OVERLAY = block("node_link/overlay"),
+            NODE_OVERLAY_VERTICAL = block("node_link/overlay_vertical"),
+
             LIFT_ANIM_BASE = block("contraption_lift/animation/base"),
 
             SLIME_MONSTROUS_TIRE = item("monstrous_slime_tire/monstrous_slime_tire"),

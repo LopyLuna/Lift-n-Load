@@ -4,7 +4,10 @@
   "package": "dev.lopyluna.create_lnl.mixins",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "BlockEntityMixin",
+    "ClipContextBlockMixin",
     "EntityMixin",
+    "LevelChunkMixin",
     "OffroadItemsMixin",
     "WaterWheelPaddlesBEMixin",
     "WheelMountBlockEntityMixin"

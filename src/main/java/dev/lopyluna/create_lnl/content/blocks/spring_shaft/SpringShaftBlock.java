@@ -9,6 +9,7 @@ import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.impl.contraption.BlockMovementChecksImpl;
 import dev.lopyluna.create_lnl.content.blocks.IBlockFromHandInteraction;
 import dev.lopyluna.create_lnl.register.LiftsBETypes;
+import dev.lopyluna.create_lnl.register.LiftsItems;
 import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.api.block.BlockSubLevelAssemblyListener;
 import dev.simulated_team.simulated.content.blocks.spring.SpringBlock;
@@ -35,6 +36,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -43,11 +45,9 @@ public class SpringShaftBlock extends DirectionalKineticBlock implements IBE<Spr
     public static final EnumProperty<SpringBlock.Size> SIZE = SpringBlock.SIZE;
 
     static {
-        BlockMovementChecksImpl.registerAttachedCheck((state, level, pos, direction) -> {
-            var block = state.getBlock();
-            if (block instanceof SpringShaftBlock) return direction.getOpposite() == state.getValue(FACING) ? BlockMovementChecks.CheckResult.SUCCESS : BlockMovementChecks.CheckResult.FAIL;
-            return BlockMovementChecks.CheckResult.PASS;
-        });
+        BlockMovementChecksImpl.registerAttachedCheck((state, level, pos, direction) -> state.getBlock() instanceof SpringShaftBlock ?
+                direction.getOpposite() == state.getValue(FACING) ? BlockMovementChecks.CheckResult.SUCCESS : BlockMovementChecks.CheckResult.FAIL :
+                BlockMovementChecks.CheckResult.PASS);
     }
 
     public SpringShaftBlock(Properties properties) {
@@ -73,11 +73,12 @@ public class SpringShaftBlock extends DirectionalKineticBlock implements IBE<Spr
         var newState = state.setValue(SIZE, newSize);
         var newPartnerState = partnerState.setValue(SIZE, newSize);
 
+        level.setBlockAndUpdate(pos, newState);
+        level.setBlockAndUpdate(partnerPos, newPartnerState);
+
         be.update(newState);
         partner.update(newPartnerState);
 
-        level.setBlockAndUpdate(pos, newState);
-        level.setBlockAndUpdate(partnerPos, newPartnerState);
         AllSoundEvents.WRENCH_ROTATE.playOnServer(level, pos, 1, level.random.nextFloat() + .5f);
         return InteractionResult.SUCCESS;
     }
@@ -120,6 +121,11 @@ public class SpringShaftBlock extends DirectionalKineticBlock implements IBE<Spr
             case MEDIUM -> SimBlockShapes.SPRING.get(state.getValue(FACING));
             case LARGE -> SimBlockShapes.LARGE_SPRING.get(state.getValue(FACING));
         };
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+        return LiftsItems.SPRING_SHAFT.asStack();
     }
 
     @Override

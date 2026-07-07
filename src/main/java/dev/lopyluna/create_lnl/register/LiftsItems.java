@@ -3,6 +3,7 @@ package dev.lopyluna.create_lnl.register;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.foundation.data.AssetLookup;
+import com.simibubi.create.foundation.data.recipe.CommonMetal;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
 import dev.lopyluna.create_lnl.content.blocks.overwrite.TireBlockItem;
@@ -20,6 +21,7 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Unit;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.Tags;
 
@@ -27,6 +29,14 @@ import static dev.lopyluna.create_lnl.Lifts.REG;
 
 @SuppressWarnings("unused")
 public class LiftsItems {
+    public static final ItemEntry<Item> LUNAR_DIAMOND = REG.item("lunar_diamond", Item::new).recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, c.get(), 2)
+            .requires(Tags.Items.GEMS_DIAMOND).requires(Tags.Items.GEMS_LAPIS).requires(Tags.Items.GEMS_LAPIS).requires(Tags.Items.GEMS_LAPIS).requires(Tags.Items.GEMS_LAPIS).requires(Tags.Items.GEMS_LAPIS).requires(Tags.Items.GEMS_LAPIS).requires(Tags.Items.GEMS_LAPIS).requires(Tags.Items.GEMS_LAPIS)
+            .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(Tags.Items.GEMS_DIAMOND)).save(p)).register();
+    public static final ItemEntry<Item> POLISHED_LUNAR_DIAMOND = REG.item("polished_lunar_diamond", Item::new).register();
+    public static final ItemEntry<Item> NODE_PLUG = REG.item("node_plug", Item::new).recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, c.get(), 1)
+            .requires(POLISHED_LUNAR_DIAMOND.get()).requires(CommonMetal.IRON.plates)
+            .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(POLISHED_LUNAR_DIAMOND.get())).save(p)).register();
+
     public static final ItemEntry<SpringShaftItem> SPRING_SHAFT = REG.item("spring_shaft", SpringShaftItem::new)
             .recipe((ctx, prov) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 2)
                     .pattern("S").pattern("N").pattern("S").define('S', SimItems.SPRING).define('N', AllBlocks.SHAFT)
