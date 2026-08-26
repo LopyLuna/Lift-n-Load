@@ -7,10 +7,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -18,6 +20,7 @@ import org.joml.Vector3d;
 import org.joml.Vector3i;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 @SuppressWarnings("unused")
@@ -99,7 +102,7 @@ public class LiftUtils {
         return state.hasProperty(BlockStateProperties.AXIS) ? state.getValue(BlockStateProperties.AXIS) : state.hasProperty(BlockStateProperties.FACING) ? state.getValue(BlockStateProperties.FACING).getAxis() : state.hasProperty(BlockStateProperties.HORIZONTAL_FACING) ? state.getValue(BlockStateProperties.HORIZONTAL_FACING).getAxis() : state.hasProperty(BlockStateProperties.HORIZONTAL_AXIS) ? state.getValue(BlockStateProperties.HORIZONTAL_AXIS) : Direction.Axis.Y;
     }
 
-    public record LocalShape(VoxelShape shape, int originX, int originY, int originZ) {}
+    public record LocalShape(VoxelShape shape, List<AABB> boxes, int originX, int originY, int originZ) {}
 
     public record GroupPart(SubLevel subLevel, VoxelShape shape, int originX, int originY, int originZ) {}
 
@@ -107,6 +110,13 @@ public class LiftUtils {
                                 double originX, double originY, double originZ, List<GroupPart> parts) {
         public static final SubLevelGroup EMPTY = new SubLevelGroup(null, Shapes.empty(), List.of(), 0, 0, 0, List.of());
     }
+
+    private record CachedShape(long fingerprint, LocalShape shape) {}
+
+    private record CachedGroup(long fingerprint, VoxelShape shape) {}
+
+    private static final Map<UUID, CachedShape> SHAPE_CACHE = new ConcurrentHashMap<>();
+    private static final Map<UUID, CachedGroup> GROUP_CACHE = new ConcurrentHashMap<>();
 
     public static VoxelShape getSublevelShapeBounds(Level level, SubLevel subLevel, Pose3dc pose) {
         return getSublevelLocalShape(level, subLevel, pose).shape();
@@ -116,16 +126,38 @@ public class LiftUtils {
         var bounds = subLevel.boundingBox().transformInverse(pose, new BoundingBox3d());
         int minX = Mth.floor(bounds.minX()), minY = Mth.floor(bounds.minY()), minZ = Mth.floor(bounds.minZ());
         int maxX = Mth.floor(bounds.maxX()), maxY = Mth.floor(bounds.maxY()), maxZ = Mth.floor(bounds.maxZ());
+        if (minX > maxX || minY > maxY || minZ > maxZ) return new LocalShape(Shapes.empty(), List.of(), minX, minY, minZ);
+
+        var fingerprint = 1L;
+        for (var subPos : BlockPos.betweenClosed(minX, minY, minZ, maxX, maxY, maxZ)) {
+            var state = level.getBlockState(subPos);
+            if (state.isAir()) continue;
+            fingerprint = fingerprint * 31 + subPos.asLong();
+            fingerprint = fingerprint * 31 + Block.getId(state);
+        }
+
+        var cached = SHAPE_CACHE.get(subLevel.getUniqueId());
+        if (cached != null && cached.fingerprint() == fingerprint) return cached.shape();
 
         var parts = new ArrayList<VoxelShape>();
+        var solid = new BitSetDiscreteVoxelShape(maxX - minX + 1, maxY - minY + 1, maxZ - minZ + 1);
         for (var subPos : BlockPos.betweenClosed(minX, minY, minZ, maxX, maxY, maxZ)) {
             var state = level.getBlockState(subPos);
             if (state.isAir()) continue;
             var shape = state.getShape(level, subPos);
             if (shape.isEmpty()) continue;
-            parts.add(shape.move(subPos.getX() - minX, subPos.getY() - minY, subPos.getZ() - minZ));
+            var box = shape.bounds();
+            if (box.minX == 0 && box.minY == 0 && box.minZ == 0 && box.maxX == 1 && box.maxY == 1 && box.maxZ == 1)
+                solid.fill(subPos.getX() - minX, subPos.getY() - minY, subPos.getZ() - minZ);
+            else parts.add(Shapes.create(box).move(subPos.getX() - minX, subPos.getY() - minY, subPos.getZ() - minZ));
         }
-        return new LocalShape(mergeShapes(parts), minX, minY, minZ);
+        solid.forAllBoxes((x1, y1, z1, x2, y2, z2) -> parts.add(Shapes.box(x1, y1, z1, x2, y2, z2)), true);
+
+        var merged = mergeShapes(parts);
+        var local = new LocalShape(merged, merged.toAabbs(), minX, minY, minZ);
+        if (SHAPE_CACHE.size() > 128) SHAPE_CACHE.clear();
+        SHAPE_CACHE.put(subLevel.getUniqueId(), new CachedShape(fingerprint, local));
+        return local;
     }
 
     public static List<SubLevel> getConnectedGroup(SubLevel root) {
@@ -179,7 +211,7 @@ public class LiftUtils {
             parts.add(new GroupPart(member, local.shape(), local.originX(), local.originY(), local.originZ()));
 
             var memberPose = mPose.apply(member);
-            for (var box : local.shape().toAabbs()) {
+            for (var box : local.boxes()) {
                 var moved = box.move(local.originX(), local.originY(), local.originZ());
                 var framed = member == root ? moved : toRootSpace(moved, memberPose, rootPose, corner);
                 rootLocal.add(framed);
@@ -198,11 +230,30 @@ public class LiftUtils {
         var originY = Math.floor(minY);
         var originZ = Math.floor(minZ);
 
-        var shapes = new ArrayList<VoxelShape>(rootLocal.size());
-        for (var box : rootLocal) shapes.add(Shapes.create(box.move(-originX, -originY, -originZ)));
         var rootBoxes = new ArrayList<AABB>(rootOnly.size());
         for (var box : rootOnly) rootBoxes.add(box.move(-originX, -originY, -originZ));
-        return new SubLevelGroup(root, mergeShapes(shapes), rootBoxes, originX, originY, originZ, parts);
+        return new SubLevelGroup(root, groupShape(root, rootLocal, originX, originY, originZ), rootBoxes, originX, originY, originZ, parts);
+    }
+
+    private static VoxelShape groupShape(SubLevel root, List<AABB> rootLocal, double originX, double originY, double originZ) {
+        var fingerprint = 1L;
+        for (var box : rootLocal)
+            fingerprint = mix(mix(mix(mix(mix(mix(fingerprint, box.minX), box.minY), box.minZ), box.maxX), box.maxY), box.maxZ);
+
+        var cached = GROUP_CACHE.get(root.getUniqueId());
+        if (cached != null && cached.fingerprint() == fingerprint) return cached.shape();
+
+        var shapes = new ArrayList<VoxelShape>(rootLocal.size());
+        for (var box : rootLocal) shapes.add(Shapes.create(box.move(-originX, -originY, -originZ)));
+
+        var merged = mergeShapes(shapes);
+        if (GROUP_CACHE.size() > 128) GROUP_CACHE.clear();
+        GROUP_CACHE.put(root.getUniqueId(), new CachedGroup(fingerprint, merged));
+        return merged;
+    }
+
+    private static long mix(long hash, double value) {
+        return hash * 31 + Double.doubleToLongBits(value);
     }
 
     private static SubLevel pickFrameRoot(Map<SubLevel, LocalShape> locals, Function<SubLevel, Pose3dc> mPose) {

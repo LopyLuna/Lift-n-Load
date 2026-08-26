@@ -146,7 +146,7 @@ public class DockingLiftBE extends SmartBlockEntity implements PhysicHoldingBEs 
             visualHeight.tickChaser();
             return;
         }
-        movementSound(height != goal);
+        movementSound(height != prevHeight, height > prevHeight);
 
         bind();
         if (session != null) {
@@ -184,7 +184,7 @@ public class DockingLiftBE extends SmartBlockEntity implements PhysicHoldingBEs 
         notifyUpdate();
     }
 
-    private void movementSound(boolean moving) {
+    private void movementSound(boolean moving, boolean rising) {
         if (level == null) return;
         if (!moving) {
             soundReady = true;
@@ -195,11 +195,12 @@ public class DockingLiftBE extends SmartBlockEntity implements PhysicHoldingBEs 
         if (!soundReady && ticks % 3 != 0 && !(ticks % 5 == 0 && level.random.nextBoolean())) return;
         soundReady = false;
 
+        var sound = rising ? SimSoundEvents.DOCKING_CONNECTOR_EXTENDS.event() : SimSoundEvents.DOCKING_CONNECTOR_RETRACTS.event();
         var pivot = LiftPlacement.pivot(worldPosition, height);
-        level.playSound(null, worldPosition, SimSoundEvents.DOCKING_CONNECTOR_EXTENDS.event(), SoundSource.BLOCKS,
-                0.15f + level.random.nextFloat() * 0.25f, 0.55F + level.random.nextFloat() * 0.15f + (height / 8f) * 0.5f);
-        level.playSound(null, pivot.x, pivot.y, pivot.z, SimSoundEvents.DOCKING_CONNECTOR_EXTENDS.event(), SoundSource.BLOCKS,
-                0.05f + level.random.nextFloat() * 0.05f, 0.5F + level.random.nextFloat() * 0.1f + (height / 8f));
+        level.playSound(null, worldPosition, sound, SoundSource.BLOCKS,
+                0.03f + level.random.nextFloat() * 0.02f, 0.55F + level.random.nextFloat() * 0.15f + (height / 8f) * 0.5f);
+        level.playSound(null, pivot.x, pivot.y, pivot.z, sound, SoundSource.BLOCKS,
+                0.03f + level.random.nextFloat() * 0.02f, 0.5F + level.random.nextFloat() * 0.1f + (height / 8f));
     }
 
     private void carryEntities(float previousHeight, float currentHeight, boolean client) {
