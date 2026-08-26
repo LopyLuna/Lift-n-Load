@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import org.slf4j.Logger;
@@ -37,6 +38,8 @@ public class Lifts {
     public static LiftsRegistry REGISTER = new LiftsRegistry(NAME, MOD_ID);
     public static CreateRegistrate REG = new SimulatedRegistrate(loc(MOD_ID), MOD_ID).defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
 
+    public static boolean DYE_DEPOT;
+
     static {
         REG.setTooltipModifierFactory(item -> new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE).andThen(TooltipModifier.mapNull(create(item))));
     }
@@ -48,8 +51,11 @@ public class Lifts {
         REG.registerEventListeners(modEventBus);
         //REG.defaultCreativeTab(BASE_TAB, "base_tab");
 
+        DYE_DEPOT = ModList.get().isLoaded("dye_depot");
+
         LiftsTags.addGenerators();
         LiftsDataComps.register();
+        LiftsAttachments.register();
         LiftsBlocks.register();
         LiftsBETypes.register();
         LiftsItems.register();

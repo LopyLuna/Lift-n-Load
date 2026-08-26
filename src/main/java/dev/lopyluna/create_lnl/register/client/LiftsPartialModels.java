@@ -9,9 +9,13 @@ import dev.simulated_team.simulated.Simulated;
 import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.lang.Lang;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.DyeColor;
 
 import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 @SuppressWarnings("unused")
 public class LiftsPartialModels {
@@ -36,15 +40,37 @@ public class LiftsPartialModels {
             LIFT_TOP = block("contraption_lift/top"),
             LIFT = block("contraption_lift/block")
     ;
+    public static final Map<DyeColor, PartialModel> DYED_LIFT_BOTTOM = new EnumMap<>(DyeColor.class);
+    public static final Map<DyeColor, PartialModel> DYED_LIFT_TOP = new EnumMap<>(DyeColor.class);
 
     public static final Map<Direction, PartialModel> LIFT_ANIM_FLAPS = new EnumMap<>(Direction.class);
     public static final Map<Direction, PartialModel> LIFT_ANIM_FOOTS = new EnumMap<>(Direction.class);
 
+    public static final Map<DyeColor, Map<Direction, PartialModel>> DYED_LIFT_ANIM_FLAPS = new EnumMap<>(DyeColor.class);
+    public static final Map<DyeColor, Map<Direction, PartialModel>> DYED_LIFT_ANIM_FOOTS = new EnumMap<>(DyeColor.class);
+
     static {
+        for (var c : DyeColor.values()) {
+            DYED_LIFT_BOTTOM.put(c, block("contraption_lift/" + c.getSerializedName() + "/bottom"));
+            DYED_LIFT_TOP.put(c, block("contraption_lift/" + c.getSerializedName() + "/top"));
+        }
+
         for (var d : Iterate.horizontalDirections) {
             LIFT_ANIM_FLAPS.put(d, block("contraption_lift/animation/" + Lang.asId(d.name()) + "_flap"));
             LIFT_ANIM_FOOTS.put(d, block("contraption_lift/animation/" + Lang.asId(d.name()) + "_foot"));
         }
+
+        DYED_LIFT_ANIM_FLAPS.putAll(dyeDir(DYED_LIFT_ANIM_FLAPS, EnumSet.allOf(DyeColor.class), List.of(Iterate.horizontalDirections),
+                (c, d) -> block("contraption_lift/" + c.getSerializedName() + "/animation/" + Lang.asId(d.name()) + "_flap")));
+        DYED_LIFT_ANIM_FOOTS.putAll(dyeDir(DYED_LIFT_ANIM_FOOTS, EnumSet.allOf(DyeColor.class), List.of(Iterate.horizontalDirections),
+                (c, d) -> block("contraption_lift/" + c.getSerializedName() + "/animation/" + Lang.asId(d.name()) + "_foot")));
+
+    }
+
+    private static Map<DyeColor, Map<Direction, PartialModel>> dyeDir(Map<DyeColor, Map<Direction, PartialModel>> map, Iterable<DyeColor> keys, Iterable<Direction> values, BiFunction<DyeColor, Direction, PartialModel> valueSupplier) {
+        map.clear();
+        for (var key : keys) for (var value : values) map.computeIfAbsent(key, k -> new EnumMap<>(Direction.class)).put(value, valueSupplier.apply(key, value));
+        return map;
     }
 
     private static PartialModel block(String path) { return PartialModel.of(Lifts.loc("block/" + path)); }

@@ -78,7 +78,8 @@ public class ThrusterStructureBlock extends Block implements IWrenchable, IProxy
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return LiftShapes.THRUSTER_NOZZLE.get(state.getValue(FACING));
+        var dir = state.getValue(FACING);
+        return LiftShapes.THRUSTER_NOZZLE.get(dir.getAxis().isVertical() ? dir.getOpposite() : dir);
     }
 
     @Override

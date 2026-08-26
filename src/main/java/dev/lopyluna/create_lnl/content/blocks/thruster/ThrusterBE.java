@@ -2,7 +2,6 @@ package dev.lopyluna.create_lnl.content.blocks.thruster;
 
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.api.equipment.goggles.IHaveHoveringInformation;
-import com.simibubi.create.content.kinetics.fan.AirCurrent;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import dev.eriksonn.aeronautics.content.particle.HotAirEmberParticleData;
@@ -178,12 +177,7 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
     private boolean isBlockedAt(final Level level, final Vec3 worldPos) {
         final BlockPos pos = BlockPos.containing(worldPos);
         if (!level.isLoaded(pos)) return false;
-        final var state = level.getBlockState(pos);
-        return level.getFluidState(pos).is(FluidTags.WATER) || !state.isEmpty() && !state.getCollisionShape(level, pos).isEmpty() || !canPass(level, pos);
-    }
-
-    public boolean canPass(Level level, BlockPos pos) {
-        return AirCurrent.getFlowLimit(level, pos, 1, direction == null ? Direction.UP : direction) > 0;
+        return level.getFluidState(pos).is(FluidTags.WATER);
     }
 
     public int state(Object stack) {

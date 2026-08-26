@@ -35,7 +35,8 @@ public class LiftsItems {
     public static final ItemEntry<Item> POLISHED_LUNAR_DIAMOND = REG.item("polished_lunar_diamond", Item::new).register();
     public static final ItemEntry<Item> NODE_PLUG = REG.item("node_plug", Item::new).recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, c.get(), 1)
             .requires(POLISHED_LUNAR_DIAMOND.get()).requires(CommonMetal.IRON.plates)
-            .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(POLISHED_LUNAR_DIAMOND.get())).save(p)).register();
+            .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(POLISHED_LUNAR_DIAMOND.get())).save(p))
+            .tag(LiftsTags.NODE_VIEWER).register();
 
     public static final ItemEntry<SpringShaftItem> SPRING_SHAFT = REG.item("spring_shaft", SpringShaftItem::new)
             .recipe((ctx, prov) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 2)

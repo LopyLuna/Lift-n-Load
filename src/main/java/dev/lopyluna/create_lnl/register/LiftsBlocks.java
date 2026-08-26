@@ -11,8 +11,8 @@ import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.lopyluna.create_lnl.Lifts;
-import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftBlock;
-import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftBlockItem;
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftBlock;
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftBlockItem;
 import dev.lopyluna.create_lnl.content.blocks.node_link.NodeLinkBlock;
 import dev.lopyluna.create_lnl.content.blocks.spring_shaft.SpringShaftBlock;
 import dev.lopyluna.create_lnl.content.blocks.thruster.ThrusterBlock;
@@ -24,6 +24,8 @@ import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.blocks.spring.SpringBlock;
 import dev.simulated_team.simulated.index.SimItems;
 import dev.simulated_team.simulated.index.SimTags;
+import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.lang.Lang;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -31,6 +33,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ItemLike;
@@ -53,15 +56,36 @@ import static dev.lopyluna.create_lnl.Lifts.REG;
 @SuppressWarnings({"removal", "unused"})
 public class LiftsBlocks {
 
-    public static final BlockEntry<LiftBlock> CONTRAPTION_LIFT = REG.block("contraption_lift", LiftBlock::new)
+    public static final BlockEntry<DockingLiftBlock> CONTRAPTION_LIFT = REG.block("contraption_lift", DockingLiftBlock::new)
             .properties(p -> p
                     .noOcclusion().dynamicShape()
                     .mapColor(MapColor.COLOR_GRAY).sound(LiftsSoundTypes.LIFT)
-                    .strength(-1, 960000).pushReaction(PushReaction.BLOCK)
+                    .strength(0.4f, 960000).pushReaction(PushReaction.BLOCK)
             ).addLayer(() -> RenderType::cutout)
-            .transform(pickaxeOnly())
-            .blockstate((c, p) -> p.simpleBlock(c.getEntry(),
-                    p.models().withExistingParent("block/" + c.getName(), Lifts.loc("block/"+c.getName()+"/bottom"))))
+            .blockstate((c, p) -> {
+                var name = c.getName();
+                var text = Lifts.loc("block/lift");
+                for (var clr : DyeColor.values()) {
+                    var clrName = clr.getSerializedName();
+                    var textRe = Lifts.loc("block/lifts/" + clrName);
+
+                    p.models().withExistingParent("block/"+name+"/"+clrName+"/block",
+                            Lifts.loc("block/"+name+"/block")).texture("0", textRe);
+                    p.models().withExistingParent("block/"+name+"/"+clrName+"/bottom",
+                            Lifts.loc("block/"+name+"/bottom")).texture("0", textRe);
+                    p.models().withExistingParent("block/"+name+"/"+clrName+"/top",
+                            Lifts.loc("block/"+name+"/top")).texture("0", textRe);
+
+                    for (var dir : Iterate.horizontalDirections) {
+                        p.models().withExistingParent("block/"+name+"/"+clrName+"/animation/"+Lang.asId(dir.name())+"_flap",
+                                Lifts.loc("block/"+name+"/animation/"+Lang.asId(dir.name())+"_flap")).texture("0", textRe);
+                        p.models().withExistingParent("block/"+name+"/"+clrName+"/animation/"+Lang.asId(dir.name())+"_foot",
+                                Lifts.loc("block/"+name+"/animation/"+Lang.asId(dir.name())+"_foot")).texture("0", textRe);
+                    }
+                }
+
+                p.simpleBlock(c.getEntry(), p.models().withExistingParent("block/"+name, Lifts.loc("block/"+name+"/bottom")));
+            })
             .loot((lt, block) -> lt.dropOther(block, Items.AIR))
             .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get(), 1)
                     .pattern("BBB").pattern(" S ").pattern("IEI")
@@ -72,9 +96,14 @@ public class LiftsBlocks {
                     .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(LiftsTags.itemC("ingots/brass")))
                     .save(p))
             .tag(SimTags.Blocks.NON_MOVABLE)
-            .item(LiftBlockItem::new)
+            .item(DockingLiftBlockItem::new)
+            .properties(p -> p.stacksTo(1))
             .tag(LiftsTags.ItemTags.SPRING_LIKE.tag)
-            .model((c, p) -> {})
+            .model((c, p) -> {
+                for (var clr : DyeColor.values())
+                    p.withExistingParent("item/" + c.getName() + "/" + clr.getSerializedName(), Lifts.loc("item/" + c.getName()))
+                            .texture("0", Lifts.loc("block/lifts/" + clr.getSerializedName()));
+            })
             .build()
             .register();
 
@@ -84,7 +113,7 @@ public class LiftsBlocks {
             .addLayer(() -> RenderType::cutout)
             .transform(pickaxeOnly())
             .blockstate((c, p) ->
-                    p.directionalBlock(c.getEntry(), blockState -> p.models().getExistingFile(Lifts.loc("block/"+c.getName()+"/block"))))
+                    p.directionalBlock(c.getEntry(), s -> p.models().getExistingFile(Lifts.loc("block/"+c.getName()+"/block"))))
             .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get(), 1)
                     .pattern("IAS").pattern("BR ").pattern("IAS")
                     .define('B', LiftsTags.itemC("ingots/brass"))
@@ -141,8 +170,8 @@ public class LiftsBlocks {
             .register();
 
     public static final BlockEntry<NodeLinkBlock> NODE_LINK = REG.block("node_link", NodeLinkBlock::new)
-            .initialProperties(SharedProperties::wooden)
-            .properties(p -> p.mapColor(MapColor.TERRACOTTA_BROWN).forceSolidOn())
+            .initialProperties(SharedProperties::softMetal)
+            .properties(p -> p.sound(SoundType.NETHERITE_BLOCK).mapColor(MapColor.TERRACOTTA_BROWN).forceSolidOn())
             .transform(axeOrPickaxe())
             .tag(AllTags.AllBlockTags.BRITTLE.tag, AllTags.AllBlockTags.SAFE_NBT.tag)
             .blockstate((c, p) -> p.getVariantBuilder(c.get()).forAllStates(state -> {
@@ -155,10 +184,11 @@ public class LiftsBlocks {
                         .build();
             })).addLayer(() -> RenderType::cutoutMipped)
             .recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, c.get(), 2)
-                    .requires(LiftsItems.NODE_PLUG).requires(AllBlocks.BRASS_CASING).requires(Tags.Items.DUSTS_REDSTONE)
+                    .requires(LiftsItems.NODE_PLUG).requires(AllBlocks.INDUSTRIAL_IRON_BLOCK).requires(Tags.Items.DUSTS_REDSTONE)
                     .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(LiftsItems.NODE_PLUG))
                     .save(p))
             .item()
+            .tag(LiftsTags.NODE_VIEWER)
             .transform(customItemModel("_", "transmitter"))
             .register();
 

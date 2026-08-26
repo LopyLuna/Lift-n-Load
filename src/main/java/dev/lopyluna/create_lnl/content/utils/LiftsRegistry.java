@@ -10,7 +10,9 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import static net.minecraft.core.registries.Registries.*;
 
@@ -33,6 +35,7 @@ public class LiftsRegistry {
         SOUNDS = DeferredRegister.create(SOUND_EVENT, modID);
         CREATIVE_MODE_TABS = DeferredRegister.create(CREATIVE_MODE_TAB, modID);
         DIMENSIONS = DeferredRegister.create(DIMENSION, modID);
+        ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, modID);
     }
 
     public final DeferredRegister.DataComponents DATA_COMPONENTS;
@@ -45,6 +48,7 @@ public class LiftsRegistry {
     public final DeferredRegister<SoundEvent> SOUNDS;
     public final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS;
     public final DeferredRegister<Level> DIMENSIONS;
+    public final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES;
 
     public DeferredRegister.DataComponents components() {return DATA_COMPONENTS;}
     public DeferredRegister<CreativeModeTab> creativeTab() {return CREATIVE_MODE_TABS;}
@@ -56,6 +60,7 @@ public class LiftsRegistry {
     public DeferredRegister<MenuType<?>> menus() {return MENUS;}
     public DeferredRegister<SoundEvent> sounds() {return SOUNDS;}
     public DeferredRegister<Level> dimensions() {return DIMENSIONS;}
+    public DeferredRegister<AttachmentType<?>> attachments() {return ATTACHMENT_TYPES;}
 
     public void register(IEventBus bus) {
         System.out.println("Registering " + name + " Data Components...");
@@ -78,6 +83,8 @@ public class LiftsRegistry {
         SOUNDS.register(bus);
         System.out.println("Registering " + name + " Dimensions...");
         DIMENSIONS.register(bus);
+        System.out.println("Registering " + name + " Attachments...");
+        ATTACHMENT_TYPES.register(bus);
         System.out.println("Registering " + name + " Done");
     }
 }

@@ -1,0 +1,6 @@
+{
+  "parent": "create_lnl:block/contraption_lift/animation/north_flap",
+  "textures": {
+    "0": "create_lnl:block/lifts/forest"
+  }
+}

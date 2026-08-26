@@ -23,39 +23,39 @@ public class ConnectorBE extends SmartBlockEntity implements IConnection<Connect
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {}
 
     @Override
-    public String getColor() {
+    public String lifts$getColor() {
         return connections.isEmpty() ?  IConnection.DEFAULT_COLOR : IConnection.ACTIVE_COLOR;
     }
 
     @Override
-    public boolean isStatic() {
+    public boolean lifts$isStatic() {
         return false;
     }
 
     @Override
-    public Set<BlockPos> getConnections() {
+    public Set<BlockPos> lifts$getConnections() {
         return connections;
     }
 
     @Override
-    public boolean containsConnection(BlockPos pos) {
+    public boolean lifts$containsConnection(BlockPos pos) {
         return connections.contains(pos);
     }
 
     @Override
-    public void addConnectionRaw(BlockPos pos, boolean update) {
+    public void lifts$addConnectionRaw(BlockPos pos, boolean update) {
         connections.add(pos);
         if (update) notifyUpdate();
     }
 
     @Override
-    public void removeConnectionRaw(BlockPos pos, boolean update) {
+    public void lifts$removeConnectionRaw(BlockPos pos, boolean update) {
         connections.remove(pos);
         if (update) notifyUpdate();
     }
 
     @Override
-    public void clearConnectionRaw(boolean update) {
+    public void lifts$clearConnectionRaw(boolean update) {
         connections.clear();
         if (update) notifyUpdate();
     }

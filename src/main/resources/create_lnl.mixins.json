@@ -9,6 +9,7 @@
     "EntityMixin",
     "LevelChunkMixin",
     "OffroadItemsMixin",
+    "SubLevelEntityCollisionMixin",
     "WaterWheelPaddlesBEMixin",
     "WheelMountBlockEntityMixin"
   ],

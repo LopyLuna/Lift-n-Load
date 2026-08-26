@@ -46,8 +46,16 @@ public class LiftsTags {
 
     }
 
+    public static TagKey<Item> NODE_CONNECTOR = item("node_connector");
+    public static TagKey<Item> NODE_VIEWER = item("node_viewer");
+
     public static void genItemTags(RegistrateTagsProvider<Item> provIn) {
         TagsProvider<Item> prov = new TagsProvider<>(provIn, Item::builtInRegistryHolder);
+        prov.tag(NODE_CONNECTOR)
+                .add(Items.NETHER_STAR);
+
+        prov.tag(NODE_VIEWER)
+                .addTag(NODE_CONNECTOR);
 
         prov.tag(ItemTags.SPRING_LIKE.tag)
                 .add(Items.MAGMA_CREAM)

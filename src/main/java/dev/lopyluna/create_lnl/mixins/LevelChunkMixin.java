@@ -14,6 +14,6 @@ public class LevelChunkMixin {
     @Inject(method = "setBlockEntity(Lnet/minecraft/world/level/block/entity/BlockEntity;)V",
             at = @At(value = "INVOKE_ASSIGN", target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"))
     private void addConnector(BlockEntity be, CallbackInfo ci) {
-        if (be instanceof IConnection<?> c) IConnection.connections.put(be.getBlockPos(), c.isStatic() ? Connection.of(be, c.rgb(), Connection.Type.getType(be)) : Connection.of(be, c::rgb, () -> Connection.Type.getType(be)));
+        if (be instanceof IConnection<?> c) IConnection.connections.put(be.getBlockPos(), c.lifts$isStatic() ? Connection.of(be, c.rgb(), Connection.Type.getType(be)) : Connection.of(be, c::rgb, () -> Connection.Type.getType(be)));
     }
 }

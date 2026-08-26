@@ -36,15 +36,15 @@ public record ConnectionProcessorCTS(@Nullable BlockPos from, @Nullable BlockPos
         var eOut = e.getConnectType() == ConnectionType.OUT;
 
         if (sOut) {
-            if (eOut && e.containsConnection(from)) e.removeConnection(eBE, level, from, true);
-            else if (s.containsConnection(to)) s.removeConnection(sBE, level, to, true);
+            if (eOut && e.lifts$containsConnection(from)) e.removeConnection(eBE, level, from, true);
+            else if (s.lifts$containsConnection(to)) s.removeConnection(sBE, level, to, true);
             else if (ConnectorUtils.canConnect(level, from, s, to, e) && !outOfRange) s.addConnection(sBE, level, to, true);
 
-            flag = (eOut && e.containsConnection(from)) || s.containsConnection(to) || (ConnectorUtils.canConnect(level, from, s, to, e) && !outOfRange);
+            flag = (eOut && e.lifts$containsConnection(from)) || s.lifts$containsConnection(to) || (ConnectorUtils.canConnect(level, from, s, to, e) && !outOfRange);
         } else if (eOut) {
-            if (e.containsConnection(from)) e.removeConnection(eBE, level, from, true);
+            if (e.lifts$containsConnection(from)) e.removeConnection(eBE, level, from, true);
             else if (ConnectorUtils.canConnect(level, from, s, to, e) && !outOfRange) e.addConnection(eBE, level, from, true);
-            flag = e.containsConnection(from) || (ConnectorUtils.canConnect(level, from, s, to, e) && !outOfRange);
+            flag = e.lifts$containsConnection(from) || (ConnectorUtils.canConnect(level, from, s, to, e) && !outOfRange);
         }
         if (flag) {
             s.updateConnection(sBE, from);

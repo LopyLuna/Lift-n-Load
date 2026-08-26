@@ -1,6 +1,8 @@
 package dev.lopyluna.create_lnl.content.blocks.contraption_lift.packets;
 
-import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftBE;
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftBE;
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftHandler;
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftHolding;
 import dev.lopyluna.create_lnl.register.LiftsPackets;
 import io.netty.buffer.ByteBuf;
 import net.createmod.catnip.net.base.ServerboundPacketPayload;
@@ -17,10 +19,16 @@ public record LiftActions(double movDelta, double rotDelta) implements Serverbou
 
     @Override
     public void handle(ServerPlayer player) {
-        var nbt = LiftBE.getOrCreateLiftNbt(player);
-        LiftBE.setMovDelta(nbt, movDelta);
-        LiftBE.setRotDelta(nbt, rotDelta);
-        LiftBE.saveLiftNbt(player, nbt);
+        var mov = (int) Math.signum(movDelta);
+        var rot = (int) Math.signum(rotDelta);
+        if (rot != 0) {
+            if (LiftHolding.isHolding(player)) LiftHolding.rotate(player, rot);
+            else {
+                var lift = DockingLiftBE.controlledBy(player);
+                if (lift != null && !lift.placing && !lift.cantControl(player)) lift.rotate(rot);
+            }
+        }
+        DockingLiftHandler.setInput(player, mov, rot);
     }
 
     @Override

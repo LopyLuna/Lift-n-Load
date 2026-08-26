@@ -1,0 +1,7 @@
+{
+  "values": [
+    "#create_lnl:node_connector",
+    "create_lnl:node_link",
+    "create_lnl:node_plug"
+  ]
+}

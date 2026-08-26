@@ -3,6 +3,8 @@ package dev.lopyluna.create_lnl.register;
 import dev.lopyluna.create_lnl.Lifts;
 import dev.lopyluna.create_lnl.content.blocks.connectors.packets.ConnectionProcessorCTS;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.packets.LiftActions;
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.packets.LiftPlayerDataSync;
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.packets.LiftRelease;
 import net.createmod.catnip.net.base.BasePacketPayload;
 import net.createmod.catnip.net.base.CatnipPacketRegistry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -13,6 +15,8 @@ import java.util.Locale;
 
 public enum LiftsPackets implements BasePacketPayload.PacketTypeProvider {
     LIFT_ACTIONS(LiftActions.class, LiftActions.STREAM_CODEC),
+    LIFT_PLAYER_DATA(LiftPlayerDataSync.class, LiftPlayerDataSync.STREAM_CODEC),
+    LIFT_RELEASE(LiftRelease.class, LiftRelease.STREAM_CODEC),
     CONNECTION_PROCESSOR(ConnectionProcessorCTS.class, ConnectionProcessorCTS.STREAM_CODEC)
     ;
 

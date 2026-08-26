@@ -1,12 +1,24 @@
 package dev.lopyluna.create_lnl.content.utils;
 
+import dev.ryanhcode.sable.companion.math.BoundingBox3d;
+import dev.ryanhcode.sable.companion.math.Pose3dc;
+import dev.ryanhcode.sable.sublevel.SubLevel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.joml.Vector3d;
 import org.joml.Vector3i;
 
 import java.util.*;
+import java.util.function.Function;
 
 @SuppressWarnings("unused")
 public class LiftUtils {
@@ -85,5 +97,176 @@ public class LiftUtils {
 
     public static Direction.Axis getBlockAxis(BlockState state) {
         return state.hasProperty(BlockStateProperties.AXIS) ? state.getValue(BlockStateProperties.AXIS) : state.hasProperty(BlockStateProperties.FACING) ? state.getValue(BlockStateProperties.FACING).getAxis() : state.hasProperty(BlockStateProperties.HORIZONTAL_FACING) ? state.getValue(BlockStateProperties.HORIZONTAL_FACING).getAxis() : state.hasProperty(BlockStateProperties.HORIZONTAL_AXIS) ? state.getValue(BlockStateProperties.HORIZONTAL_AXIS) : Direction.Axis.Y;
+    }
+
+    public record LocalShape(VoxelShape shape, int originX, int originY, int originZ) {}
+
+    public record GroupPart(SubLevel subLevel, VoxelShape shape, int originX, int originY, int originZ) {}
+
+    public record SubLevelGroup(SubLevel root, VoxelShape shape, List<AABB> rootBoxes,
+                                double originX, double originY, double originZ, List<GroupPart> parts) {
+        public static final SubLevelGroup EMPTY = new SubLevelGroup(null, Shapes.empty(), List.of(), 0, 0, 0, List.of());
+    }
+
+    public static VoxelShape getSublevelShapeBounds(Level level, SubLevel subLevel, Pose3dc pose) {
+        return getSublevelLocalShape(level, subLevel, pose).shape();
+    }
+
+    public static LocalShape getSublevelLocalShape(Level level, SubLevel subLevel, Pose3dc pose) {
+        var bounds = subLevel.boundingBox().transformInverse(pose, new BoundingBox3d());
+        int minX = Mth.floor(bounds.minX()), minY = Mth.floor(bounds.minY()), minZ = Mth.floor(bounds.minZ());
+        int maxX = Mth.floor(bounds.maxX()), maxY = Mth.floor(bounds.maxY()), maxZ = Mth.floor(bounds.maxZ());
+
+        var parts = new ArrayList<VoxelShape>();
+        for (var subPos : BlockPos.betweenClosed(minX, minY, minZ, maxX, maxY, maxZ)) {
+            var state = level.getBlockState(subPos);
+            if (state.isAir()) continue;
+            var shape = state.getShape(level, subPos);
+            if (shape.isEmpty()) continue;
+            parts.add(shape.move(subPos.getX() - minX, subPos.getY() - minY, subPos.getZ() - minZ));
+        }
+        return new LocalShape(mergeShapes(parts), minX, minY, minZ);
+    }
+
+    public static List<SubLevel> getConnectedGroup(SubLevel root) {
+        var group = new ArrayList<SubLevel>();
+        var seen = new HashSet<UUID>();
+        var queue = new ArrayDeque<SubLevel>();
+        queue.add(root);
+        seen.add(root.getUniqueId());
+
+        while (!queue.isEmpty()) {
+            var current = queue.poll();
+            group.add(current);
+            for (var actor : current.getPlot().getBlockEntityActors()) {
+                var deps = actor.sable$getConnectionDependencies();
+                if (deps == null) continue;
+                for (var dep : deps) if (seen.add(dep.getUniqueId())) queue.add(dep);
+            }
+        }
+        return group;
+    }
+
+    public static Set<UUID> getConnectedGroupIds(SubLevel root) {
+        var ids = new HashSet<UUID>();
+        for (var member : getConnectedGroup(root)) ids.add(member.getUniqueId());
+        return ids;
+    }
+
+    public static VoxelShape getSublevelGroupShape(Level level, SubLevel held, Function<SubLevel, Pose3dc> memberPose) {
+        return getSublevelGroup(level, held, memberPose).shape();
+    }
+
+    public static SubLevelGroup getSublevelGroup(Level level, SubLevel held, Function<SubLevel, Pose3dc> mPose) {
+        var locals = new LinkedHashMap<SubLevel, LocalShape>();
+        for (var member : getConnectedGroup(held)) {
+            var local = getSublevelLocalShape(level, member, mPose.apply(member));
+            if (local.shape().isEmpty()) continue;
+            locals.put(member, local);
+        }
+        if (locals.isEmpty()) return SubLevelGroup.EMPTY;
+
+        var root = pickFrameRoot(locals, mPose);
+        var rootPose = mPose.apply(root);
+        var parts = new ArrayList<GroupPart>(locals.size());
+        var rootLocal = new ArrayList<AABB>();
+        var rootOnly = new ArrayList<AABB>();
+        var corner = new Vector3d();
+
+        for (var entry : locals.entrySet()) {
+            var member = entry.getKey();
+            var local = entry.getValue();
+            parts.add(new GroupPart(member, local.shape(), local.originX(), local.originY(), local.originZ()));
+
+            var memberPose = mPose.apply(member);
+            for (var box : local.shape().toAabbs()) {
+                var moved = box.move(local.originX(), local.originY(), local.originZ());
+                var framed = member == root ? moved : toRootSpace(moved, memberPose, rootPose, corner);
+                rootLocal.add(framed);
+                if (member == root) rootOnly.add(framed);
+            }
+        }
+        if (rootLocal.isEmpty()) return SubLevelGroup.EMPTY;
+
+        double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE, minZ = Double.MAX_VALUE;
+        for (var box : rootLocal) {
+            minX = Math.min(minX, box.minX);
+            minY = Math.min(minY, box.minY);
+            minZ = Math.min(minZ, box.minZ);
+        }
+        var originX = Math.floor(minX);
+        var originY = Math.floor(minY);
+        var originZ = Math.floor(minZ);
+
+        var shapes = new ArrayList<VoxelShape>(rootLocal.size());
+        for (var box : rootLocal) shapes.add(Shapes.create(box.move(-originX, -originY, -originZ)));
+        var rootBoxes = new ArrayList<AABB>(rootOnly.size());
+        for (var box : rootOnly) rootBoxes.add(box.move(-originX, -originY, -originZ));
+        return new SubLevelGroup(root, mergeShapes(shapes), rootBoxes, originX, originY, originZ, parts);
+    }
+
+    private static SubLevel pickFrameRoot(Map<SubLevel, LocalShape> locals, Function<SubLevel, Pose3dc> mPose) {
+        SubLevel best = null;
+        var bestBottom = Double.MAX_VALUE;
+        var bestVolume = -1.0;
+        var corner = new Vector3d();
+
+        for (var entry : locals.entrySet()) {
+            var local = entry.getValue();
+            var bounds = local.shape().bounds();
+            var volume = bounds.getXsize() * bounds.getYsize() * bounds.getZsize();
+            var bottom = worldBottom(bounds.move(local.originX(), local.originY(), local.originZ()),
+                    mPose.apply(entry.getKey()), corner);
+
+            if (best != null) {
+                if (bottom > bestBottom + 1 / 16d) continue;
+                if (bottom > bestBottom - 1 / 16d && volume <= bestVolume) continue;
+            }
+            best = entry.getKey();
+            bestVolume = volume;
+            bestBottom = Math.min(bestBottom, bottom);
+        }
+        return best;
+    }
+
+    private static double worldBottom(AABB box, Pose3dc pose, Vector3d corner) {
+        var bottom = Double.MAX_VALUE;
+        for (int c = 0; c < 8; c++) {
+            corner.set((c & 1) == 0 ? box.minX : box.maxX,
+                    ((c >> 1) & 1) == 0 ? box.minY : box.maxY,
+                    ((c >> 2) & 1) == 0 ? box.minZ : box.maxZ);
+            pose.transformPosition(corner);
+            bottom = Math.min(bottom, corner.y);
+        }
+        return bottom;
+    }
+
+    private static AABB toRootSpace(AABB box, Pose3dc from, Pose3dc rootPose, Vector3d corner) {
+        double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE, minZ = Double.MAX_VALUE;
+        double maxX = -Double.MAX_VALUE, maxY = -Double.MAX_VALUE, maxZ = -Double.MAX_VALUE;
+        for (int c = 0; c < 8; c++) {
+            corner.set((c & 1) == 0 ? box.minX : box.maxX,
+                    ((c >> 1) & 1) == 0 ? box.minY : box.maxY,
+                    ((c >> 2) & 1) == 0 ? box.minZ : box.maxZ);
+            from.transformPosition(corner);
+            rootPose.transformPositionInverse(corner);
+            minX = Math.min(minX, corner.x); maxX = Math.max(maxX, corner.x);
+            minY = Math.min(minY, corner.y); maxY = Math.max(maxY, corner.y);
+            minZ = Math.min(minZ, corner.z); maxZ = Math.max(maxZ, corner.z);
+        }
+        return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
+    public static VoxelShape mergeShapes(List<VoxelShape> parts) {
+        if (parts.isEmpty()) return Shapes.empty();
+        while (parts.size() > 1) {
+            var merged = new ArrayList<VoxelShape>((parts.size() + 1) / 2);
+            for (int i = 0; i < parts.size(); i += 2) {
+                if (i + 1 < parts.size()) merged.add(Shapes.join(parts.get(i), parts.get(i + 1), BooleanOp.OR));
+                else merged.add(parts.get(i));
+            }
+            parts = merged;
+        }
+        return parts.getFirst().optimize();
     }
 }

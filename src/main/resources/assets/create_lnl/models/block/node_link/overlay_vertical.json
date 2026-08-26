@@ -1,6 +1,6 @@
 {
 	"format_version": "1.9.0",
-	"credit": "Made with Blockbench",
+	"credit": "Made by LopyLuna",
 	"parent": "block/block",
 	"ambientocclusion": false,
 	"texture_size": [32, 32],
@@ -13,8 +13,8 @@
 			"name": "overlay",
 			"from": [2.9375, 1, 6],
 			"to": [4, 3.0625, 10],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
 			"shade": false,
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
 			"faces": {
 				"north": {"uv": [7, 3.5, 8, 4], "rotation": 90, "texture": "#1"},
 				"east": {"uv": [7, 0, 7.5, 2], "rotation": 90, "texture": "#1"},
@@ -28,8 +28,8 @@
 			"name": "overlay",
 			"from": [12, 1, 6],
 			"to": [13.0625, 3.0625, 10],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
 			"shade": false,
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
 			"faces": {
 				"north": {"uv": [7, 2, 8, 2.5], "rotation": 90, "texture": "#1"},
 				"east": {"uv": [7, 2, 8, 4], "rotation": 90, "texture": "#1"},

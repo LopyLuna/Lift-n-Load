@@ -4,6 +4,7 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import dev.ryanhcode.sable.Sable;
 import net.createmod.catnip.codecs.CatnipCodecUtils;
 import net.createmod.catnip.codecs.CatnipCodecs;
+import net.createmod.catnip.data.TriState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -27,15 +28,18 @@ public interface IConnection<E extends SmartBlockEntity> {
     String DEFAULT_COLOR = "9696A0";
     String ACTIVE_COLOR = "007BFF";
 
-    boolean isStatic();
+    boolean lifts$isStatic();
 
-    Set<BlockPos> getConnections();
-    boolean containsConnection(BlockPos pos);
-    void addConnectionRaw(BlockPos pos, boolean update);
-    void removeConnectionRaw(BlockPos pos, boolean update);
-    void clearConnectionRaw(boolean update);
+    Set<BlockPos> lifts$getConnections();
+    boolean lifts$containsConnection(BlockPos pos);
+    void lifts$addConnectionRaw(BlockPos pos, boolean update);
+    void lifts$removeConnectionRaw(BlockPos pos, boolean update);
+    void lifts$clearConnectionRaw(boolean update);
 
-    default void onConnectionUpdate(BlockPos fromPos, IConnection<?> from) {
+    //TRUE = ADDED
+    //DEFAULT = NORMAL UPDATE
+    //FALSE = REMOVED
+    default void lifts$onConnectionUpdate(BlockPos fromPos, IConnection<?> from, TriState tri) {
         isOutOfRange(fromPos, from);
     }
 
@@ -49,7 +53,12 @@ public interface IConnection<E extends SmartBlockEntity> {
 
     default void updateConnections(@Nullable Level level, BlockPos from) {
         if (level == null) return;
-        for (var pos : getConnections()) if (level.getBlockEntity(pos) instanceof IConnection<?> connection) connection.onConnectionUpdate(from, this);
+        for (var pos : lifts$getConnections()) if (level.getBlockEntity(pos) instanceof IConnection<?> connection) connection.lifts$onConnectionUpdate(from, this, TriState.DEFAULT);
+    }
+
+    default void updateConnections(@Nullable Level level, BlockPos from, TriState tri) {
+        if (level == null) return;
+        for (var pos : lifts$getConnections()) if (level.getBlockEntity(pos) instanceof IConnection<?> connection) connection.lifts$onConnectionUpdate(from, this, tri);
     }
 
     default boolean canConnect(@Nullable Level level, BlockPos otherPos, IConnection<?> other) {
@@ -59,24 +68,27 @@ public interface IConnection<E extends SmartBlockEntity> {
     default void addConnection(BlockEntity be, @Nullable Level level, BlockPos pos, boolean update, boolean updateOther) {
         if (level == null) return;
         if (!(level.getBlockEntity(pos) instanceof IConnection<?> c && ConnectorUtils.canConnect(level, be.getBlockPos(), this, pos, c))) return;
-        addConnectionRaw(pos, update);
-        c.addConnectionRaw(be.getBlockPos(), updateOther);
+        lifts$addConnectionRaw(pos, update);
+        c.lifts$addConnectionRaw(be.getBlockPos(), updateOther);
+        c.lifts$onConnectionUpdate(be.getBlockPos(), this, TriState.TRUE);
     }
     default void addConnection(BlockEntity be, @Nullable Level level, BlockPos pos, boolean update) { addConnection(be, level, pos, update, update); }
     default void removeConnection(BlockEntity be, @Nullable Level level, BlockPos pos, boolean update, boolean updateOther) {
-        removeConnectionRaw(pos, update);
-        if (level != null && level.getBlockEntity(pos) instanceof IConnection<?> connection) connection.removeConnectionRaw(be.getBlockPos(), updateOther);
+        if (level != null && level.getBlockEntity(pos) instanceof IConnection<?> c) c.lifts$onConnectionUpdate(be.getBlockPos(), this, TriState.FALSE);
+        lifts$removeConnectionRaw(pos, update);
+        if (level != null && level.getBlockEntity(pos) instanceof IConnection<?> connection) connection.lifts$removeConnectionRaw(be.getBlockPos(), updateOther);
     }
     default void removeConnection(BlockEntity be, @Nullable Level level, BlockPos pos, boolean update) { removeConnection(be, level, pos, update, update); }
     default void clearConnection(BlockEntity be, @Nullable Level level, boolean update, boolean updateOther) {
-        for (var c : getConnections()) if (level != null && level.getBlockEntity(c) instanceof IConnection<?> connection) connection.removeConnectionRaw(be.getBlockPos(), updateOther);
-        clearConnectionRaw(update);
+        updateConnections(level, be.getBlockPos(), TriState.FALSE);
+        for (var c : lifts$getConnections()) if (level != null && level.getBlockEntity(c) instanceof IConnection<?> connection) connection.lifts$removeConnectionRaw(be.getBlockPos(), updateOther);
+        lifts$clearConnectionRaw(update);
     }
     default void clearConnection(BlockEntity be, @Nullable Level level, boolean update) { clearConnection(be, level, update, update); }
 
-    default void addConnectionRawNoUpdate(BlockPos pos) { addConnectionRaw(pos, false); }
-    default void removeConnectionRawNoUpdate(BlockPos pos) { removeConnectionRaw(pos, false); }
-    default void clearConnectionRawNoUpdate() { clearConnectionRaw(false); }
+    default void addConnectionRawNoUpdate(BlockPos pos) { lifts$addConnectionRaw(pos, false); }
+    default void removeConnectionRawNoUpdate(BlockPos pos) { lifts$removeConnectionRaw(pos, false); }
+    default void clearConnectionRawNoUpdate() { lifts$clearConnectionRaw(false); }
     default void addConnectionNoUpdate(BlockEntity be, @Nullable Level level, BlockPos pos) { addConnection(be, level, pos, false); }
     default void removeConnectionNoUpdate(BlockEntity be, @Nullable Level level, BlockPos pos) { removeConnection(be, level, pos, false); }
     default void clearConnectionNoUpdate(BlockEntity be, @Nullable Level level) { clearConnection(be, level, false); }
@@ -84,10 +96,10 @@ public interface IConnection<E extends SmartBlockEntity> {
     default boolean notColorable() { return true; }
 
     default void setColor(String color) {}
-    String getColor();
+    String lifts$getColor();
 
     default int rgb() {
-        var clr = getColor();
+        var clr = lifts$getColor();
         return Integer.parseInt((clr == null ? DEFAULT_COLOR : clr), 16);
     }
 
@@ -104,10 +116,10 @@ public interface IConnection<E extends SmartBlockEntity> {
     }
 
     default void writeI(E be, @Nullable Level level, CompoundTag nbt, HolderLookup.Provider provider, boolean client) {
-        nbt.put("Connections", CatnipCodecUtils.encode(CatnipCodecs.set(BlockPos.CODEC), provider, getConnections()).orElseThrow());
+        nbt.put("Connections", CatnipCodecUtils.encode(CatnipCodecs.set(BlockPos.CODEC), provider, lifts$getConnections()).orElseThrow());
 
         if (notColorable()) return;
-        var color = getColor();
+        var color = lifts$getColor();
         var oldColor = color;
         if (!color.matches("[0-9A-Fa-f]{6}")) color = DEFAULT_COLOR;
         nbt.putString("Color", color.toUpperCase(Locale.ROOT));
@@ -122,7 +134,7 @@ public interface IConnection<E extends SmartBlockEntity> {
 
     default boolean checkConnections(E be, @Nullable Level level) {
         if (level == null || level.isClientSide) return false;
-        var connections = getConnections();
+        var connections = lifts$getConnections();
         if (connections.isEmpty()) return false;
         var pos = be.getBlockPos();
         var newList = connections.stream().filter(p -> !level.isLoaded(p) || level.getBlockEntity(p) instanceof IConnection<?> c && ConnectorUtils.canConnect(level, pos, this, p, c)).collect(Collectors.toSet());
@@ -135,24 +147,24 @@ public interface IConnection<E extends SmartBlockEntity> {
     default void removeI(E be, @Nullable Level level) {
         if (level == null) return;
         var pos = be.getBlockPos();
-        for (var off : getConnections()) if (level.getBlockEntity(off) instanceof SmartBlockEntity sbe && sbe instanceof IConnection<?> connection) connection.removeConnectionNoUpdate(sbe, level, pos);
+        for (var off : lifts$getConnections()) if (level.getBlockEntity(off) instanceof SmartBlockEntity sbe && sbe instanceof IConnection<?> connection) connection.removeConnectionNoUpdate(sbe, level, pos);
         clearConnection((BlockEntity) this, level, true);
     }
 
     default void updateConnection(BlockEntity be) {
         var pos = be.getBlockPos();
         IConnection.connections.remove(pos);
-        IConnection.connections.put(pos, isStatic() ? Connection.of(be, rgb(), Connection.Type.getType(be)) : Connection.of(be, this::rgb, () -> Connection.Type.getType(be)));
+        IConnection.connections.put(pos, lifts$isStatic() ? Connection.of(be, rgb(), Connection.Type.getType(be)) : Connection.of(be, this::rgb, () -> Connection.Type.getType(be)));
     }
     default void updateConnection(BlockEntity be, BlockPos pos) {
         IConnection.connections.remove(pos);
-        IConnection.connections.put(pos, isStatic() ? Connection.of(be, rgb(), Connection.Type.getType(be)) : Connection.of(be, this::rgb, () -> Connection.Type.getType(be)));
+        IConnection.connections.put(pos, lifts$isStatic() ? Connection.of(be, rgb(), Connection.Type.getType(be)) : Connection.of(be, this::rgb, () -> Connection.Type.getType(be)));
     }
     default void updateConnection(@Nullable Level level, BlockPos pos) {
         if (level == null) return;
         var be = level.getBlockEntity(pos);
         if (be == null) return;
         IConnection.connections.remove(pos);
-        IConnection.connections.put(pos, isStatic() ? Connection.of(be, rgb(), Connection.Type.getType(be)) : Connection.of(be, this::rgb, () -> Connection.Type.getType(be)));
+        IConnection.connections.put(pos, lifts$isStatic() ? Connection.of(be, rgb(), Connection.Type.getType(be)) : Connection.of(be, this::rgb, () -> Connection.Type.getType(be)));
     }
 }

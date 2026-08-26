@@ -56,6 +56,7 @@ public class NodeLinkBlock extends WrenchableDirectionalBlock implements IBE<Nod
                 if (old != be.clr) {
                     player.playSound(SoundEvents.DYE_USE);
                     be.updateConnection(be);
+                    be.notifyUpdate();
                     return ItemInteractionResult.SUCCESS;
                 }
             } else if (stack.is(Items.WET_SPONGE) || stack.is(Items.SPONGE)) {
@@ -64,6 +65,7 @@ public class NodeLinkBlock extends WrenchableDirectionalBlock implements IBE<Nod
                 if (old != be.clr) {
                     player.playSound(SoundEvents.SPONGE_ABSORB);
                     be.updateConnection(be);
+                    be.notifyUpdate();
                     return ItemInteractionResult.SUCCESS;
                 }
             }
@@ -79,11 +81,13 @@ public class NodeLinkBlock extends WrenchableDirectionalBlock implements IBE<Nod
                 if (!newState.canSurvive(level, pos)) return InteractionResult.PASS;
                 KineticBlockEntity.switchToBlockState(level, pos, Block.updateFromNeighbourShapes(newState, level, pos));
                 if (level.getBlockState(pos) != state) AllSoundEvents.WRENCH_ROTATE.playOnServer(level, pos, 1, level.random.nextFloat() + .5f);
+                if (level.getBlockEntity(pos) instanceof NodeLinkBE be) be.update(newState);
                 return InteractionResult.SUCCESS;
             } else if (level.getBlockEntity(pos) instanceof NodeLinkBE be && be.receiver) {
                 be.invert = !be.invert;
                 level.updateNeighborsAt(pos, this);
                 AllSoundEvents.CRAFTER_CLICK.playOnServer(level, pos, 1, level.random.nextFloat() + .5f);
+                be.update(state);
                 return InteractionResult.SUCCESS;
             }
         }

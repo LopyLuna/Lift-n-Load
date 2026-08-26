@@ -5,8 +5,8 @@ import com.simibubi.create.content.kinetics.base.OrientedRotatingVisual;
 import com.simibubi.create.content.kinetics.base.SingleAxisRotatingVisual;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import dev.engine_room.flywheel.lib.model.Models;
-import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftBE;
-import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftRenderer;
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftBE;
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftRenderer;
 import dev.lopyluna.create_lnl.content.blocks.node_link.NodeLinkBE;
 import dev.lopyluna.create_lnl.content.blocks.node_link.NodeLinkRenderer;
 import dev.lopyluna.create_lnl.content.blocks.spring_shaft.SpringShaftBE;
@@ -35,10 +35,10 @@ public class LiftsBETypes {
             .renderer(() -> SpringShaftRenderer::new)
             .register();
 
-    public static final BlockEntityEntry<LiftBE> CONTRAPTION_LIFT = REG
-            .blockEntity("contraption_lift", LiftBE::new)
+    public static final BlockEntityEntry<DockingLiftBE> CONTRAPTION_LIFT = REG
+            .blockEntity("contraption_lift", DockingLiftBE::new)
             .validBlocks(LiftsBlocks.CONTRAPTION_LIFT)
-            .renderer(() -> LiftRenderer::new)
+            .renderer(() -> DockingLiftRenderer::new)
             .register();
 
     public static final BlockEntityEntry<ThrusterBE> THRUSTER = REG

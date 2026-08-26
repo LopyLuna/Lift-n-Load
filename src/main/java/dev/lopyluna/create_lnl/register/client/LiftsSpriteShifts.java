@@ -8,6 +8,7 @@ import dev.lopyluna.create_lnl.Lifts;
 import net.createmod.catnip.render.SpriteShiftEntry;
 import net.createmod.catnip.render.SpriteShifter;
 
+@SuppressWarnings("unused")
 public class LiftsSpriteShifts {
 
     public static CTSpriteShiftEntry horizontal(String blockTextureName, String connectedTextureName) {

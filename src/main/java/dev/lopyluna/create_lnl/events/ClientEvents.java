@@ -7,9 +7,12 @@ import dev.engine_room.flywheel.lib.transform.TransformStack;
 import dev.lopyluna.create_lnl.Lifts;
 import dev.lopyluna.create_lnl.client.LiftsRenderTypes;
 import dev.lopyluna.create_lnl.content.blocks.connectors.*;
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftBE;
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.client.DockingLiftGhost;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.packets.LiftActions;
 import dev.lopyluna.create_lnl.content.blocks.spring_shaft.SpringShaftItem;
 import dev.lopyluna.create_lnl.content.utils.LiftSoundDistUtil;
+import dev.lopyluna.create_lnl.register.LiftsTags;
 import dev.lopyluna.create_lnl.register.client.LiftKeys;
 import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.companion.math.JOMLConversion;
@@ -31,7 +34,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.common.Tags;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -55,12 +57,13 @@ public class ClientEvents {
 
     private static int oMovDelta;
     private static int oRotDelta;
+    private static java.lang.ref.WeakReference<net.minecraft.client.player.LocalPlayer> lastPlayer = new java.lang.ref.WeakReference<>(null);
     public static void onTick(boolean isPreEvent) {
         if (!isGameActive()) return;
         if (mc.level == null || isPreEvent) return;
         if (mc.player != null) {
             {
-                var hit = ConnectorUtils.hit(mc.level, mc.player, 1);
+                var hit = mc.player.getMainHandItem().is(LiftsTags.NODE_CONNECTOR) ? ConnectorUtils.hit(mc.level, mc.player, 1) : null;
                 var pos = hit == null || hit.getType() == HitResult.Type.MISS ? null : hit.getBlockPos();
                 if (pos != null && !HOVERING.containsKey(pos)) HOVERING.put(pos, LerpedFloat.linear().chase(1f, 0.65f, LerpedFloat.Chaser.EXP));
                 if (!HOVERING.isEmpty()) {
@@ -82,6 +85,14 @@ public class ClientEvents {
         }
         LiftSoundDistUtil.tickGlobalThrusterSound();
 
+        if (lastPlayer.get() != mc.player) {
+            lastPlayer = new java.lang.ref.WeakReference<>(mc.player);
+            oMovDelta = 0;
+            oRotDelta = 0;
+            DockingLiftGhost.invalidate();
+        }
+        DockingLiftGhost.tick(mc);
+
         int movDelta;
         int rotDelta;
 
@@ -92,6 +103,11 @@ public class ClientEvents {
         if (LiftKeys.R0T_CC_LIFT.getKeybind().isDown()) rotDelta = 1;
         else if (LiftKeys.ROT_C_LIFT.getKeybind().isDown()) rotDelta = -1;
         else rotDelta = 0;
+
+        if (movDelta != 0 && mc.player != null) {
+            var lift = DockingLiftBE.controlledBy(mc.player);
+            if (lift != null && !lift.placing && !lift.cantControl(mc.player)) lift.predictTarget(movDelta);
+        }
 
         if (oMovDelta != movDelta || oRotDelta != rotDelta) {
             oMovDelta = movDelta;
@@ -112,8 +128,9 @@ public class ClientEvents {
         var bs = (MultiBufferSource) buffer;
         var cam = mc.gameRenderer.getMainCamera().getPosition();
 
+        DockingLiftGhost.render(ps, cam, bs::getBuffer);
 
-        if (mc.player != null && mc.player.getMainHandItem().is(Tags.Items.TOOLS_WRENCH) && !IConnection.connections.isEmpty()) {
+        if (mc.player != null && (mc.player.getMainHandItem().is(LiftsTags.NODE_VIEWER) || mc.player.getOffhandItem().is(LiftsTags.NODE_VIEWER)) && !IConnection.connections.isEmpty()) {
             var list = new ArrayList<>(IConnection.connections.entrySet().stream().sorted((a, b) -> {
                 var posA = a.getKey().getCenter();
                 posA = !(Sable.HELPER.getContaining(mc.level, posA) instanceof ClientSubLevel sub) ?
@@ -143,7 +160,7 @@ public class ClientEvents {
             var rendered = new HashSet<ConnectionKey>();
             for (var entry : list) {
                 var connection = entry.getKey();
-                if (!(mc.level.getBlockEntity(connection) instanceof IConnection<?> c) || c.getConnections().isEmpty()) continue;
+                if (!(mc.level.getBlockEntity(connection) instanceof IConnection<?> c) || c.lifts$getConnections().isEmpty()) continue;
                 var pos = !(Sable.HELPER.getContaining(mc.level, connection) instanceof ClientSubLevel sub) ? connection.getCenter() : JOMLConversion.toMojang(sub.renderPose().transformPosition(JOMLConversion.toJOML(connection.getCenter())));
                 var dist = cam.distanceTo(pos);
                 if (dist > 32) continue;
@@ -159,7 +176,7 @@ public class ClientEvents {
                 var vc = bs.getBuffer(LiftsRenderTypes.CONNECTOR_WIRE);
 
 
-                var sortedConnections = new ArrayList<>(c.getConnections().stream().sorted((a, b) -> {
+                var sortedConnections = new ArrayList<>(c.lifts$getConnections().stream().sorted((a, b) -> {
                     var posA = a.getCenter();
                     posA = !(Sable.HELPER.getContaining(mc.level, posA) instanceof ClientSubLevel sub) ?
                             posA : JOMLConversion.toMojang(sub.renderPose().transformPosition(JOMLConversion.toJOML(posA)));

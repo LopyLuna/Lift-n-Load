@@ -56,6 +56,10 @@ sourceSets.main.resources {
     exclude '.cache/'
 }
 
+//sourceSets.main.java {
+//    exclude 'dev/lopyluna/create_lnl/content/blocks/old_contraption_lift/**'
+//}
+
 repositories {
     maven { url = "https://maven.blamejared.com" } // JEI, Vazkii's Mods
     maven { url = "https://modmaven.dev" }
@@ -68,6 +72,7 @@ repositories {
     maven { url = "https://maven.ithundxr.dev/snapshots" } // Registrate
     maven { url = "https://maven.architectury.dev" } // Arch API
     maven { url = "https://maven.ryanhcode.dev/releases" } // Sable, Offroad, Simulated, Aeronautics
+    //maven { url = "https://registry.somethingcatchy.net/repository/maven-releases/" } // Dye Depot
     mavenLocal()
 }
 
@@ -90,6 +95,9 @@ dependencies {
 
     compileOnly("top.theillusivec4.curios:curios-neoforge:${curios_version}+${minecraft_version}:api")
     runtimeOnly("top.theillusivec4.curios:curios-neoforge:${curios_version}+${minecraft_version}")
+
+    //implementation("com.ninni.dye_depot:dye_depot-neoforge:$minecraft_version-$dye_depot_version") //maven repo not working???
+    implementation "maven.modrinth:dl88rsIq:tT2TDzmL" //dye depot
 
     //runtimeOnly("maven.modrinth:sodium:mc${minecraft_version}-${sodium_version}-neoforge")
     runtimeOnly("maven.modrinth:jade:jBPaSUDN")

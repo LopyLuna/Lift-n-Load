@@ -24,9 +24,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import org.joml.*;
+import org.joml.Matrix3d;
+import org.joml.Quaterniond;
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
 
-import java.lang.Math;
 import java.util.List;
 
 @SuppressWarnings("NullableProblems")

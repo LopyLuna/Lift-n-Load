@@ -3,18 +3,17 @@ package dev.lopyluna.create_lnl.events;
 import dev.lopyluna.create_lnl.Lifts;
 import dev.lopyluna.create_lnl.content.blocks.IBlockFromHandInteraction;
 import dev.lopyluna.create_lnl.content.blocks.PhysicHoldingBEs;
-import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftBlock;
+import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftBE;
 import dev.lopyluna.create_lnl.content.blocks.wheel.WheelBE;
 import dev.lopyluna.create_lnl.register.LiftsArmInteractions;
 import dev.lopyluna.create_lnl.register.LiftsBETypes;
 import dev.ryanhcode.sable.sublevel.system.SubLevelPhysicsSystem;
-import net.createmod.catnip.nbt.NBTHelper;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
 import java.util.ArrayList;
@@ -23,25 +22,6 @@ import java.util.List;
 @EventBusSubscriber(modid = Lifts.MOD_ID)
 public class CommonEvents {
     private final static List<PhysicHoldingBEs> PHYSIC_HOLDERS = new ArrayList<>();
-
-    @SubscribeEvent
-    public static void onLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        var data = event.getEntity().getPersistentData();
-        if (data.contains("LiftPos")) {
-            var pos = NBTHelper.readBlockPos(data, "LiftPos");
-            if (event.getEntity().level().getBlockState(pos).getBlock() instanceof LiftBlock) event.getEntity().level().removeBlock(pos, false);
-            event.getEntity().getPersistentData().remove("LiftPos");
-        }
-    }
-    @SubscribeEvent
-    public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        var data = event.getEntity().getPersistentData();
-        if (data.contains("LiftPos")) {
-            var pos = NBTHelper.readBlockPos(data, "LiftPos");
-            if (event.getEntity().level().getBlockState(pos).getBlock() instanceof LiftBlock) event.getEntity().level().removeBlock(pos, false);
-            event.getEntity().getPersistentData().remove("LiftPos");
-        }
-    }
 
     @SubscribeEvent
     public static void onRightClickBlock(final PlayerInteractEvent.RightClickBlock event) {
@@ -56,6 +36,12 @@ public class CommonEvents {
                 event.setCanceled(true);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onServerStopped(final ServerStoppedEvent event) {
+        DockingLiftBE.clearAll();
+        PHYSIC_HOLDERS.clear();
     }
 
     @SubscribeEvent

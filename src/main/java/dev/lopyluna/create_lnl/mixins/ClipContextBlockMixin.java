@@ -33,7 +33,7 @@ public class ClipContextBlockMixin {
     @Inject(method = "<clinit>", at = @At(value = "FIELD", opcode = Opcodes.PUTSTATIC,
             target = "Lnet/minecraft/world/level/ClipContext$Block;$VALUES:[Lnet/minecraft/world/level/ClipContext$Block;", shift = At.Shift.AFTER)
     )
-    private static void addCustomBoatType(CallbackInfo info) {
+    private static void addNewClipContext(CallbackInfo info) {
         var types = new ArrayList<>(Arrays.asList($VALUES));
         types.add(newCtx("CONNECTOR", types.getLast().ordinal() + 1, (s, l, p, c) -> {
             var be = l.getBlockEntity(p);

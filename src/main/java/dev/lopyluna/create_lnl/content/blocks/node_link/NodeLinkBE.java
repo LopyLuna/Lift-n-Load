@@ -3,10 +3,11 @@ package dev.lopyluna.create_lnl.content.blocks.node_link;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.lopyluna.create_lnl.content.blocks.connectors.ConnectionType;
-import dev.lopyluna.create_lnl.content.blocks.connectors.IConnection;
 import dev.lopyluna.create_lnl.content.blocks.connectors.ConnectorBE;
+import dev.lopyluna.create_lnl.content.blocks.connectors.IConnection;
 import net.createmod.catnip.codecs.CatnipCodecUtils;
 import net.createmod.catnip.data.Iterate;
+import net.createmod.catnip.data.TriState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -47,6 +48,8 @@ public class NodeLinkBE extends ConnectorBE {
     public void read(CompoundTag nbt, HolderLookup.Provider provider, boolean clientPacket) {
         super.read(nbt, provider, clientPacket);
         if (nbt.contains("Invert")) invert = nbt.getBoolean("Invert");
+        if (nbt.contains("Color")) clr = nbt.getInt("Color");
+        if ((level != null && level.isClientSide || clientPacket) && nbt.contains("Color")) updateConnection(this);
         strength = nbt.getInt("Strength");
         receivingPos.clear();
         if (nbt.contains("ReceivingPos")) CatnipCodecUtils.decode(RECEIVING_CODEC, provider, nbt.get("ReceivingPos")).ifPresent(receivingPos::putAll);
@@ -55,6 +58,7 @@ public class NodeLinkBE extends ConnectorBE {
     @Override
     protected void write(CompoundTag nbt, HolderLookup.Provider provider, boolean clientPacket) {
         super.write(nbt, provider, clientPacket);
+        if (clr >= 0) nbt.putInt("Color", clr);
         if (receiver) nbt.putBoolean("Invert", invert);
         nbt.putInt("Strength", strength);
         if (receivingPos != null && !receivingPos.isEmpty()) nbt.put("ReceivingPos", CatnipCodecUtils.encode(RECEIVING_CODEC, provider, receivingPos).orElseThrow());
@@ -65,15 +69,15 @@ public class NodeLinkBE extends ConnectorBE {
     }
 
     @Override
-    public void onConnectionUpdate(BlockPos fromPos, IConnection<?> from) {
+    public void lifts$onConnectionUpdate(BlockPos fromPos, IConnection<?> from, TriState tri) {
         if (isOutOfRange(fromPos, from)) return;
         if (!receiver) return;
         var old = strength;
         if (from instanceof NodeLinkBE be) {
-            if (be.strength <= 0) receivingPos.remove(fromPos);
+            if (be.strength <= 0 || tri == TriState.FALSE) receivingPos.remove(fromPos);
             else receivingPos.put(fromPos, be.strength);
         }
-        if (receivingPos.isEmpty()) {
+        if (tri == TriState.FALSE || receivingPos.isEmpty()) {
             strength = 0;
             if (level != null && old != strength) level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
             notifyUpdate();
@@ -89,7 +93,7 @@ public class NodeLinkBE extends ConnectorBE {
         var power = getPower(level, worldPosition);
         if (strength != power) {
             strength = power;
-            updateConnections(level, worldPosition);
+            updateConnections(level, worldPosition, TriState.DEFAULT);
             notifyUpdate();
         }
     }
@@ -109,8 +113,10 @@ public class NodeLinkBE extends ConnectorBE {
     public void update(@Nullable BlockState state) {
         if (state == null) state = getBlockState();
         facing = state.getValue(NodeLinkBlock.FACING);
+        var old = receiver;
         receiver = state.getValue(NodeLinkBlock.RECEIVER);
         if (!receiver) receivingPos.clear();
+        if (old != receiver) strength = 0;
         checkStrength();
         checkConnections(this, level);
         if (level != null && level.isClientSide) updateConnection(this);
@@ -118,12 +124,12 @@ public class NodeLinkBE extends ConnectorBE {
 
     @Override
     public boolean canConnect(Level level, BlockPos otherPos, IConnection<?> other) {
-        return other instanceof NodeLinkBE be && receiver != be.receiver;
+        return (other instanceof NodeLinkBE be && receiver != be.receiver) || (!receiver && other instanceof NodeLinkReceiver);
     }
 
     @Override
-    public void removeConnectionRaw(BlockPos pos, boolean update) {
-        super.removeConnectionRaw(pos, update);
+    public void lifts$removeConnectionRaw(BlockPos pos, boolean update) {
+        super.lifts$removeConnectionRaw(pos, update);
         receivingPos.remove(pos);
         if (!receiver) { checkStrength(); return; }
         var old = strength;
@@ -139,21 +145,17 @@ public class NodeLinkBE extends ConnectorBE {
     }
 
     @Override
-    public void clearConnectionRaw(boolean update) {
-        super.clearConnectionRaw(update);
+    public void lifts$clearConnectionRaw(boolean update) {
+        super.lifts$clearConnectionRaw(update);
         receivingPos.clear();
+        var old = strength;
         strength = 0;
+        if (level != null && old != strength) level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
         notifyUpdate();
     }
 
     @Override
-    public void addConnectionRaw(BlockPos pos, boolean update) {
-        super.addConnectionRaw(pos, update);
-        if (level != null && level.getBlockEntity(pos) instanceof IConnection<?> from) onConnectionUpdate(pos, from);
-    }
-
-    @Override
-    public String getColor() {
+    public String lifts$getColor() {
         return receiver ? "F8317E" : "FF3838";
     }
 
@@ -163,7 +165,7 @@ public class NodeLinkBE extends ConnectorBE {
     }
 
     @Override
-    public boolean isStatic() {
+    public boolean lifts$isStatic() {
         return true;
     }
 }

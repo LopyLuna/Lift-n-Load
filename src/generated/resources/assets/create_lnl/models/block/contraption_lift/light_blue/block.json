@@ -1,0 +1,6 @@
+{
+  "parent": "create_lnl:block/contraption_lift/block",
+  "textures": {
+    "0": "create_lnl:block/lifts/light_blue"
+  }
+}

@@ -2,6 +2,7 @@ package dev.lopyluna.create_lnl.content.blocks.connectors;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.lopyluna.create_lnl.content.blocks.connectors.packets.ConnectionProcessorCTS;
+import dev.lopyluna.create_lnl.register.LiftsTags;
 import dev.simulated_team.simulated.index.SimSoundEvents;
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.platform.CatnipServices;
@@ -19,7 +20,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.common.Tags;
 
 import javax.annotation.Nullable;
 
@@ -35,7 +35,7 @@ public class ConnectionClientHandler {
     @SubscribeEvent
     public static void onTick(ClientTickEvent.Post event) {
         if (mc.player == null || mc.level == null) return;
-        if (!mc.player.getMainHandItem().is(Tags.Items.TOOLS_WRENCH)) return;
+        if (!mc.player.getMainHandItem().is(LiftsTags.NODE_CONNECTOR)) return;
         if (sound != null && sound.getVolume() > 0) sound.setPos();
     }
 
@@ -46,7 +46,7 @@ public class ConnectionClientHandler {
             if (sound != null) { mc.getSoundManager().stop(sound); sound = null; }
             return;
         }
-        if (!mc.player.getMainHandItem().is(Tags.Items.TOOLS_WRENCH)) return;
+        if (!mc.player.getMainHandItem().is(LiftsTags.NODE_CONNECTOR)) return;
         var action = event.getAction();
 
         if (action == 1) {
