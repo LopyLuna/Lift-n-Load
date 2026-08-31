@@ -7,6 +7,8 @@ import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import dev.engine_room.flywheel.lib.model.Models;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftBE;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftRenderer;
+import dev.lopyluna.create_lnl.content.blocks.logic_byte.LogicByteBE;
+import dev.lopyluna.create_lnl.content.blocks.logic_byte.LogicByteRenderer;
 import dev.lopyluna.create_lnl.content.blocks.node_link.NodeLinkBE;
 import dev.lopyluna.create_lnl.content.blocks.node_link.NodeLinkRenderer;
 import dev.lopyluna.create_lnl.content.blocks.spring_shaft.SpringShaftBE;
@@ -26,6 +28,12 @@ public class LiftsBETypes {
             .blockEntity("node_link", NodeLinkBE::new)
             .validBlocks(LiftsBlocks.NODE_LINK)
             .renderer(() -> NodeLinkRenderer::new)
+            .register();
+
+    public static final BlockEntityEntry<LogicByteBE> LOGIC_BYTE = REG
+            .blockEntity("logic_byte", LogicByteBE::new)
+            .validBlocks(LiftsBlocks.LOGIC_BYTE)
+            .renderer(() -> LogicByteRenderer::new)
             .register();
 
     public static final BlockEntityEntry<SpringShaftBE> SPRING_SHAFT = REG

@@ -18,6 +18,10 @@ public class LiftsRenderTypes extends RenderType {
             Lifts.MOD_ID + ":connector_wire", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, VertexFormat.Mode.QUADS, TRANSIENT_BUFFER_SIZE,
             true, false, connectorBuilder("wire"));
 
+    public static final RenderType CONNECTOR_ARROW = create(
+            Lifts.MOD_ID + ":connector_arrow", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, VertexFormat.Mode.QUADS, TRANSIENT_BUFFER_SIZE,
+            true, false, textured("arrow"));
+
     public static final RenderType GHOST_LINES = ghostLines("ghost_lines", 2.5, LEQUAL_DEPTH_TEST);
 
     private static RenderType ghostLines(String name, double width, DepthTestStateShard depth) {
@@ -35,11 +39,15 @@ public class LiftsRenderTypes extends RenderType {
     }
 
     private static CompositeState connectorBuilder(String id) {
+        return textured("connector" + (id.isEmpty() ? "" : "_" + id));
+    }
+
+    private static CompositeState textured(String name) {
         return CompositeState.builder()
                 .setShaderState(POSITION_COLOR_TEX_LIGHTMAP_SHADER)
                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                 .setCullState(NO_CULL)
-                .setTextureState(new TextureStateShard(Lifts.loc("textures/misc/connector" + (id.isEmpty() ? "" : "_" + id) + ".png"), false, false))
+                .setTextureState(new TextureStateShard(Lifts.loc("textures/misc/" + name + ".png"), false, false))
                 .setDepthTestState(NO_DEPTH_TEST)
                 .createCompositeState(true);
     }

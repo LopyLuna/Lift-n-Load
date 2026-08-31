@@ -5,15 +5,25 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BlockEntityMixin",
+    "BlockHelperMixin",
     "ClipContextBlockMixin",
+    "ContraptionMixin",
     "EntityMixin",
     "LevelChunkMixin",
     "OffroadItemsMixin",
+    "PistonBaseBlockMixin",
+    "RedstoneTorchBlockMixin",
+    "SchematicLevelMixin",
+    "SchematicPrinterMixin",
+    "StructureTemplateMixin",
+    "SignalGetterMixin",
+    "SubLevelAssemblyMixin",
     "SubLevelEntityCollisionMixin",
     "WaterWheelPaddlesBEMixin",
     "WheelMountBlockEntityMixin"
   ],
   "client": [
+    "SchematicRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

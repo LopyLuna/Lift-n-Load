@@ -1,6 +1,6 @@
 package dev.lopyluna.create_lnl.mixins;
 
-import dev.lopyluna.create_lnl.content.blocks.connectors.IConnection;
+import dev.lopyluna.create_lnl.content.nodes.Node;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.spongepowered.asm.mixin.Final;
@@ -15,7 +15,7 @@ public class BlockEntityMixin {
     @Shadow @Final protected BlockPos worldPosition;
 
     @Inject(method = "setRemoved()V", at = @At("TAIL"))
-    private void removeConnector(CallbackInfo ci) {
-        if (this instanceof IConnection) IConnection.connections.remove(worldPosition);
+    private void removeNode(CallbackInfo ci) {
+        Node.Tracker.untrack(worldPosition);
     }
 }

@@ -55,7 +55,6 @@ public class NodeLinkBlock extends WrenchableDirectionalBlock implements IBE<Nod
                 be.clr = FastColor.ARGB32.average(dye.getDyeColor().getMapColor().col, dye.getDyeColor().getTextColor());
                 if (old != be.clr) {
                     player.playSound(SoundEvents.DYE_USE);
-                    be.updateConnection(be);
                     be.notifyUpdate();
                     return ItemInteractionResult.SUCCESS;
                 }
@@ -64,7 +63,6 @@ public class NodeLinkBlock extends WrenchableDirectionalBlock implements IBE<Nod
                 be.clr = -1;
                 if (old != be.clr) {
                     player.playSound(SoundEvents.SPONGE_ABSORB);
-                    be.updateConnection(be);
                     be.notifyUpdate();
                     return ItemInteractionResult.SUCCESS;
                 }

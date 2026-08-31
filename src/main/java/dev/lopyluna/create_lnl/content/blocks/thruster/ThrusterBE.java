@@ -59,11 +59,11 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
     protected double lastRenderTime;
     protected double renderTime;
 
-    protected LerpedFloat intensitySwitch = LerpedFloat.linear().chase(0, 0.1, LerpedFloat.Chaser.EXP);
-    protected LerpedFloat intensity = LerpedFloat.linear().chase(0, 0.1, LerpedFloat.Chaser.EXP);
+    protected LerpedFloat intensitySwitch = LerpedFloat.linear().chase(0, 0.5, LerpedFloat.Chaser.EXP);
+    protected LerpedFloat intensity = LerpedFloat.linear().chase(0, 0.5, LerpedFloat.Chaser.EXP);
     protected float targetIntensity = 0;
     protected int strength = 1;
-    private final LerpedFloat thrust = LerpedFloat.linear().chase(0, 0.05, LerpedFloat.Chaser.EXP);
+    private final LerpedFloat thrust = LerpedFloat.linear().chase(0, 0.5, LerpedFloat.Chaser.EXP);
     private Vec3 lastFlagWorldCenter;
 
     private Direction direction;

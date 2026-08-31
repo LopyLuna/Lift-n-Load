@@ -34,15 +34,16 @@ public class ThrusterRenderer extends SmartBlockEntityRenderer<ThrusterBE> {
     protected void renderSafe(ThrusterBE be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
         super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
 
-        var intensity = Mth.clamp(be.intensity.getValue(partialTicks), 0f, 1f);
+        var intensity = Mth.clamp(be.intensity.getValue(partialTicks) * 1.5f, 0f, 1f);
         if (!(intensity > 0.05)) return;
 
         final var state = be.getBlockState();
         final var pos = be.getBlockPos();
         final var facing = state.getValue(ThrusterBlock.FACING);
-        var flameOffset = snapToBlockPixel(0.35f + ((24 - 4 * Mth.clamp(intensity, 0.5f, 1f)) / 16f) - 0.5f);
-        var lengthMultiplier = snapToFlamePixel((intensity * 4f + 1f + (0.5f - intensity * intensity * intensity)));
-        var widthMultiplier = snapToFlamePixel((intensity * 1.5f + 1));
+        final var size = 1f;
+        var flameOffset = snapToBlockPixel((0.35f + ((24 - 4 * Mth.clamp(intensity, 0.5f, 1f)) / 16f) - 0.5f) / (Mth.clamp(size*0.5f, 1, 16)));
+        var lengthMultiplier = snapToFlamePixel((intensity * 4f + 1f + (0.5f - intensity * intensity * intensity)) * size);
+        var widthMultiplier = snapToFlamePixel((intensity * 1.5f + 1) * size);
 
         ms.pushPose();
         ms.translate(0.5f, 0.5f, 0.5f);

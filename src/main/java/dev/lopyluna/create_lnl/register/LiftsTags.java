@@ -1,10 +1,13 @@
 package dev.lopyluna.create_lnl.register;
 
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.Create;
 import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.providers.RegistrateTagsProvider;
+import dev.eriksonn.aeronautics.index.AeroBlocks;
 import dev.eriksonn.aeronautics.index.AeroTags;
 import dev.lopyluna.create_lnl.Lifts;
+import dev.simulated_team.simulated.index.SimBlocks;
 import net.createmod.catnip.lang.Lang;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -15,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagBuilder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -41,9 +45,57 @@ public class LiftsTags {
 
     }
 
+    public static TagKey<Block> NODE_INPUT = block("node_input");
+    public static TagKey<Block> NODE_OUTPUT = block("node_output");
+    public static TagKey<Block> NODE_BOTH = block("node_both");
+
     public static void genBlockTags(RegistrateTagsProvider<Block> provIn) {
         TagsProvider<Block> prov = new TagsProvider<>(provIn, Block::builtInRegistryHolder);
+        prov.tag(NODE_OUTPUT)
+                .add(SimBlocks.THROTTLE_LEVER.get())
+                .add(AllBlocks.ANALOG_LEVER.get())
+                .add(AllBlocks.DESK_BELL.get())
+                .add(Blocks.LEVER)
+                .add(Blocks.DAYLIGHT_DETECTOR)
+                .add(Blocks.TARGET)
+                .add(Blocks.TRIPWIRE_HOOK)
+                .add(Blocks.CALIBRATED_SCULK_SENSOR)
+                .add(Blocks.SCULK_SENSOR)
+                .add(Blocks.LECTERN)
+                .addTag(net.minecraft.tags.BlockTags.BUTTONS)
+                .addTag(net.minecraft.tags.BlockTags.PRESSURE_PLATES);
 
+        var nodeIn = prov.tag(NODE_INPUT)
+                .add(AeroBlocks.HOT_AIR_BURNER.get())
+                .add(AeroBlocks.STEAM_VENT.get())
+                .add(SimBlocks.REDSTONE_MAGNET.get())
+                .add(AllBlocks.STEAM_WHISTLE.get())
+                .add(AllBlocks.HAUNTED_BELL.get())
+                .add(AllBlocks.PECULIAR_BELL.get())
+                .add(Blocks.PISTON)
+                .add(Blocks.STICKY_PISTON)
+                .add(Blocks.DISPENSER)
+                .add(Blocks.DROPPER)
+                .add(Blocks.NOTE_BLOCK)
+                .add(Blocks.REDSTONE_LAMP)
+                .add(Blocks.BELL)
+                .add(Blocks.CRAFTER)
+                .add(Blocks.COPPER_BULB)
+                .add(Blocks.EXPOSED_COPPER_BULB)
+                .add(Blocks.WEATHERED_COPPER_BULB)
+                .add(Blocks.OXIDIZED_COPPER_BULB)
+                .add(Blocks.WAXED_COPPER_BULB)
+                .add(Blocks.WAXED_EXPOSED_COPPER_BULB)
+                .add(Blocks.WAXED_WEATHERED_COPPER_BULB)
+                .add(Blocks.WAXED_OXIDIZED_COPPER_BULB)
+                .addTag(net.minecraft.tags.BlockTags.DOORS)
+                .addTag(net.minecraft.tags.BlockTags.TRAPDOORS)
+                .addTag(net.minecraft.tags.BlockTags.FENCE_GATES);
+        for (var dye : DyeColor.values()) nodeIn.addOptional(AllBlocks.NIXIE_TUBES.get(dye).getId());
+
+        prov.tag(NODE_BOTH)
+                .add(Blocks.REDSTONE_TORCH)
+                .add(Blocks.REDSTONE_WALL_TORCH);
     }
 
     public static TagKey<Item> NODE_CONNECTOR = item("node_connector");
@@ -51,8 +103,6 @@ public class LiftsTags {
 
     public static void genItemTags(RegistrateTagsProvider<Item> provIn) {
         TagsProvider<Item> prov = new TagsProvider<>(provIn, Item::builtInRegistryHolder);
-        prov.tag(NODE_CONNECTOR)
-                .add(Items.NETHER_STAR);
 
         prov.tag(NODE_VIEWER)
                 .addTag(NODE_CONNECTOR);

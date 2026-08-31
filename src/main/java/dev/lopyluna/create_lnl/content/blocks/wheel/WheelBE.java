@@ -365,7 +365,6 @@ public class WheelBE extends KineticBlockEntity implements BlockEntitySubLevelAc
         return new Vector3d(normal.getX(), normal.getY(), normal.getZ());
     }
 
-    //TEMP TILL THEY ADD THEIR OWN IF THAT HAPPENS
     public enum WheelType {
         MONSTROUS,
         LARGE,

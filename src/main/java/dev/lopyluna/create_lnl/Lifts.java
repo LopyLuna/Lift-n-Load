@@ -6,6 +6,8 @@ import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipModifier;
+import dev.lopyluna.create_lnl.content.blocks.logic_byte.LogicOp;
+import dev.lopyluna.create_lnl.content.nodes.NodeHosts;
 import dev.lopyluna.create_lnl.content.utils.LiftsRegistry;
 import dev.lopyluna.create_lnl.events.CommonEvents;
 import dev.lopyluna.create_lnl.register.*;
@@ -60,6 +62,7 @@ public class Lifts {
         LiftsBETypes.register();
         LiftsItems.register();
         LiftsPackets.register();
+        NodeHosts.register();
 
         LiftsConfigs.register(context, modContainer);
 
@@ -69,6 +72,8 @@ public class Lifts {
         modEventBus.addListener(EventPriority.LOWEST, LiftsDatagen::gatherData);
 
         REG.addRawLang("create_lnl.simulated_section.create_lnl", NAME);
+        REG.addRawLang("create_lnl.logic_byte.mode", "Logic Mode");
+        for (var op : LogicOp.ALL) REG.addRawLang(op.getTranslationKey(), op.name());
     }
 
     public static LangBuilder lang() {

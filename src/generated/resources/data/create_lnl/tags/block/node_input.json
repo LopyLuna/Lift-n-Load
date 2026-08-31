@@ -1,0 +1,157 @@
+{
+  "values": [
+    "aeronautics:adjustable_burner",
+    "aeronautics:steam_vent",
+    "simulated:redstone_magnet",
+    "create:steam_whistle",
+    "create:haunted_bell",
+    "create:peculiar_bell",
+    "minecraft:piston",
+    "minecraft:sticky_piston",
+    "minecraft:dispenser",
+    "minecraft:dropper",
+    "minecraft:note_block",
+    "minecraft:redstone_lamp",
+    "minecraft:bell",
+    "minecraft:crafter",
+    "minecraft:copper_bulb",
+    "minecraft:exposed_copper_bulb",
+    "minecraft:weathered_copper_bulb",
+    "minecraft:oxidized_copper_bulb",
+    "minecraft:waxed_copper_bulb",
+    "minecraft:waxed_exposed_copper_bulb",
+    "minecraft:waxed_weathered_copper_bulb",
+    "minecraft:waxed_oxidized_copper_bulb",
+    "#minecraft:doors",
+    "#minecraft:trapdoors",
+    "#minecraft:fence_gates",
+    {
+      "id": "create:white_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:magenta_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:light_blue_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:yellow_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:lime_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:pink_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:gray_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:light_gray_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:cyan_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:purple_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:blue_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:brown_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:green_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:red_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:black_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:maroon_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:rose_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:coral_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:indigo_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:navy_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:slate_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:olive_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:amber_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:beige_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:teal_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:mint_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:aqua_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:verdant_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:forest_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:ginger_nixie_tube",
+      "required": false
+    },
+    {
+      "id": "create:tan_nixie_tube",
+      "required": false
+    }
+  ]
+}

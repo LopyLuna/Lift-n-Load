@@ -36,18 +36,18 @@ public abstract class WaterWheelPaddlesBEMixin extends GeneratingKineticBlockEnt
         this.lift$rayPoints = PaddlesUtils.genCastPoints(state, getSize());
     }
     @Inject(method = "read(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;Z)V", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/kinetics/base/GeneratingKineticBlockEntity;read(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;Z)V"))
-    public void lift$read(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket, CallbackInfo ci) {
-        lift$paddling = nbt.getBoolean("Paddling");
+    public void lift$read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket, CallbackInfo ci) {
+        lift$paddling = compound.getBoolean("Paddling");
     }
 
     @Inject(method = "writeSafe(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;)V", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/kinetics/base/GeneratingKineticBlockEntity;writeSafe(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;)V"))
-    public void lift$writeSafe(CompoundTag nbt, HolderLookup.Provider registries, CallbackInfo ci) {
-        nbt.putBoolean("Paddling", lift$paddling);
+    public void lift$writeSafe(CompoundTag tag, HolderLookup.Provider registries, CallbackInfo ci) {
+        tag.putBoolean("Paddling", lift$paddling);
     }
 
     @Inject(method = "write(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;Z)V", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/kinetics/base/GeneratingKineticBlockEntity;write(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;Z)V"))
-    public void lift$write(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket, CallbackInfo ci) {
-        nbt.putBoolean("Paddling", lift$paddling);
+    public void lift$write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket, CallbackInfo ci) {
+        compound.putBoolean("Paddling", lift$paddling);
     }
 
     @Override

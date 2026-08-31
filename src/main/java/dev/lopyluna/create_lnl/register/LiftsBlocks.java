@@ -13,6 +13,8 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.lopyluna.create_lnl.Lifts;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftBlock;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftBlockItem;
+import dev.lopyluna.create_lnl.content.blocks.logic_byte.LogicByteBlock;
+import dev.lopyluna.create_lnl.content.blocks.logic_byte.LogicByteBlockItem;
 import dev.lopyluna.create_lnl.content.blocks.node_link.NodeLinkBlock;
 import dev.lopyluna.create_lnl.content.blocks.spring_shaft.SpringShaftBlock;
 import dev.lopyluna.create_lnl.content.blocks.thruster.ThrusterBlock;
@@ -172,7 +174,7 @@ public class LiftsBlocks {
     public static final BlockEntry<NodeLinkBlock> NODE_LINK = REG.block("node_link", NodeLinkBlock::new)
             .initialProperties(SharedProperties::softMetal)
             .properties(p -> p.sound(SoundType.NETHERITE_BLOCK).mapColor(MapColor.TERRACOTTA_BROWN).forceSolidOn())
-            .transform(axeOrPickaxe())
+            .transform(pickaxeOnly())
             .tag(AllTags.AllBlockTags.BRITTLE.tag, AllTags.AllBlockTags.SAFE_NBT.tag)
             .blockstate((c, p) -> p.getVariantBuilder(c.get()).forAllStates(state -> {
                 var receiver = state.getValue(NodeLinkBlock.RECEIVER);
@@ -192,6 +194,23 @@ public class LiftsBlocks {
             .transform(customItemModel("_", "transmitter"))
             .register();
 
+
+    public static final BlockEntry<LogicByteBlock> LOGIC_BYTE = REG.block("logic_byte", LogicByteBlock::new)
+            .initialProperties(SharedProperties::softMetal)
+            .properties(p -> p.sound(SoundType.NETHERITE_BLOCK).mapColor(MapColor.COLOR_GRAY).noOcclusion()
+                    .isRedstoneConductor((s, l, po) -> false).isSuffocating((s, l, po) -> false).isViewBlocking((s, l, po) -> false))
+            .transform(pickaxeOnly())
+            .tag(AllTags.AllBlockTags.SAFE_NBT.tag)
+            .blockstate((c, p) -> p.simpleBlock(c.get(), p.models().getExistingFile(p.modLoc("block/logic_byte/empty"))))
+            .recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, c.get(), 2)
+                    .requires(LiftsItems.NODE_PLUG).requires(AllItems.PRECISION_MECHANISM).requires(Items.COMPASS).requires(AllItems.ELECTRON_TUBE)
+                    .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(LiftsItems.NODE_PLUG))
+                    .save(p))
+            .item(LogicByteBlockItem::new)
+            .model((c, p) -> p.withExistingParent(c.getName(), p.modLoc("block/logic_byte/item")))
+            .tag(LiftsTags.NODE_VIEWER)
+            .build()
+            .register();
 
     protected static String getItemName(ItemLike pItemLike) {
         return BuiltInRegistries.ITEM.getKey(pItemLike.asItem()).getPath();

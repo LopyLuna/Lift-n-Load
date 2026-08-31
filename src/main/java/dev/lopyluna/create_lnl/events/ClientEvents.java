@@ -1,12 +1,23 @@
 package dev.lopyluna.create_lnl.events;
 
+import dev.lopyluna.create_lnl.content.nodes.Node;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import dev.lopyluna.create_lnl.Lifts;
 import dev.lopyluna.create_lnl.client.LiftsRenderTypes;
-import dev.lopyluna.create_lnl.content.blocks.connectors.*;
+import dev.lopyluna.create_lnl.content.nodes.loose.NodeCell;
+import dev.lopyluna.create_lnl.register.client.LiftsPartialModels;
+import dev.ryanhcode.sable.Sable;
+import dev.ryanhcode.sable.sublevel.ClientSubLevel;
+import net.createmod.catnip.render.CachedBuffers;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderType;
+import dev.lopyluna.create_lnl.content.nodes.NodeHosts;
+import dev.lopyluna.create_lnl.content.nodes.client.NodeClient;
+import dev.lopyluna.create_lnl.content.blocks.logic_byte.LogicOp;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftBE;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.client.DockingLiftGhost;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.packets.LiftActions;
@@ -14,20 +25,18 @@ import dev.lopyluna.create_lnl.content.blocks.spring_shaft.SpringShaftItem;
 import dev.lopyluna.create_lnl.content.utils.LiftSoundDistUtil;
 import dev.lopyluna.create_lnl.register.LiftsTags;
 import dev.lopyluna.create_lnl.register.client.LiftKeys;
-import dev.ryanhcode.sable.Sable;
-import dev.ryanhcode.sable.companion.math.JOMLConversion;
-import dev.ryanhcode.sable.sublevel.ClientSubLevel;
 import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.platform.CatnipServices;
 import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -43,8 +52,8 @@ import java.util.*;
 @EventBusSubscriber(modid = Lifts.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientEvents {
     static Minecraft mc = Minecraft.getInstance();
-    public static HashMap<BlockPos, LerpedFloat> HOVERING = new HashMap<>();
-    public static List<BlockPos> TO_REMOVE_HOVERING = new ArrayList<>();
+    public static HashMap<Node.Key, LerpedFloat> HOVERING = new HashMap<>();
+    public static List<Node.Key> TO_REMOVE_HOVERING = new ArrayList<>();
 
     @SubscribeEvent
     public static void onTickPre(ClientTickEvent.Pre event) {
@@ -63,8 +72,7 @@ public class ClientEvents {
         if (mc.level == null || isPreEvent) return;
         if (mc.player != null) {
             {
-                var hit = mc.player.getMainHandItem().is(LiftsTags.NODE_CONNECTOR) ? ConnectorUtils.hit(mc.level, mc.player, 1) : null;
-                var pos = hit == null || hit.getType() == HitResult.Type.MISS ? null : hit.getBlockPos();
+                var pos = mc.player.getMainHandItem().is(LiftsTags.NODE_CONNECTOR) ? NodeClient.pick(mc.level, mc.player, 1) : null;
                 if (pos != null && !HOVERING.containsKey(pos)) HOVERING.put(pos, LerpedFloat.linear().chase(1f, 0.65f, LerpedFloat.Chaser.EXP));
                 if (!HOVERING.isEmpty()) {
                     HOVERING.forEach((p, l) -> {
@@ -130,135 +138,82 @@ public class ClientEvents {
 
         DockingLiftGhost.render(ps, cam, bs::getBuffer);
 
-        if (mc.player != null && (mc.player.getMainHandItem().is(LiftsTags.NODE_VIEWER) || mc.player.getOffhandItem().is(LiftsTags.NODE_VIEWER)) && !IConnection.connections.isEmpty()) {
-            var list = new ArrayList<>(IConnection.connections.entrySet().stream().sorted((a, b) -> {
-                var posA = a.getKey().getCenter();
-                posA = !(Sable.HELPER.getContaining(mc.level, posA) instanceof ClientSubLevel sub) ?
-                        posA : JOMLConversion.toMojang(sub.renderPose().transformPosition(JOMLConversion.toJOML(posA)));
-                var posB = b.getKey().getCenter();
-                posB = !(Sable.HELPER.getContaining(mc.level, posB) instanceof ClientSubLevel sub) ?
-                        posB : JOMLConversion.toMojang(sub.renderPose().transformPosition(JOMLConversion.toJOML(posB)));
-                return -Double.compare(cam.distanceTo(posA), cam.distanceTo(posB));
-            }).toList());
-            var hit = ConnectorUtils.hit(mc.level, mc.player, 1);
+        renderLoose(mc.level, cam, ps, bs);
 
-            var holdPos = ConnectionClientHandler.holdingPos; //if null then dont render line
-            var endPos = hit == null || hit.getType() == HitResult.Type.MISS ? null : hit.getBlockPos();
-            var holdPoint = holdPos == null ? null : !(Sable.HELPER.getContaining(mc.level, holdPos) instanceof ClientSubLevel sub) ? holdPos.getCenter() : JOMLConversion.toMojang(sub.renderPose().transformPosition(JOMLConversion.toJOML(holdPos.getCenter())));
-            var endPoint = holdPos == null ? null : endPos == null ? mc.hitResult != null ?
-                    !(Sable.HELPER.getContaining(mc.level, mc.hitResult.getLocation()) instanceof ClientSubLevel sub) ?
-                            mc.hitResult.getLocation() : JOMLConversion.toMojang(sub.renderPose().transformPosition(JOMLConversion.toJOML(mc.hitResult.getLocation()))) :
-                    cam.add(mc.player.getLookAngle().scale(4)) :
-                    !(Sable.HELPER.getContaining(mc.level, endPos) instanceof ClientSubLevel sub) ?
-                            endPos.getCenter() : JOMLConversion.toMojang(sub.renderPose().transformPosition(JOMLConversion.toJOML(endPos.getCenter())));
+        if (mc.player != null && (mc.player.getMainHandItem().is(LiftsTags.NODE_VIEWER) || mc.player.getOffhandItem().is(LiftsTags.NODE_VIEWER))) {
+            var level = mc.level;
+            var visible = new ArrayList<RenderedPort>();
+            for (var pos : NodeClient.positions()) {
+                if (!level.isLoaded(pos)) continue;
+                for (var port : NodeHosts.ports(level, pos)) {
+                    var point = NodeClient.render(level, pos, port);
+                    var dist = cam.distanceTo(point);
+                    if (dist > 32) continue;
+                    visible.add(new RenderedPort(pos, port, point, dist));
+                }
+            }
+            visible.sort((a, b) -> -Double.compare(a.dist(), b.dist()));
+
+            var holding = NodeClient.holding;
+            var target = NodeClient.pick(level, mc.player, pt);
 
             ps.pushPose();
             RenderSystem.disableDepthTest();
 
             var orientation = mc.getEntityRenderDispatcher().cameraOrientation();
+            var links = new ArrayList<RenderedLink>();
 
-            var rendered = new HashSet<ConnectionKey>();
-            for (var entry : list) {
-                var connection = entry.getKey();
-                if (!(mc.level.getBlockEntity(connection) instanceof IConnection<?> c) || c.lifts$getConnections().isEmpty()) continue;
-                var pos = !(Sable.HELPER.getContaining(mc.level, connection) instanceof ClientSubLevel sub) ? connection.getCenter() : JOMLConversion.toMojang(sub.renderPose().transformPosition(JOMLConversion.toJOML(connection.getCenter())));
-                var dist = cam.distanceTo(pos);
-                if (dist > 32) continue;
-                var lerp = HOVERING.get(connection);
-                var scale = lerp == null ? 1f : lerp.getValue(pt) * (.55f/.80f) / 2f + 1f;
-
-                var clr = Connection.getRGB(entry.getValue());
-
-                var mul = (float) ((dist/48) + 0.55f) * scale;
-                var color = FastColor.ARGB32.color(Mth.clamp((int) Math.round(Mth.clamp(32-dist, 0, 1)*255), 0, 255),
-                        FastColor.ARGB32.red(clr), FastColor.ARGB32.green(clr), FastColor.ARGB32.blue(clr));
-
-                var vc = bs.getBuffer(LiftsRenderTypes.CONNECTOR_WIRE);
-
-
-                var sortedConnections = new ArrayList<>(c.lifts$getConnections().stream().sorted((a, b) -> {
-                    var posA = a.getCenter();
-                    posA = !(Sable.HELPER.getContaining(mc.level, posA) instanceof ClientSubLevel sub) ?
-                            posA : JOMLConversion.toMojang(sub.renderPose().transformPosition(JOMLConversion.toJOML(posA)));
-                    posA = posA.add(pos).scale(0.5f);
-                    var posB = b.getCenter();
-                    posB = !(Sable.HELPER.getContaining(mc.level, posB) instanceof ClientSubLevel sub) ?
-                            posB : JOMLConversion.toMojang(sub.renderPose().transformPosition(JOMLConversion.toJOML(posB)));
-                    posB = posB.add(pos).scale(0.5f);
-                    return -Double.compare(cam.distanceTo(posA), cam.distanceTo(posB));
-                }).toList());
-
-                for (var connected : sortedConnections) {
-                    var key = new ConnectionKey(connection, connected);
-                    if (rendered.contains(key)) continue;
-                    rendered.add(key);
-
-                    var data = IConnection.connections.get(connected);
-                    if (data == null) {
-                        IConnection.connections.remove(connected);
-                        var remove = new ArrayList<BlockPos>();
-                        for (var cd : list) if (cd.getKey().equals(connected)) { remove.add(connected); break; }
-                        remove.forEach(IConnection.connections::remove);
-                        continue;
-                    }
-                    var outCen = !(Sable.HELPER.getContaining(mc.level, connected) instanceof ClientSubLevel sub) ? connected.getCenter() : JOMLConversion.toMojang(sub.renderPose().transformPosition(JOMLConversion.toJOML(connected.getCenter())));
-                    var distO = cam.distanceTo(outCen);
-                    if (distO > 64) continue;
-                    var lerpO = HOVERING.get(connection);
-                    var scaleO = lerpO == null ? 1f : lerpO.getValue(pt) * (.55f/.80f) / 2f + 1f;
-                    var clrO = Connection.getRGB(data);
-
-                    var mulO = (float) ((distO/48) + 0.55f) * scaleO;
-                    var colorO = FastColor.ARGB32.color(Mth.clamp((int) Math.round(Mth.clamp(32-distO, 0, 1)*255), 0, 255),
-                            FastColor.ARGB32.red(clrO), FastColor.ARGB32.green(clrO), FastColor.ARGB32.blue(clrO));
-
-                    renderWire(pos, outCen, cam, ps, vc, color, colorO, mul, mulO);
+            for (var node : visible) {
+                if (!node.port().flow().canOutput()) continue;
+                for (var link : Node.Graphs.CLIENT.outputs(node.port().key(node.pos()))) {
+                    if (!level.isLoaded(link.pos())) continue;
+                    var other = NodeHosts.port(level, link);
+                    if (other == null) continue;
+                    var point = NodeClient.render(level, link.pos(), other);
+                    var dist = cam.distanceTo(point);
+                    if (dist > 64) continue;
+                    var order = other.merge() instanceof LogicOp op && op.ordered() ? Node.Graphs.CLIENT.inputs(link) : List.<Node.Key>of();
+                    links.add(new RenderedLink(node.point(), point, argb(node.port().color(), node.dist()), argb(other.color(), dist),
+                            scale(node, pt), scale(dist, 1f), node.dist(), dist,
+                            order.size() < 2 ? 0 : order.indexOf(node.port().key(node.pos())) + 1));
                 }
             }
 
-            Connection.Self connectionHold = null;
-            if (holdPoint != null) connectionHold = IConnection.connections.get(holdPos);
-            if (holdPoint != null && connectionHold != null) {
-                var connectionEnd = IConnection.connections.get(endPos);
-                var vc = bs.getBuffer(LiftsRenderTypes.CONNECTOR_WIRE);
-
-                var distS = cam.distanceTo(holdPoint);
-                var distE = cam.distanceTo(endPoint);
-                var mulS = (float) ((distS/48) + 0.55f);
-                var mulE = (float) ((distE/48) + 0.55f);
-
-                int sClr = Connection.getRGB(connectionHold);
-                var sColor = FastColor.ARGB32.color(Mth.clamp((int) Math.round(Mth.clamp(32-distS, 0, 1)*255), 0, 255),
-                        FastColor.ARGB32.red(sClr), FastColor.ARGB32.green(sClr), FastColor.ARGB32.blue(sClr));
-                int eClr = connectionEnd == null ? sClr : Connection.getRGB(connectionEnd);
-                var eColor = FastColor.ARGB32.color(Mth.clamp((int) Math.round(Mth.clamp(32-distE, 0, 1)*255), 0, 255),
-                        FastColor.ARGB32.red(eClr), FastColor.ARGB32.green(eClr), FastColor.ARGB32.blue(eClr));
-
-                renderWire(holdPoint, endPoint, cam, ps, vc, sColor, eColor, mulS, mulE);
-                if (connectionEnd == null) renderNode(endPoint, cam, ps, bs.getBuffer(LiftsRenderTypes.CONNECTOR), orientation, eColor, mulE/1.75f);
+            Vec3 ghost = null;
+            var ghostClr = 0;
+            var ghostScale = 0f;
+            if (holding != null) {
+                var from = NodeHosts.port(level, holding);
+                if (from != null) {
+                    var start = NodeClient.render(level, holding.pos(), from);
+                    var toPort = target == null ? null : NodeHosts.port(level, target);
+                    var end = toPort == null ? crosshair(level, cam) : NodeClient.render(level, target.pos(), toPort);
+                    var distS = cam.distanceTo(start);
+                    var distE = cam.distanceTo(end);
+                    var endClr = toPort == null ? from.color() : toPort.color();
+                    links.add(new RenderedLink(start, end, argb(from.color(), distS), argb(endClr, distE),
+                            scale(distS, 1f), scale(distE, 1f), distS, distE, 0));
+                    if (toPort == null) {
+                        ghost = end;
+                        ghostClr = argb(endClr, distE);
+                        ghostScale = scale(distE, 1f) / 1.75f;
+                    }
+                }
             }
 
-            for (var entry : list) {
-                var connection = entry.getKey();
-                var pos = !(Sable.HELPER.getContaining(mc.level, connection) instanceof ClientSubLevel sub) ? connection.getCenter() : JOMLConversion.toMojang(sub.renderPose().transformPosition(JOMLConversion.toJOML(connection.getCenter())));
-                var dist = cam.distanceTo(pos);
-                if (dist > 32) continue;
-                var lerp = HOVERING.get(connection);
-                var scale = lerp == null ? 1f : lerp.getValue(pt) * (.55f/.80f) / 2f + 1f;
+            var wires = bs.getBuffer(LiftsRenderTypes.CONNECTOR_WIRE);
+            for (var link : links) renderWire(link.start(), link.end(), cam, ps, wires, link.sClr(), link.eClr(), link.sScale(), link.eScale());
 
-                var clr = Connection.getRGB(entry.getValue());
-                //final var type = Connection.getType(entry.getValue());
+            var arrows = bs.getBuffer(LiftsRenderTypes.CONNECTOR_ARROW);
+            for (var link : links) renderFlow(link.start(), link.end(), cam, ps, arrows, orientation, link.sClr(), link.eClr(), link.sDist(), link.eDist());
 
-                var mul = (float) ((dist/48) + 0.55f) * scale;
-                var color = FastColor.ARGB32.color(Mth.clamp((int) Math.round(Mth.clamp(32-dist, 0, 1)*255), 0, 255),
-                        FastColor.ARGB32.red(clr), FastColor.ARGB32.green(clr), FastColor.ARGB32.blue(clr));
+            var dots = bs.getBuffer(LiftsRenderTypes.CONNECTOR);
+            for (var node : visible) renderNode(node.point(), cam, ps, dots, orientation, argb(node.port().color(), node.dist()), scale(node, pt) * (12/16f));
+            if (ghost != null) renderNode(ghost, cam, ps, dots, orientation, ghostClr, ghostScale);
 
-                var vc = bs.getBuffer(LiftsRenderTypes.CONNECTOR);
-                //if (type == Connection.Type.IN) vc = bs.getBuffer(LiftsRenderTypes.CONNECTOR_IN);
-                //else if (type == Connection.Type.OUT) vc = bs.getBuffer(LiftsRenderTypes.CONNECTOR_OUT);
-                //else vc = bs.getBuffer(LiftsRenderTypes.CONNECTOR);
-
-                renderNode(pos, cam, ps, vc, orientation, color, mul * (12/16f));
+            for (var link : links) {
+                if (link.order() <= 0) continue;
+                renderOrder(link, cam, ps, bs, orientation);
             }
             ps.popPose();
         }
@@ -267,6 +222,35 @@ public class ClientEvents {
         RenderSystem.enableDepthTest();
         RenderSystem.enableCull();
         ps.popPose();
+    }
+
+    public static void renderLoose(final Level level, final Vec3 cam, final PoseStack ps, final MultiBufferSource bs) {
+        if (Node.Graphs.CLIENT.nodes.isEmpty()) return;
+        var vb = bs.getBuffer(RenderType.cutout());
+        for (var entry : Node.Graphs.CLIENT.nodes.entrySet()) {
+            var node = entry.getValue();
+            if (node.loose.isEmpty()) continue;
+            var pos = entry.getKey();
+            if (!level.isLoaded(pos)) continue;
+            var sub = Sable.HELPER.getContaining(level, pos) instanceof ClientSubLevel client ? client : null;
+            var origin = new Vec3(pos.getX(), pos.getY(), pos.getZ());
+            if (sub != null) origin = sub.renderPose().transformPosition(origin);
+            if (cam.distanceToSqr(origin) > 64 * 64) continue;
+            var state = level.getBlockState(pos);
+            var light = LevelRenderer.getLightColor(level, pos);
+            ps.pushPose();
+            TransformStack.of(ps).translate(origin.x - cam.x, origin.y - cam.y, origin.z - cam.z);
+            if (sub != null) ps.mulPose(new Quaternionf(sub.renderPose().orientation()));
+            for (var id : node.loose) {
+                var local = NodeCell.local(id);
+                CachedBuffers.partial(LiftsPartialModels.NODE, state)
+                        .rotateAround(NodeCell.rotation(NodeCell.face(id)), 0.5f, 0.5f, 0.5f)
+                        .translate(local.x, local.y, local.z)
+                        .light(light)
+                        .renderInto(ps, vb);
+            }
+            ps.popPose();
+        }
     }
 
     public static void renderNode(final Vec3 pos, final Vec3 cam, final PoseStack ps, final VertexConsumer vc, final Quaternionf orientation, final int argb, final float scale) {
@@ -341,19 +325,78 @@ public class ClientEvents {
         ps.popPose();
     }
 
+    public static void renderFlow(final Vec3 sPos, final Vec3 ePos, final Vec3 cam, final PoseStack ps, final VertexConsumer vc, final Quaternionf orientation, int sARGB, int eARGB, double sDist, double eDist) {
+        var line = ePos.subtract(sPos);
+        var length = line.length();
+        if (length < 1.0e-4) return;
+        var dir = line.scale(1 / length);
+        if (length < 1) {
+            renderArrow(sPos.add(line.scale(0.5)), dir, cam, ps, vc, orientation, sARGB, scale((sDist + eDist) / 2, 1f) * (12/16f));
+            return;
+        }
+        renderArrow(sPos.add(line.scale(0.1)), dir, cam, ps, vc, orientation, sARGB, scale(sDist, 1f) * (12/16f));
+        renderArrow(sPos.add(line.scale(0.9)), dir, cam, ps, vc, orientation, eARGB, scale(eDist, 1f) * (12/16f));
+    }
+
+    public static void renderArrow(final Vec3 pos, final Vec3 dir, final Vec3 cam, final PoseStack ps, final VertexConsumer vc, final Quaternionf orientation, final int argb, final float scale) {
+        var local = new Vector3f((float) dir.x, (float) dir.y, (float) dir.z);
+        new Quaternionf(orientation).conjugate().transform(local);
+        if (local.x * local.x + local.y * local.y < 1.0e-8f) return;
+
+        ps.pushPose();
+        TransformStack.of(ps).translate(pos.subtract(cam));
+        ps.mulPose(orientation);
+        ps.mulPose(Axis.ZP.rotation((float) Math.atan2(-local.x, local.y)));
+        ps.scale(scale, scale, scale);
+
+        var pose = ps.last();
+
+        vc.addVertex(pose, 0f - 0.5f, 0f - 0.5f, 0f).setColor(argb).setUv(0f, 1f).setLight(LightTexture.FULL_BRIGHT);
+        vc.addVertex(pose, 0f - 0.5f, 1f - 0.5f, 0f).setColor(argb).setUv(0f, 0f).setLight(LightTexture.FULL_BRIGHT);
+        vc.addVertex(pose, 1f - 0.5f, 1f - 0.5f, 0f).setColor(argb).setUv(1f, 0f).setLight(LightTexture.FULL_BRIGHT);
+        vc.addVertex(pose, 1f - 0.5f, 0f - 0.5f, 0f).setColor(argb).setUv(1f, 1f).setLight(LightTexture.FULL_BRIGHT);
+
+        ps.popPose();
+    }
+
+    @SuppressWarnings("ClassEscapesDefinedScope")
+    public static void renderOrder(final RenderedLink link, final Vec3 cam, final PoseStack ps, final MultiBufferSource bs, final Quaternionf orientation) {
+        var text = String.valueOf(link.order());
+        var size = scale(link.sDist(), 1f) * (0.625f/16f);
+
+        ps.pushPose();
+        TransformStack.of(ps).translate(link.start().subtract(cam));
+        ps.mulPose(orientation);
+        ps.scale(size, -size, size);
+        mc.font.drawInBatch(text, (1 - mc.font.width(text)) / 2f, -3.5f, argb(0xFFFFFF, link.sDist()), false, ps.last().pose(), bs,
+                Font.DisplayMode.SEE_THROUGH, 0, LightTexture.FULL_BRIGHT);
+        ps.popPose();
+    }
+
     protected static boolean isGameActive() {
         return !(Minecraft.getInstance().level == null || Minecraft.getInstance().player == null);
     }
 
-    private record ConnectionKey(BlockPos a, BlockPos b) {
-        public ConnectionKey(BlockPos a, BlockPos b) {
-            if (a.compareTo(b) <= 0) {
-                this.a = a;
-                this.b = b;
-            } else {
-                this.a = b;
-                this.b = a;
-            }
-        }
+    private record RenderedPort(BlockPos pos, Node.Port port, Vec3 point, double dist) {}
+
+    private record RenderedLink(Vec3 start, Vec3 end, int sClr, int eClr, float sScale, float eScale, double sDist, double eDist, int order) {}
+
+    private static int argb(int rgb, double dist) {
+        var alpha = Mth.clamp((int) Math.round(Mth.clamp(32 - dist, 0, 1) * 255), 0, 255);
+        return FastColor.ARGB32.color(alpha, FastColor.ARGB32.red(rgb), FastColor.ARGB32.green(rgb), FastColor.ARGB32.blue(rgb));
+    }
+
+    private static float scale(double dist, float hover) {
+        return (float) ((dist / 48) + 0.55f) * hover;
+    }
+
+    private static float scale(RenderedPort node, float pt) {
+        var lerp = HOVERING.get(node.port().key(node.pos()));
+        return scale(node.dist(), lerp == null ? 1f : lerp.getValue(pt) * (.55f/.80f) / 2f + 1f);
+    }
+
+    private static Vec3 crosshair(Level level, Vec3 cam) {
+        if (mc.hitResult != null) return NodeClient.render(level, mc.hitResult.getLocation());
+        return mc.player == null ? cam : cam.add(mc.player.getLookAngle().scale(4));
     }
 }

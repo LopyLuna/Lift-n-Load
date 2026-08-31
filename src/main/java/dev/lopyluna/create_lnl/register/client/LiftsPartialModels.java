@@ -4,6 +4,7 @@ import com.simibubi.create.Create;
 import dev.engine_room.flywheel.lib.model.baked.PartialModel;
 import dev.eriksonn.aeronautics.Aeronautics;
 import dev.lopyluna.create_lnl.Lifts;
+import dev.lopyluna.create_lnl.content.blocks.logic_byte.LogicSlot;
 import dev.ryanhcode.offroad.Offroad;
 import dev.simulated_team.simulated.Simulated;
 import net.createmod.catnip.data.Iterate;
@@ -20,6 +21,7 @@ import java.util.function.BiFunction;
 @SuppressWarnings("unused")
 public class LiftsPartialModels {
     public static final PartialModel
+            NODE = block("node"),
             NODE_OVERLAY = block("node_link/overlay"),
             NODE_OVERLAY_VERTICAL = block("node_link/overlay_vertical"),
 
@@ -40,6 +42,9 @@ public class LiftsPartialModels {
             LIFT_TOP = block("contraption_lift/top"),
             LIFT = block("contraption_lift/block")
     ;
+    public static final Map<LogicSlot, PartialModel> LOGIC_BYTE = new EnumMap<>(LogicSlot.class);
+    public static final Map<LogicSlot, PartialModel> LOGIC_BYTE_LIT = new EnumMap<>(LogicSlot.class);
+
     public static final Map<DyeColor, PartialModel> DYED_LIFT_BOTTOM = new EnumMap<>(DyeColor.class);
     public static final Map<DyeColor, PartialModel> DYED_LIFT_TOP = new EnumMap<>(DyeColor.class);
 
@@ -50,6 +55,11 @@ public class LiftsPartialModels {
     public static final Map<DyeColor, Map<Direction, PartialModel>> DYED_LIFT_ANIM_FOOTS = new EnumMap<>(DyeColor.class);
 
     static {
+        for (var slot : LogicSlot.ALL) {
+            LOGIC_BYTE.put(slot, block("logic_byte/" + slot.id));
+            LOGIC_BYTE_LIT.put(slot, block("logic_byte/" + slot.id + "_lit"));
+        }
+
         for (var c : DyeColor.values()) {
             DYED_LIFT_BOTTOM.put(c, block("contraption_lift/" + c.getSerializedName() + "/bottom"));
             DYED_LIFT_TOP.put(c, block("contraption_lift/" + c.getSerializedName() + "/top"));

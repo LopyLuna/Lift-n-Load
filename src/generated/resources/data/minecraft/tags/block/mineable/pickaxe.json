@@ -4,6 +4,7 @@
     "create_lnl:thruster_structure",
     "create_lnl:wheel",
     "create_lnl:spring_shaft",
-    "create_lnl:node_link"
+    "create_lnl:node_link",
+    "create_lnl:logic_byte"
   ]
 }

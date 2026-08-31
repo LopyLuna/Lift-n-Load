@@ -1,0 +1,16 @@
+{
+  "values": [
+    "simulated:throttle_lever",
+    "create:analog_lever",
+    "create:desk_bell",
+    "minecraft:lever",
+    "minecraft:daylight_detector",
+    "minecraft:target",
+    "minecraft:tripwire_hook",
+    "minecraft:calibrated_sculk_sensor",
+    "minecraft:sculk_sensor",
+    "minecraft:lectern",
+    "#minecraft:buttons",
+    "#minecraft:pressure_plates"
+  ]
+}

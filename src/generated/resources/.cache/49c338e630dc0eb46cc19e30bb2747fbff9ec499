@@ -1,12 +1,13 @@
-// 1.21.1	2026-08-26T00:05:15.6027306	Registrate Provider for create_lnl [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+// 1.21.1	2026-08-31T01:32:29.6611575	Registrate Provider for create_lnl [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
 cd2e4a70dcbca10945adb0a35f3b90eae537a5ee assets/create_lnl/blockstates/contraption_lift.json
+15f1ed0c0d05fdd110ad027ccde84b98d0f8a3dc assets/create_lnl/blockstates/logic_byte.json
 f4324ba1e1d05650cbf63c537512ebbe2585f75f assets/create_lnl/blockstates/node_link.json
 0febdef7ee3a74d49bd7e3a30be736504de0370c assets/create_lnl/blockstates/spring_shaft.json
 b97beec1c0033c4d9a2f6514e90ce074e8f7c85a assets/create_lnl/blockstates/thruster.json
 3dff9e1ec59415779195d2abfa9f07bc17b428a1 assets/create_lnl/blockstates/thruster_structure.json
 a0a61b57bf4fcb1833aab57da9c7d3cf91e619a8 assets/create_lnl/blockstates/wheel.json
-8a07d7b6d0baff4ce4df4bbed4fb847b68b6a746 assets/create_lnl/lang/en_ud.json
-aca184c6aabdabc0498c37e827b97c065c6e4a2e assets/create_lnl/lang/en_us.json
+d4fd3832968ccdbc604e7a25e19bbb9e01e31ddd assets/create_lnl/lang/en_ud.json
+22f69e4bade6ee4e8a5a7ab64c139ad7353a1b40 assets/create_lnl/lang/en_us.json
 3b3e1f83968335fa906ca142028c8c3f7375626e assets/create_lnl/models/block/contraption_lift.json
 5d18205f4d21f9ed7a8e32164ddb67ddb985d3e2 assets/create_lnl/models/block/contraption_lift/amber/animation/east_flap.json
 4ca8f811b05b8adf4e2c79e69b621eb44b28f741 assets/create_lnl/models/block/contraption_lift/amber/animation/east_foot.json
@@ -397,6 +398,7 @@ fdaf51693e274b6561389e53169874f98c594432 assets/create_lnl/models/item/contrapti
 62c5e22e728fcf594a9adbdf8010cd4b5e8808a4 assets/create_lnl/models/item/large_slime_tire/block.json
 fbeb5b3b829334238c863ba714357a84b9d5c995 assets/create_lnl/models/item/large_slime_tire/item.json
 3527f2ad149eacb2552b356aabc2f1b7374fa267 assets/create_lnl/models/item/large_slime_tire/large_slime_tire.json
+c394976d5ccfabfb172f5ce2d740c37e7e85e666 assets/create_lnl/models/item/logic_byte.json
 46c4f10d87379f4d6670eed97b88d3f8c35b89a0 assets/create_lnl/models/item/lunar_diamond.json
 93ac17f976f7f154891467e718514ffbf424f3f3 assets/create_lnl/models/item/monstrous_slime_tire.json
 73d6459c58c3ea421fa332318f38b9d4817ae02e assets/create_lnl/models/item/monstrous_slime_tire/block.json
@@ -417,11 +419,13 @@ e883d8b7e32a9f1f2db509836e979ab12686add0 assets/create_lnl/models/item/small_sli
 9e7ce08ae7bba5737f5d515de97ac98d73212432 assets/create_lnl/models/item/thruster.json
 2804256ace2350e22aea31b013f7da26206a8ab0 data/create/tags/block/brittle.json
 45a394b20049a49abdd829fe321f54951935c060 data/create/tags/block/non_movable.json
-2804256ace2350e22aea31b013f7da26206a8ab0 data/create/tags/block/safe_nbt.json
+d397638326b84b8512acb85b5d09a4ba1c0f25d7 data/create/tags/block/safe_nbt.json
 6bc98ada98adf620ab706f72be1238fa9b2bc49d data/create_lnl/advancement/recipes/misc/contraption_lift.json
 cce4c5bdf97ab2581bf762202bd54273751e1805 data/create_lnl/advancement/recipes/misc/large_slime_tire.json
+c70252689a88b51f01abbe02cf3ff1c6258ba360 data/create_lnl/advancement/recipes/misc/logic_byte.json
 ac2d67bd7742f92da864374d85aca02d9ec5af99 data/create_lnl/advancement/recipes/misc/lunar_diamond.json
 58df8a7d3970010551f42dbf2f663f477ae71914 data/create_lnl/advancement/recipes/misc/monstrous_slime_tire.json
+d9d3e33a4ec248513c254b78b33c270ce9e38c98 data/create_lnl/advancement/recipes/misc/node_connector.json
 6c487fb73f9b90abe18036ef74fcc3777b9c25b3 data/create_lnl/advancement/recipes/misc/node_link.json
 185b69762f0f8d2fc9e16601757393f77a01f63b data/create_lnl/advancement/recipes/misc/node_plug.json
 5385f2e3aa6ad1099a7510cef4295d7d49f835b0 data/create_lnl/advancement/recipes/misc/physic_welder.json
@@ -430,6 +434,7 @@ ac6992a02003bd0ec2ded2f03056671862052ac9 data/create_lnl/advancement/recipes/mis
 27023fa84e8ed6a7c9cb2a51ed6c698bafe93485 data/create_lnl/advancement/recipes/misc/spring_shaft.json
 efbc6ccc01063bb7271d75cb038bd956c734834e data/create_lnl/advancement/recipes/misc/thruster.json
 929e6403eed4c47377c5dfc125820c7ab3f3e933 data/create_lnl/loot_table/blocks/contraption_lift.json
+f4abbe2b4abfe86305997d9782f95089b462bb3f data/create_lnl/loot_table/blocks/logic_byte.json
 e725287c02b10354608e887cc05ff3e918919c55 data/create_lnl/loot_table/blocks/node_link.json
 a96ca8c6fe525c4971ac673d3df057f55d681e0a data/create_lnl/loot_table/blocks/spring_shaft.json
 0f2d6ef8f9138f248ba92480effc31f971449b5a data/create_lnl/loot_table/blocks/thruster.json
@@ -437,8 +442,10 @@ a96ca8c6fe525c4971ac673d3df057f55d681e0a data/create_lnl/loot_table/blocks/sprin
 e75d269b197d576f4a3b8c9141b0eb3536dc69ca data/create_lnl/loot_table/blocks/wheel.json
 27b255ab7352f6756ad1ca4a0cc4b30fd37a3503 data/create_lnl/recipe/contraption_lift.json
 d3094c003fe813ea81efb4325cce022280298036 data/create_lnl/recipe/large_slime_tire.json
+87dd04ce23c04432fefa48443cb7075a79db0c93 data/create_lnl/recipe/logic_byte.json
 d1705ace0b938b2d2670c749f0de184030fa13a3 data/create_lnl/recipe/lunar_diamond.json
 0a7608492693ca60e34621542da9f1eee7048011 data/create_lnl/recipe/monstrous_slime_tire.json
+ddf81ca035b86fdc3c2755a6dd6ede0dccc9a458 data/create_lnl/recipe/node_connector.json
 c3c15e779f111ed75a66b1338fb6480a09cc3257 data/create_lnl/recipe/node_link.json
 696d2c8ca96ddc104505dd8ae46aa583bd95184a data/create_lnl/recipe/node_plug.json
 ac072d3535e46b962c42adb2cd0e72effdfe558b data/create_lnl/recipe/physic_welder.json
@@ -446,13 +453,14 @@ f53862c6f959a37a745e432ad84b539e42091ec8 data/create_lnl/recipe/slime_tire.json
 2d6c785297335c87b779142e595693f403d2a724 data/create_lnl/recipe/small_slime_tire.json
 b7ede52f2951acf68ea0b0be7c7b273d6b956ed6 data/create_lnl/recipe/spring_shaft.json
 0d839a0b75387524f1a2e93ed1fa841591e4b0a4 data/create_lnl/recipe/thruster.json
-d9fa8492b3cf95f697b9823051abd6f56771b81b data/create_lnl/tags/item/node_connector.json
-b1fd78bd001bdeedb6d0c58b405800a8adeef717 data/create_lnl/tags/item/node_viewer.json
+fa0ecb1fd43c137478ae9a82987229c1699016d6 data/create_lnl/tags/block/node_both.json
+478b1aaabd2738b29d972bf039abcc476dbfb3af data/create_lnl/tags/block/node_input.json
+5062f87edc398907dc1146faf13a91bd2caefe21 data/create_lnl/tags/block/node_output.json
+318468190a7b87c82629dcb95d59818e974c344a data/create_lnl/tags/item/node_connector.json
+c53036dafb5e534a892678524b1cd9b5c9f9a7ad data/create_lnl/tags/item/node_viewer.json
 b0fb3d16418185778766f40626e2c40995e8c73b data/create_lnl/tags/item/spring_like.json
-9ccebf4efcc86847297578c0fe557163aac4bb96 data/c/tags/item/enchantables.json
-a7af4c73b318a699b2ccd662c82ba3e768e61bc7 data/minecraft/tags/block/mineable/axe.json
-8594e33f2d2a3de647f25570d38f401b4ea19d7c data/minecraft/tags/block/mineable/pickaxe.json
-9ccebf4efcc86847297578c0fe557163aac4bb96 data/minecraft/tags/item/enchantable/durability.json
+fd06eec4878a77b62c50fc3f25ef3a8243db2d5e data/minecraft/tags/block/mineable/axe.json
+0bcc95721b69e99027339d2a0c673b377d83b2fb data/minecraft/tags/block/mineable/pickaxe.json
 45a394b20049a49abdd829fe321f54951935c060 data/sable/tags/block/light.json
 65f93af16775aba81b3e666dd04599e8c7fd1121 data/simulated/tags/block/non_movable.json
 45a394b20049a49abdd829fe321f54951935c060 data/simulated/tags/item/spring_adjuster.json

@@ -39,10 +39,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Quaterniond;
 import org.joml.Vector3d;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -455,7 +455,7 @@ public class DockingLiftBE extends SmartBlockEntity implements PhysicHoldingBEs 
         forcedChunks.addAll(wanted);
     }
 
-    private static @NotNull HashSet<Long> createWanted(List<SubLevel> group) {
+    private static @Nonnull HashSet<Long> createWanted(List<SubLevel> group) {
         var wanted = new HashSet<Long>();
         for (var member : group) {
             var bb = member.boundingBox();

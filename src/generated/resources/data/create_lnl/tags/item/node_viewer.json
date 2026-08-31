@@ -2,6 +2,7 @@
   "values": [
     "#create_lnl:node_connector",
     "create_lnl:node_link",
+    "create_lnl:logic_byte",
     "create_lnl:node_plug"
   ]
 }

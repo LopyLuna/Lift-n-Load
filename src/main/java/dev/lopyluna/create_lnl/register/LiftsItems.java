@@ -6,6 +6,7 @@ import com.simibubi.create.foundation.data.AssetLookup;
 import com.simibubi.create.foundation.data.recipe.CommonMetal;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
+import dev.lopyluna.create_lnl.content.items.NodePlugItem;
 import dev.lopyluna.create_lnl.content.blocks.overwrite.TireBlockItem;
 import dev.lopyluna.create_lnl.content.blocks.spring_shaft.SpringShaftItem;
 import dev.lopyluna.create_lnl.content.blocks.wheel.WheelBE;
@@ -19,7 +20,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
@@ -33,7 +33,7 @@ public class LiftsItems {
             .requires(Tags.Items.GEMS_DIAMOND).requires(Tags.Items.GEMS_LAPIS).requires(Tags.Items.GEMS_LAPIS).requires(Tags.Items.GEMS_LAPIS).requires(Tags.Items.GEMS_LAPIS).requires(Tags.Items.GEMS_LAPIS).requires(Tags.Items.GEMS_LAPIS).requires(Tags.Items.GEMS_LAPIS).requires(Tags.Items.GEMS_LAPIS)
             .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(Tags.Items.GEMS_DIAMOND)).save(p)).register();
     public static final ItemEntry<Item> POLISHED_LUNAR_DIAMOND = REG.item("polished_lunar_diamond", Item::new).register();
-    public static final ItemEntry<Item> NODE_PLUG = REG.item("node_plug", Item::new).recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, c.get(), 1)
+    public static final ItemEntry<NodePlugItem> NODE_PLUG = REG.item("node_plug", NodePlugItem::new).recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, c.get(), 1)
             .requires(POLISHED_LUNAR_DIAMOND.get()).requires(CommonMetal.IRON.plates)
             .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(POLISHED_LUNAR_DIAMOND.get())).save(p))
             .tag(LiftsTags.NODE_VIEWER).register();
@@ -43,6 +43,18 @@ public class LiftsItems {
                     .pattern("S").pattern("N").pattern("S").define('S', SimItems.SPRING).define('N', AllBlocks.SHAFT)
                     .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(SimItems.SPRING)).save(prov))
             .tag(SimTags.Items.SPRING_ADJUSTER)
+            .register();
+
+    public static final ItemEntry<Item> NODE_CONNECTOR = REG.item("node_connector", Item::new)
+            .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get(), 1)
+                    .pattern("BN ").pattern("  A")
+                    .define('B', LiftsTags.itemC("ingots/brass"))
+                    .define('N', NODE_PLUG)
+                    .define('A', AllItems.ANDESITE_ALLOY)
+                    .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(NODE_PLUG))
+                    .save(p))
+            .model((c, p) -> {})
+            .tag(LiftsTags.NODE_CONNECTOR)
             .register();
 
     public static final ItemEntry<PhysicWelderItem> PHYSIC_WELDER = REG.item("physic_welder", PhysicWelderItem::new)
@@ -55,7 +67,6 @@ public class LiftsItems {
                     .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(LiftsTags.itemC("ingots/brass")))
                     .save(p))
             .model((c, p) -> {})
-            .tag(Tags.Items.ENCHANTABLES, ItemTags.DURABILITY_ENCHANTABLE)
             .register();
 
     public static final ItemEntry<TireBlockItem> SLIME_MONSTROUS_TIRE = REG.item("monstrous_slime_tire", p -> new TireBlockItem(p, WheelBE.WheelType.MONSTROUS, true))

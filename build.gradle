@@ -97,7 +97,7 @@ dependencies {
     runtimeOnly("top.theillusivec4.curios:curios-neoforge:${curios_version}+${minecraft_version}")
 
     //implementation("com.ninni.dye_depot:dye_depot-neoforge:$minecraft_version-$dye_depot_version") //maven repo not working???
-    implementation "maven.modrinth:dl88rsIq:tT2TDzmL" //dye depot
+    implementation "maven.modrinth:dl88rsIq:tT2TDzmL" //dye depot "temp"
 
     //runtimeOnly("maven.modrinth:sodium:mc${minecraft_version}-${sodium_version}-neoforge")
     runtimeOnly("maven.modrinth:jade:jBPaSUDN")
