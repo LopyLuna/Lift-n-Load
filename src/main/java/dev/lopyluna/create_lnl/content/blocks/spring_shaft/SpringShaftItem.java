@@ -39,26 +39,32 @@ public class SpringShaftItem extends Item {
 
     @OnlyIn(Dist.CLIENT)
     public void tick(Level level, ItemStack stack, @Nullable BlockHitResult hit) {
+        if (net.minecraft.client.Minecraft.getInstance().isPaused()) return;
         var firstPos = stack.get(LiftsDataComps.FIRST_POS);
         if (firstPos == null) return;
         var firstDir = stack.get(LiftsDataComps.FIRST_DIR);
         if (firstDir == null) return;
 
+        int firstColor = SimColors.SUCCESS_LIME;
+        var parentCenter = firstPos.relative(firstDir);
+        if (!level.getBlockState(parentCenter).canBeReplaced()) firstColor = SimColors.NUH_UH_RED;
+        else if (cantSupportFaceOrShaft(level, firstPos, firstDir)) firstColor = SimColors.NUH_UH_RED;
+
         final Vec3 linkVec = new Vec3(firstDir.getStepX(), firstDir.getStepY(), firstDir.getStepZ());
         final AABB linkAABB = new AABB(firstPos).inflate(-0.3).move(linkVec.scale(0.65));
-        Outliner.getInstance().showAABB(firstPos + "Spring", linkAABB).colored(SimColors.SUCCESS_LIME).lineWidth(1 / 16f);
+        Outliner.getInstance().showAABB(firstPos + "Spring", linkAABB).colored(firstColor).lineWidth(1 / 16f);
 
+        if (firstColor == SimColors.NUH_UH_RED) return;
         if (hit == null || hit.getType() == HitResult.Type.MISS) return;
         var pos = hit.getBlockPos();
         var dir = hit.getDirection();
 
         var childCenter = pos.relative(dir);
-        var parentCenter = firstPos.relative(firstDir);
 
         int color = SimColors.SUCCESS_LIME;
 
         if (parentCenter.equals(childCenter)) color = SimColors.NUH_UH_RED;
-        else if (!level.getBlockState(childCenter).canBeReplaced()) color = SimColors.NUH_UH_RED;
+        else if (!level.getBlockState(parentCenter).canBeReplaced() || !level.getBlockState(childCenter).canBeReplaced()) color = SimColors.NUH_UH_RED;
         else if (cantSupportFaceOrShaft(level, pos, dir)) color = SimColors.NUH_UH_RED;
         else if (testExceedsRange(level, childCenter, parentCenter)) color = SimColors.NUH_UH_RED;
 
@@ -95,11 +101,17 @@ public class SpringShaftItem extends Item {
                 return sendMessage("connection_terminated", SimColors.NUH_UH_RED, player, InteractionResult.SUCCESS_NO_ITEM_USED);
             }
             var level = ctx.getLevel();
+            var parentRel = firstPos.relative(firstDir);
+            var failed = !level.getBlockState(parentRel).canBeReplaced() || cantSupportFaceOrShaft(level, firstPos, firstDir);
+            if (failed) {
+                stack.remove(LiftsDataComps.FIRST_POS);
+                stack.remove(LiftsDataComps.FIRST_DIR);
+                return sendMessage("connection_terminated", SimColors.NUH_UH_RED, player, InteractionResult.SUCCESS_NO_ITEM_USED);
+            }
             var dir = ctx.getClickedFace();
             var pos = ctx.getClickedPos();
 
             var childRel = pos.relative(dir);
-            var parentRel = firstPos.relative(firstDir);
 
             if (testExceedsRange(level, childRel, parentRel)) return sendMessage("out_of_range", SimColors.NUH_UH_RED, player, InteractionResult.FAIL);
             if (parentRel.equals(childRel)) return sendMessage("same_block", SimColors.NUH_UH_RED, player, InteractionResult.FAIL);
@@ -176,5 +188,14 @@ public class SpringShaftItem extends Item {
             return be;
         }
         return null;
+    }
+
+    @Override
+    public boolean isFoil(ItemStack stack) {
+        var firstPos = stack.get(LiftsDataComps.FIRST_POS);
+        if (firstPos == null) return super.isFoil(stack);
+        var firstDir = stack.get(LiftsDataComps.FIRST_DIR);
+        if (firstDir == null) return super.isFoil(stack);
+        return true;
     }
 }

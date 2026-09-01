@@ -35,8 +35,8 @@ public class PlugHost implements Node.Host {
     @Override
     public Node.Signal read(Level level, BlockPos pos, BlockState state, Node.Port port) {
         var power = 0;
-        for (var dir : Iterate.directions) power = Math.max(power, level.getSignal(pos.relative(dir), dir));
         if (state.isSignalSource()) for (var dir : Iterate.directions) power = Math.max(power, state.getSignal(level, pos, dir));
+        else for (var dir : Iterate.directions) power = Math.max(power, level.getSignal(pos.relative(dir), dir));
         return Node.Channel.REDSTONE.of(power);
     }
 

@@ -46,6 +46,7 @@ public class LiftsItems {
             .register();
 
     public static final ItemEntry<Item> NODE_CONNECTOR = REG.item("node_connector", Item::new)
+            .properties(p -> p.stacksTo(1))
             .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get(), 1)
                     .pattern("BN ").pattern("  A")
                     .define('B', LiftsTags.itemC("ingots/brass"))
@@ -58,6 +59,7 @@ public class LiftsItems {
             .register();
 
     public static final ItemEntry<PhysicWelderItem> PHYSIC_WELDER = REG.item("physic_welder", PhysicWelderItem::new)
+            .properties(p -> p.stacksTo(1))
             .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get(), 1)
                     .pattern("AB ").pattern(" TE").pattern("AB ")
                     .define('B', LiftsTags.itemC("ingots/brass"))

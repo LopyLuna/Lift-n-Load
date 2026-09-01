@@ -17,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 public class NodeLinkBE extends SmartBlockEntity implements Node.Host {
     public int clr = -1;
     public int strength = 0;
@@ -61,7 +62,7 @@ public class NodeLinkBE extends SmartBlockEntity implements Node.Host {
     }
 
     public void checkStrength() {
-        if (receiver || level == null) return;
+        if (receiver || level == null || level.isClientSide) return;
         var power = getPower(level, worldPosition);
         if (strength == power) return;
         strength = power;
@@ -73,6 +74,12 @@ public class NodeLinkBE extends SmartBlockEntity implements Node.Host {
         for (var dir : Iterate.directions) power = Math.max(level.getSignal(pos.relative(dir), dir), power);
         for (var dir : Iterate.directions) if (facing.getOpposite() != dir) power = Math.max(level.getSignal(pos.relative(dir), Direction.UP), power);
         return power;
+    }
+
+    @Override
+    public void setBlockState(BlockState state) {
+        super.setBlockState(state);
+        update(state);
     }
 
     public void update(@Nullable BlockState state) {

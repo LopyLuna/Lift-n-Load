@@ -25,14 +25,14 @@ import javax.annotation.Nullable;
 import static dev.lopyluna.create_lnl.Lifts.MOD_ID;
 
 @OnlyIn(Dist.CLIENT)
-@EventBusSubscriber(modid = MOD_ID)
+@EventBusSubscriber(modid = MOD_ID, value = Dist.CLIENT)
 public class NodeClientHandler {
     private static final Minecraft mc = Minecraft.getInstance();
     @Nullable private static LoopingSoundInstance sound = null;
 
     @SubscribeEvent
     public static void onTick(ClientTickEvent.Post event) {
-        if (mc.player == null || mc.level == null || !mc.player.getMainHandItem().is(LiftsTags.NODE_CONNECTOR)) {
+        if (mc.player == null || mc.level == null || mc.screen != null || !mc.player.getMainHandItem().is(LiftsTags.NODE_CONNECTOR)) {
             drop();
             return;
         }
@@ -57,7 +57,7 @@ public class NodeClientHandler {
 
     @SubscribeEvent
     public static void onMouseButton(InputEvent.MouseButton.Pre event) {
-        if (event.getButton() != InputConstants.MOUSE_BUTTON_RIGHT) return;
+        if (event.getButton() != InputConstants.MOUSE_BUTTON_RIGHT || mc.screen != null) return;
         if (mc.player == null || mc.level == null) {
             if (sound != null) {
                 mc.getSoundManager().stop(sound);

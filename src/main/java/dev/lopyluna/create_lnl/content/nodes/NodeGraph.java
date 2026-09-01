@@ -8,6 +8,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -127,7 +129,9 @@ public class NodeGraph {
         var dirty = false;
         for (var set : other.outputs.values()) dirty |= set.removeIf(key -> key.pos().equals(pos));
         for (var set : other.inputs.values()) dirty |= set.removeIf(key -> key.pos().equals(pos));
-        if (dirty) changed(from);
+        if (!dirty) return;
+        other.applied.clear();
+        changed(from);
     }
 
     public boolean link(Level level, Node.Key from, Node.Key to) {
@@ -237,7 +241,7 @@ public class NodeGraph {
             if (!level.isLoaded(pos)) continue;
             var ports = NodeHosts.ports(level, pos);
             if (ports.isEmpty()) {
-                if (++entry.getValue().missing > 20) dead.add(pos);
+                if (!level.getBlockState(pos).is(Blocks.MOVING_PISTON) || ++entry.getValue().missing > 20) dead.add(pos);
                 continue;
             }
             entry.getValue().missing = 0;
@@ -323,26 +327,31 @@ public class NodeGraph {
                 for (var id : node.loose) loose[cursor++] = id;
                 nbt.putIntArray("Loose", loose);
             }
-            var ports = new ListTag();
-            for (var port : node.outputs.entrySet()) {
-                if (port.getValue().isEmpty()) continue;
-                var links = new ListTag();
-                for (var link : port.getValue()) {
-                    var linkNbt = new CompoundTag();
-                    linkNbt.putLong("Pos", link.pos().asLong());
-                    linkNbt.putString("Port", link.port());
-                    links.add(linkNbt);
-                }
-                var portNbt = new CompoundTag();
-                portNbt.putString("Id", port.getKey());
-                portNbt.put("Links", links);
-                ports.add(portNbt);
-            }
+            var ports = createPorts(node);
             nbt.put("Ports", ports);
             list.add(nbt);
         }
         tag.put("Nodes", list);
         return tag;
+    }
+
+    private static @NotNull ListTag createPorts(Node node) {
+        var ports = new ListTag();
+        for (var port : node.outputs.entrySet()) {
+            if (port.getValue().isEmpty()) continue;
+            var links = new ListTag();
+            for (var link : port.getValue()) {
+                var linkNbt = new CompoundTag();
+                linkNbt.putLong("Pos", link.pos().asLong());
+                linkNbt.putString("Port", link.port());
+                links.add(linkNbt);
+            }
+            var portNbt = new CompoundTag();
+            portNbt.putString("Id", port.getKey());
+            portNbt.put("Links", links);
+            ports.add(portNbt);
+        }
+        return ports;
     }
 
     public void read(CompoundTag tag) {
