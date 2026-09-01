@@ -59,12 +59,13 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
     protected double lastRenderTime;
     protected double renderTime;
 
-    protected LerpedFloat intensitySwitch = LerpedFloat.linear().chase(0, 0.5, LerpedFloat.Chaser.EXP);
-    protected LerpedFloat intensity = LerpedFloat.linear().chase(0, 0.5, LerpedFloat.Chaser.EXP);
+    protected LerpedFloat intensitySwitch = LerpedFloat.linear().chase(0, 0.4, LerpedFloat.Chaser.EXP);
+    protected LerpedFloat intensity = LerpedFloat.linear().chase(0, 0.65, LerpedFloat.Chaser.EXP);
     protected float targetIntensity = 0;
-    protected int strength = 1;
-    private final LerpedFloat thrust = LerpedFloat.linear().chase(0, 0.5, LerpedFloat.Chaser.EXP);
+    protected int strength = 0;
+    private final LerpedFloat thrust = LerpedFloat.linear().chase(0, 0.65, LerpedFloat.Chaser.EXP);
     private Vec3 lastFlagWorldCenter;
+    private boolean blocked;
 
     private Direction direction;
 
@@ -77,10 +78,15 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
     @Override public void addBehaviours(List<BlockEntityBehaviour> behaviours) {}
 
     @Override
+    public void initialize() {
+        super.initialize();
+        updateSignal();
+    }
+
+    @Override
     public void tick() {
         super.tick();
         if (level == null) return;
-        var pos = getBlockPos();
         var state = getBlockState();
         var dir = state.getValue(ThrusterBlock.FACING);
         direction = dir;
@@ -90,7 +96,7 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
         if (burnTime <= 0 && (!inventory.isEmpty() || !tank.isEmpty())) {
             burnTime = getBurnTime(stack);
             superHeated = getNextSuperHeated();
-            if (burnTime > 0) {
+            if (burnTime > 0 && !level.isClientSide) {
                 if (stack instanceof ItemStack item) {
                     var slot = inventory.slot;
                     if (item.getCount() == 1 && item.getItem().hasCraftingRemainingItem()) {
@@ -104,14 +110,12 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
         if (burnTime <= 0) superHeated = false;
         maxBurningTick = superHeated ? 30 : 15;
 
-        int total = level.getBestNeighborSignal(pos);
-        strength = Mth.clamp(total, 0, total);
-
         thrust.updateChaseTarget(getBurningSpeed()*30);
         thrust.tickChaser();
 
+        blocked = flag(level);
         var thrustVal = thrust.getValue();
-        targetIntensity = flag(level) ? 0f : Mth.clamp(thrustVal/(((burnTime>0?1:0)+30)*30), 0f, 1f);
+        targetIntensity = blocked ? 0f : Mth.clamp(thrustVal/(((burnTime>0?1:0)+30)*30), 0f, 1f);
         intensity.updateChaseTarget(targetIntensity);
         intensity.tickChaser();
         var intensityVal = intensity.getValue();
@@ -128,6 +132,20 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
             } else LiftSoundDistUtil.removePosHotAirBurnerSound(worldPosition);
         }
     }
+    
+    public void updateSignal() {
+        if (level == null || burnTime <= 0) return;
+        final int newSignalStrength = level.getBestNeighborSignal(worldPosition);
+        if (newSignalStrength != strength) {
+            if (strength == 0) level.playSound(null, worldPosition, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS,
+                    .1f + level.random.nextFloat() * .05f, 0.9f - level.random.nextFloat() * .2f);
+            else if (newSignalStrength == 0) level.playSound(null, worldPosition, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS,
+                    .05f + level.random.nextFloat() * .025f, 1.1f - level.random.nextFloat() * .2f);
+            strength = newSignalStrength;
+            invalidateRenderBoundingBox();
+            this.sendData();
+        }
+    }
 
     public float getBurningSpeed() {
         return (burnTime>0 ? 1 : 0) * maxBurningTick * (strength/15f);
@@ -135,8 +153,7 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
 
     @Override
     public void sable$physicsTick(ServerSubLevel subLevel, RigidBodyHandle handle, double timeStep) {
-        if (!isActive()) return;
-        if (flag(subLevel.getLevel())) return;
+        if (!isActive() || blocked) return;
         var state = getBlockState();
         var dir = state.getValue(ThrusterBlock.FACING);
         this.applyForces(subLevel, worldPosition, dir, timeStep);
@@ -283,6 +300,7 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
         thrust.updateChaseTarget(nbt.getFloat("ThrustChase"));
         burnTime = nbt.getFloat("BurnTime");
         strength = nbt.getInt("Strength");
+        invalidateRenderBoundingBox();
         superHeated = nbt.getBoolean("SuperHeated");
     }
 
@@ -369,7 +387,7 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
         final var facing = Vec3.atLowerCornerOf(dir.getNormal()).scale(2 + (8/16f));
         final var nozzleCenter = worldPosition.getCenter().add(facing.scale(0.56));
 
-        if (particleProbability > random.nextFloat()) {
+        if (!blue && particleProbability > random.nextFloat()) {
             final var smokePos = nozzleCenter
                     .add(facing.scale(1.5 * intensity))
                     .add(randomFaceOffset(dir, random, 2))
@@ -386,7 +404,7 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
 
         particleProbability /= 5;
         if (particleProbability > random.nextFloat()) {
-            for (int i = 0; i < random.nextInt(1) + 1; ++i) {
+            for (int i = 0; i < random.nextInt(2) + 1; ++i) {
                 final var flamePos = nozzleCenter
                         .add(facing.scale(0.08))
                         .add(randomFaceOffset(dir, random, 0.12));
@@ -420,8 +438,7 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
     }
 
     @Override
-    public AABB getRenderBoundingBox() {
-        if (level == null) return super.getRenderBoundingBox();
-        return super.getRenderBoundingBox().expandTowards(Vec3.atLowerCornerOf(getBlockState().getValue(ThrusterBlock.FACING).getNormal()).scale((level.getBestNeighborSignal(worldPosition)/2f)+1f));
+    protected AABB createRenderBoundingBox() {
+        return super.createRenderBoundingBox().expandTowards(Vec3.atLowerCornerOf(getBlockState().getValue(ThrusterBlock.FACING).getNormal()).scale((strength/2f)+1f));
     }
 }

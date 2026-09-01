@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "create_lnl:green_thruster",
+      "required": false
+    }
+  ]
+}

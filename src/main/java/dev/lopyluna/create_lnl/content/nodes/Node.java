@@ -28,12 +28,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
 
+@SuppressWarnings("unused")
 public class Node {
     public boolean anchored;
     public int missing;
     public final Set<Integer> loose = new TreeSet<>();
     public final Map<String, Set<Key>> outputs = new HashMap<>();
     public final Map<String, Set<Key>> inputs = new HashMap<>();
+    public final Map<Key, Integer> order = new HashMap<>();
     public final Map<String, Signal> published = new HashMap<>();
     public final Map<String, Signal> applied = new HashMap<>();
 
@@ -314,7 +316,11 @@ public class Node {
             }
             if (!batch.links().isEmpty()) {
                 var graph = Graphs.get(level);
-                batch.links().removeIf(wire -> graph.link(level, wire.from(), wire.to()));
+                batch.links().removeIf(wire -> {
+                    if (!graph.link(level, wire.from(), wire.to())) return false;
+                    graph.order(wire.from(), wire.to(), wire.order());
+                    return true;
+                });
             }
             if (group != null || batch.links().isEmpty()) Graphs.flush(level);
             if (batch.nodes().isEmpty() && batch.links().isEmpty()) PENDING.remove(level);

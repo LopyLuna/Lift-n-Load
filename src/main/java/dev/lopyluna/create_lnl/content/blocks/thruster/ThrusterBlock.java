@@ -4,9 +4,11 @@ import com.simibubi.create.AllItems;
 import com.simibubi.create.foundation.block.IBE;
 import dev.lopyluna.create_lnl.register.LiftShapes;
 import dev.lopyluna.create_lnl.register.LiftsBETypes;
+import com.simibubi.create.foundation.utility.BlockHelper;
 import dev.lopyluna.create_lnl.register.LiftsBlocks;
 import dev.simulated_team.simulated.content.blocks.portable_engine.PortableEngineBlockEntity;
 import dev.simulated_team.simulated.multiloader.inventory.ItemInfoWrapper;
+import dev.simulated_team.simulated.service.SimItemService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -18,6 +20,7 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -47,8 +50,24 @@ public class ThrusterBlock extends Block implements IBE<ThrusterBE> {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(final ItemStack stack, final BlockState blockState, final Level level, final BlockPos blockPos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
-        if (!(level.getBlockEntity(blockPos) instanceof ThrusterBE be)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    protected ItemInteractionResult useItemOn(final ItemStack stack, final BlockState state, final Level level, final BlockPos pos, final Player player, final InteractionHand interactionHand, final BlockHitResult blockHitResult) {
+        if (!(level.getBlockEntity(pos) instanceof ThrusterBE be)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+        var color = SimItemService.getDyeColor(stack);
+        var wipe = color == null && !state.is(LiftsBlocks.THRUSTER.get()) && (stack.is(Items.SPONGE) || stack.is(Items.WET_SPONGE));
+        if (color != null || wipe) {
+            var dyed = wipe ? LiftsBlocks.THRUSTER.get() : LiftsBlocks.THRUSTERS.get(color).get();
+            if (state.is(dyed)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            if (!level.isClientSide) {
+                level.setBlockAndUpdate(pos, BlockHelper.copyProperties(state, dyed.defaultBlockState()));
+                if (level.getBlockEntity(pos) instanceof ThrusterBE tbe) tbe.notifyUpdate();
+
+                if (!wipe && !player.hasInfiniteMaterials()) stack.shrink(1);
+            }
+            level.playSound(null, pos, wipe ? SoundEvents.SPONGE_ABSORB : SoundEvents.DYE_USE, SoundSource.BLOCKS, 1f, 1.1f - level.random.nextFloat() * .2f);
+            return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        }
+
         if (stack.isEmpty()) {
             final var inventory = be.inventory;
             final var slot = inventory.slot;
@@ -60,7 +79,7 @@ public class ThrusterBlock extends Block implements IBE<ThrusterBE> {
                 player.getInventory().placeItemBackInInventory(currentItemStack);
                 be.notifyUpdate();
             }
-            level.playSound(null, blockPos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
+            level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
         if (AllItems.CREATIVE_BLAZE_CAKE.isIn(stack)) {
@@ -101,7 +120,7 @@ public class ThrusterBlock extends Block implements IBE<ThrusterBE> {
                 player.setItemInHand(interactionHand, ItemStack.EMPTY);
                 be.notifyUpdate();
             }
-            level.playSound(null, blockPos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
+            level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
             return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
 
@@ -150,19 +169,9 @@ public class ThrusterBlock extends Block implements IBE<ThrusterBE> {
                 player.setItemInHand(interactionHand, stack);
                 be.notifyUpdate();
             }
-            level.playSound(null, blockPos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
+            level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f + level.getRandom().nextFloat());
             return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
-
-        //final DyeColor color = SimItemService.getDyeColor(stack);
-        //if (color != null) {
-        //    if (!level.isClientSide) level.playSound(null, blockPos, SoundEvents.DYE_USE, SoundSource.BLOCKS, 1.0f, 1.1f - level.random.nextFloat() * .2f);
-
-        //    final BlockState newState = BlockHelper.copyProperties(blockState, SimBlocks.PORTABLE_ENGINES.get(color).getDefaultState());
-        //    level.setBlockAndUpdate(blockPos, newState);
-
-        //    return ItemInteractionResult.SUCCESS;
-        //}
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
@@ -176,6 +185,12 @@ public class ThrusterBlock extends Block implements IBE<ThrusterBE> {
     public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
         if (!(level.getBlockEntity(pos) instanceof ThrusterBE be)) return 0;
         return Mth.clamp(Math.round(be.intensity.getValue() * 15f), 0, 15);
+    }
+
+    @Override
+    public void neighborChanged(final BlockState state, final Level level, final BlockPos pos, final Block blockIn, final BlockPos fromPos, final boolean isMoving) {
+        if (level.isClientSide) return;
+        withBlockEntityDo(level, pos, ThrusterBE::updateSignal);
     }
 
     @Override
@@ -260,6 +275,7 @@ public class ThrusterBlock extends Block implements IBE<ThrusterBE> {
 
     @Override
     public void onRemove(final BlockState state, final Level level, final BlockPos pos, final BlockState newState, final boolean isMoving) {
+        if (newState.getBlock() instanceof ThrusterBlock) return;
         if (level.getBlockEntity(pos) instanceof ThrusterBE be) {
             if (!be.inventory.isEmpty()) Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), be.inventory.getItem(0));
             level.removeBlockEntity(pos);

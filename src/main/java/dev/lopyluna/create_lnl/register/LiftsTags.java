@@ -92,6 +92,10 @@ public class LiftsTags {
                 .addTag(net.minecraft.tags.BlockTags.TRAPDOORS)
                 .addTag(net.minecraft.tags.BlockTags.FENCE_GATES);
         for (var dye : DyeColor.values()) nodeIn.addOptional(AllBlocks.NIXIE_TUBES.get(dye).getId());
+        for (var dye : DyeColor.values()) nodeIn.addOptional(LiftsBlocks.THRUSTERS.get(dye).getId());
+
+        var pickaxe = prov.tag(net.minecraft.tags.BlockTags.MINEABLE_WITH_PICKAXE);
+        for (var dye : DyeColor.values()) pickaxe.addOptional(LiftsBlocks.THRUSTERS.get(dye).getId());
 
         prov.tag(NODE_BOTH)
                 .add(Blocks.REDSTONE_TORCH)
@@ -106,6 +110,14 @@ public class LiftsTags {
 
         prov.tag(NODE_VIEWER)
                 .addTag(NODE_CONNECTOR);
+
+        var thrusters = prov.tag(ItemTags.THRUSTERS.tag)
+                .add(LiftsBlocks.THRUSTER.asItem());
+        for (var dye : DyeColor.values()) {
+            var id = LiftsBlocks.THRUSTERS.get(dye).getId();
+            thrusters.addOptional(id);
+            prov.tag(item("thrusters/" + dye.getSerializedName())).addOptional(id);
+        }
 
         prov.tag(ItemTags.SPRING_LIKE.tag)
                 .add(Items.MAGMA_CREAM)
@@ -224,7 +236,8 @@ public class LiftsTags {
     }
 
     public enum ItemTags {
-        SPRING_LIKE
+        SPRING_LIKE,
+        THRUSTERS
         ;
         public final TagKey<Item> tag;
         public final boolean alwaysDatagen;

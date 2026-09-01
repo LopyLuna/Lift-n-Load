@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "create_lnl:lime_thruster",
+      "required": false
+    }
+  ]
+}

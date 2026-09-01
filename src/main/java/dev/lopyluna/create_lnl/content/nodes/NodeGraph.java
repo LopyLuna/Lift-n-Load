@@ -59,7 +59,7 @@ public class NodeGraph {
         var set = node.inputs.get(key.port());
         if (set == null || set.isEmpty()) return List.of();
         var list = new ArrayList<>(set);
-        list.sort(ORDER);
+        list.sort(Comparator.comparingInt((Node.Key link) -> node.order.getOrDefault(link, Integer.MAX_VALUE)).thenComparing(ORDER));
         return list;
     }
 
@@ -130,6 +130,7 @@ public class NodeGraph {
         for (var set : other.outputs.values()) dirty |= set.removeIf(key -> key.pos().equals(pos));
         for (var set : other.inputs.values()) dirty |= set.removeIf(key -> key.pos().equals(pos));
         if (!dirty) return;
+        other.order.keySet().removeIf(key -> key.pos().equals(pos));
         other.applied.clear();
         changed(from);
     }
@@ -141,8 +142,9 @@ public class NodeGraph {
             from = to;
             to = flipped;
         }
+        var target = create(to.pos());
         create(from.pos()).outputs(from.port()).add(to);
-        create(to.pos()).inputs(to.port()).add(from);
+        if (target.inputs(to.port()).add(from)) target.order.putIfAbsent(from, stamp(target));
         changed(from.pos());
         changed(to.pos());
         return true;
@@ -173,7 +175,36 @@ public class NodeGraph {
         if (source == null || target == null) return false;
         var dropped = source.outputs(from.port()).remove(to);
         dropped |= target.inputs(to.port()).remove(from);
+        if (dropped && !feeds(target, from)) target.order.remove(from);
         return dropped;
+    }
+
+    private static boolean feeds(Node node, Node.Key source) {
+        for (var set : node.inputs.values()) if (set.contains(source)) return true;
+        return false;
+    }
+
+    private static int stamp(Node node) {
+        var next = 0;
+        for (var index : node.order.values()) next = Math.max(next, index + 1);
+        return next;
+    }
+
+    public void order(Node.Key from, Node.Key to, int index) {
+        if (index < 0) return;
+        var target = nodes.get(to.pos());
+        if (target != null && target.inputs(to.port()).contains(from)) {
+            target.order.put(from, index);
+            return;
+        }
+        var flipped = nodes.get(from.pos());
+        if (flipped != null && flipped.inputs(from.port()).contains(to)) flipped.order.put(to, index);
+    }
+
+    public int order(Node.Key from, Node.Key to) {
+        var target = nodes.get(to.pos());
+        var index = target == null ? null : target.order.get(from);
+        return index == null ? -1 : index;
     }
 
     private void reset(Level level, BlockPos pos) {
@@ -327,7 +358,7 @@ public class NodeGraph {
                 for (var id : node.loose) loose[cursor++] = id;
                 nbt.putIntArray("Loose", loose);
             }
-            var ports = createPorts(node);
+            var ports = createPorts(entry.getKey(), node);
             nbt.put("Ports", ports);
             list.add(nbt);
         }
@@ -335,15 +366,18 @@ public class NodeGraph {
         return tag;
     }
 
-    private static @NotNull ListTag createPorts(Node node) {
+    private @NotNull ListTag createPorts(BlockPos pos, Node node) {
         var ports = new ListTag();
         for (var port : node.outputs.entrySet()) {
             if (port.getValue().isEmpty()) continue;
+            var mine = new Node.Key(pos, port.getKey());
             var links = new ListTag();
             for (var link : port.getValue()) {
                 var linkNbt = new CompoundTag();
                 linkNbt.putLong("Pos", link.pos().asLong());
                 linkNbt.putString("Port", link.port());
+                var index = order(mine, link);
+                if (index >= 0) linkNbt.putInt("Order", index);
                 links.add(linkNbt);
             }
             var portNbt = new CompoundTag();
@@ -356,9 +390,11 @@ public class NodeGraph {
 
     public void read(CompoundTag tag) {
         nodes.clear();
+        var orders = new HashMap<BlockPos, Map<Node.Key, Integer>>();
         var list = tag.getList("Nodes", Tag.TAG_COMPOUND);
         for (var i = 0; i < list.size(); i++) {
             var nbt = list.getCompound(i);
+            var pos = BlockPos.of(nbt.getLong("Pos"));
             var node = new Node();
             node.anchored = nbt.getBoolean("Anchored");
             for (var id : nbt.getIntArray("Loose")) {
@@ -372,10 +408,17 @@ public class NodeGraph {
                 var set = node.outputs(portNbt.getString("Id"));
                 for (var l = 0; l < links.size(); l++) {
                     var linkNbt = links.getCompound(l);
-                    set.add(new Node.Key(BlockPos.of(linkNbt.getLong("Pos")), linkNbt.getString("Port")));
+                    var target = BlockPos.of(linkNbt.getLong("Pos"));
+                    if (linkNbt.contains("Order")) orders.computeIfAbsent(target, key -> new HashMap<>())
+                            .put(new Node.Key(pos, portNbt.getString("Id")), linkNbt.getInt("Order"));
+                    set.add(new Node.Key(target, linkNbt.getString("Port")));
                 }
             }
-            nodes.put(BlockPos.of(nbt.getLong("Pos")), node);
+            nodes.put(pos, node);
+        }
+        for (var entry : orders.entrySet()) {
+            var node = nodes.get(entry.getKey());
+            if (node != null) node.order.putAll(entry.getValue());
         }
         rebuild();
     }

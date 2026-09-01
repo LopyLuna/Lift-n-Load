@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "create_lnl:indigo_thruster",
+      "required": false
+    }
+  ]
+}

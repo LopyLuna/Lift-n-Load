@@ -1,0 +1,133 @@
+{
+  "values": [
+    "create_lnl:thruster",
+    {
+      "id": "create_lnl:white_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:orange_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:magenta_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:light_blue_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:yellow_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:lime_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:pink_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:gray_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:light_gray_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:cyan_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:purple_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:blue_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:brown_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:green_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:red_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:black_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:maroon_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:rose_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:coral_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:indigo_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:navy_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:slate_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:olive_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:amber_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:beige_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:teal_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:mint_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:aqua_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:verdant_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:forest_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:ginger_thruster",
+      "required": false
+    },
+    {
+      "id": "create_lnl:tan_thruster",
+      "required": false
+    }
+  ]
+}

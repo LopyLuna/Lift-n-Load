@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "create_lnl:tan_thruster",
+      "required": false
+    }
+  ]
+}

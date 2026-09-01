@@ -26,33 +26,34 @@ public class LiftsBETypes {
 
     public static final BlockEntityEntry<NodeLinkBE> NODE_LINK = REG
             .blockEntity("node_link", NodeLinkBE::new)
-            .validBlocks(LiftsBlocks.NODE_LINK)
+            .validBlock(LiftsBlocks.NODE_LINK)
             .renderer(() -> NodeLinkRenderer::new)
             .register();
 
     public static final BlockEntityEntry<LogicByteBE> LOGIC_BYTE = REG
             .blockEntity("logic_byte", LogicByteBE::new)
-            .validBlocks(LiftsBlocks.LOGIC_BYTE)
+            .validBlock(LiftsBlocks.LOGIC_BYTE)
             .renderer(() -> LogicByteRenderer::new)
             .register();
 
     public static final BlockEntityEntry<SpringShaftBE> SPRING_SHAFT = REG
             .blockEntity("spring_shaft", SpringShaftBE::new)
             .visual(() -> (ctx, be, pt) -> new OrientedRotatingVisual<>(ctx, be, pt, Direction.SOUTH, be.facing.getOpposite(), Models.partial(AllPartialModels.SHAFT_HALF)), true)
-            .validBlocks(LiftsBlocks.SPRING_SHAFT)
+            .validBlock(LiftsBlocks.SPRING_SHAFT)
             .renderer(() -> SpringShaftRenderer::new)
             .register();
 
     public static final BlockEntityEntry<DockingLiftBE> CONTRAPTION_LIFT = REG
             .blockEntity("contraption_lift", DockingLiftBE::new)
-            .validBlocks(LiftsBlocks.CONTRAPTION_LIFT)
+            .validBlock(LiftsBlocks.CONTRAPTION_LIFT)
             .renderer(() -> DockingLiftRenderer::new)
             .register();
 
     public static final BlockEntityEntry<ThrusterBE> THRUSTER = REG
             .blockEntity("thruster", ThrusterBE::new)
             .onRegister(SimInventoryService.INSTANCE.registerInventory((be, dir) -> be.inventory))
-            .validBlocks(LiftsBlocks.THRUSTER)
+            .validBlock(LiftsBlocks.THRUSTER)
+            .validBlocks(LiftsBlocks.THRUSTERS.toArray())
             .renderer(() -> ThrusterRenderer::new)
             .register();
 
@@ -60,7 +61,7 @@ public class LiftsBETypes {
     public static final BlockEntityEntry<WheelBE> WHEEL = REG
             .blockEntity("wheel", WheelBE::new)
             .visual(() -> SingleAxisRotatingVisual::shaft, true)
-            .validBlocks(LiftsBlocks.WHEEL)
+            .validBlock(LiftsBlocks.WHEEL)
             .renderer(() -> WheelRenderer::new)
             .register();
 

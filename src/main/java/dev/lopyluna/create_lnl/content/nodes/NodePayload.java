@@ -60,27 +60,30 @@ public class NodePayload {
             for (var link : entry.getValue()) {
                 var inside = carried(link, owns);
                 if (!inside && !external) continue;
-                links.add(wire(entry.getKey(), inside ? localise.apply(link.pos()) : link.pos(), link.port(), true, !inside));
+                links.add(wire(entry.getKey(), inside ? localise.apply(link.pos()) : link.pos(), link.port(), true, !inside,
+                        graph.order(new Node.Key(pos, entry.getKey()), link)));
             }
         }
         if (external) for (var entry : node.inputs.entrySet()) {
             if (!carried(new Node.Key(pos, entry.getKey()), owns)) continue;
             for (var link : entry.getValue()) {
                 if (carried(link, owns)) continue;
-                links.add(wire(entry.getKey(), link.pos(), link.port(), false, true));
+                links.add(wire(entry.getKey(), link.pos(), link.port(), false, true,
+                        graph.order(link, new Node.Key(pos, entry.getKey()))));
             }
         }
         if (!links.isEmpty()) tag.put("Links", links);
         return tag.isEmpty() ? null : tag;
     }
 
-    private static CompoundTag wire(String mine, BlockPos pos, String port, boolean out, boolean external) {
+    private static CompoundTag wire(String mine, BlockPos pos, String port, boolean out, boolean external, int index) {
         var nbt = new CompoundTag();
         nbt.putString("Mine", mine);
         nbt.putLong("Pos", pos.asLong());
         nbt.putString("Port", port);
         if (out) nbt.putBoolean("Out", true);
         if (external) nbt.putBoolean("Ext", true);
+        if (index >= 0) nbt.putInt("Order", index);
         return nbt;
     }
 
@@ -105,7 +108,8 @@ public class NodePayload {
 
     public static void wire(Level level, BlockPos pos, CompoundTag tag, UnaryOperator<BlockPos> place, @Nullable StructureTransform transform) {
         var graph = Node.Graphs.get(level);
-        for (var link : wires(pos, tag, place, transform)) graph.link(level, link.from(), link.to());
+        for (var link : wires(pos, tag, place, transform))
+            if (graph.link(level, link.from(), link.to())) graph.order(link.from(), link.to(), link.order());
     }
 
     public static List<Wire> wires(BlockPos pos, CompoundTag tag, UnaryOperator<BlockPos> place, @Nullable StructureTransform transform) {
@@ -118,12 +122,13 @@ public class NodePayload {
             var mine = new Node.Key(pos, port(nbt.getString("Mine"), transform));
             var other = new Node.Key(external ? stored : place.apply(stored),
                     external ? nbt.getString("Port") : port(nbt.getString("Port"), transform));
-            wires.add(nbt.getBoolean("Out") ? new Wire(mine, other) : new Wire(other, mine));
+            var index = nbt.contains("Order") ? nbt.getInt("Order") : -1;
+            wires.add(nbt.getBoolean("Out") ? new Wire(mine, other, index) : new Wire(other, mine, index));
         }
         return wires;
     }
 
-    public record Wire(Node.Key from, Node.Key to) {}
+    public record Wire(Node.Key from, Node.Key to, int order) {}
 
     public static CompoundTag rebase(CompoundTag tag, UnaryOperator<BlockPos> place, @Nullable StructureTransform transform) {
         var out = new CompoundTag();
@@ -140,7 +145,8 @@ public class NodePayload {
             var nbt = links.getCompound(i);
             if (nbt.getBoolean("Ext")) continue;
             moved.add(wire(port(nbt.getString("Mine"), transform), place.apply(BlockPos.of(nbt.getLong("Pos"))),
-                    port(nbt.getString("Port"), transform), nbt.getBoolean("Out"), false));
+                    port(nbt.getString("Port"), transform), nbt.getBoolean("Out"), false,
+                    nbt.contains("Order") ? nbt.getInt("Order") : -1));
         }
         if (!moved.isEmpty()) out.put("Links", moved);
         return out;

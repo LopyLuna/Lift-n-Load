@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:tag",
+          "expand": true,
+          "name": "create_lnl:thrusters/pink"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "create_lnl:blocks/pink_thruster"
+}

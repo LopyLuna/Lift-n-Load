@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "create_lnl:mint_thruster",
+      "required": false
+    }
+  ]
+}

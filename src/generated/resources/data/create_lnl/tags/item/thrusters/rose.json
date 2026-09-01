@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "create_lnl:rose_thruster",
+      "required": false
+    }
+  ]
+}

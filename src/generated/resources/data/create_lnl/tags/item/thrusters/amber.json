@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "create_lnl:amber_thruster",
+      "required": false
+    }
+  ]
+}

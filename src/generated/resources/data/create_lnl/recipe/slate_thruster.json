@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "dye_depot"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "create_lnl:thrusters"
+    },
+    {
+      "tag": "c:dyes/slate"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "create_lnl:slate_thruster"
+  }
+}

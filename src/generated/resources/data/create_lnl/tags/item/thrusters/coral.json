@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "create_lnl:coral_thruster",
+      "required": false
+    }
+  ]
+}

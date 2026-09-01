@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "create_lnl:slate_thruster",
+      "required": false
+    }
+  ]
+}

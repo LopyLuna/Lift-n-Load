@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "create_lnl:cyan_thruster",
+      "required": false
+    }
+  ]
+}

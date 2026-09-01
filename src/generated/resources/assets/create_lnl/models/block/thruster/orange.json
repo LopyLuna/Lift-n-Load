@@ -1,0 +1,6 @@
+{
+  "parent": "create_lnl:block/thruster/block",
+  "textures": {
+    "0": "create_lnl:block/thrusters/orange"
+  }
+}

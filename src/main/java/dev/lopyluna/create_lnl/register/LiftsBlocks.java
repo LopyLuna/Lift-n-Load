@@ -42,11 +42,19 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.TagEntry;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import com.simibubi.create.foundation.block.DyedBlockList;
+import dev.simulated_team.simulated.registrate.simulated_tab.CreativeTabItemTransforms;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
+import net.minecraft.data.recipes.RecipeOutput;
 
 import java.util.function.Function;
 
@@ -125,8 +133,34 @@ public class LiftsBlocks {
                     .define('R', LiftsTags.itemC("dusts/redstone"))
                     .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(LiftsTags.itemC("ingots/brass")))
                     .save(p))
+            .tag(LiftsTags.NODE_INPUT)
             .simpleItem()
             .register();
+
+    public static final DyedBlockList<ThrusterBlock> THRUSTERS = new DyedBlockList<>(LiftsBlocks::dyedThruster);
+
+    private static BlockEntry<ThrusterBlock> dyedThruster(DyeColor color) {
+        var clrName = color.getSerializedName();
+        return REG.block(clrName + "_thruster", ThrusterBlock::new)
+                .initialProperties(SharedProperties::softMetal)
+                .properties(p -> p.noOcclusion().mapColor(color.getMapColor()).sound(SoundType.NETHERITE_BLOCK))
+                .addLayer(() -> RenderType::cutout)
+                .transform(CreativeTabItemTransforms.VisibilityType.SEARCH_ONLY.applyBlock())
+                .blockstate((c, p) -> p.directionalBlock(c.getEntry(), s -> p.models()
+                        .withExistingParent("block/thruster/" + clrName, Lifts.loc("block/thruster/block"))
+                        .texture("0", Lifts.loc("block/thrusters/" + clrName))))
+                .recipe((c, p) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, c.get(), 1)
+                        .requires(LiftsTags.ItemTags.THRUSTERS.tag)
+                        .requires(LiftsTags.itemC("dyes/" + clrName))
+                        .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(LiftsTags.ItemTags.THRUSTERS.tag))
+                        .save(doesRequireDyeDepot(p, color)))
+                .loot((lt, b) -> lt.add(b, LootTable.lootTable().withPool(lt.applyExplosionCondition(b, LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1)).add(TagEntry.expandTag(LiftsTags.item("thrusters/" + clrName)))))))
+                .item()
+                .model((c, p) -> p.withExistingParent(c.getName(), Lifts.loc("block/thruster/" + clrName)))
+                .build()
+                .register();
+    }
 
     public static final BlockEntry<ThrusterStructureBlock> THRUSTER_STRUCTURAL = REG.block("thruster_structure", ThrusterStructureBlock::new)
             .initialProperties(SharedProperties::softMetal)
@@ -211,6 +245,15 @@ public class LiftsBlocks {
             .tag(LiftsTags.NODE_VIEWER)
             .build()
             .register();
+
+
+    public static boolean isDyeDepotColor(DyeColor color) {
+        return Lifts.DYE_DEPOT && com.ninni.dye_depot.registry.DDDyes.isModDye(color);
+    }
+
+    public static RecipeOutput doesRequireDyeDepot(RegistrateRecipeProvider p, DyeColor color) {
+        return isDyeDepotColor(color) ? p.withConditions(new ModLoadedCondition("dye_depot")) : p;
+    }
 
     protected static String getItemName(ItemLike pItemLike) {
         return BuiltInRegistries.ITEM.getKey(pItemLike.asItem()).getPath();
