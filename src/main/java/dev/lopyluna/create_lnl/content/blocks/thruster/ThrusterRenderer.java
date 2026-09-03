@@ -35,14 +35,14 @@ public class ThrusterRenderer extends SmartBlockEntityRenderer<ThrusterBE> {
         super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
 
         var intensity = Mth.clamp(be.intensity.getValue(partialTicks) * 1.5f, 0f, 1f);
-        if (!(intensity > 0.05)) return;
+        if (!(intensity > 0.01)) return;
 
         final var state = be.getBlockState();
         final var pos = be.getBlockPos();
         final var facing = state.getValue(ThrusterBlock.FACING);
         final var size = 1f;
         var flameOffset = snapToBlockPixel((0.35f + ((24 - 4 * Mth.clamp(intensity, 0.5f, 1f)) / 16f) - 0.5f) / (Mth.clamp(size*0.5f, 1, 16)));
-        var lengthMultiplier = snapToFlamePixel((intensity * 4f + 1f + (0.5f - intensity * intensity * intensity)) * size);
+        var lengthMultiplier = snapToFlamePixel((intensity * 4.25f + 0.5f + (0.5f - intensity * intensity * intensity)) * size);
         var widthMultiplier = snapToFlamePixel((intensity * 1.5f + 1) * size);
 
         ms.pushPose();
@@ -60,7 +60,7 @@ public class ThrusterRenderer extends SmartBlockEntityRenderer<ThrusterBE> {
         }
         final var flameRenderTime = (float) Mth.lerp(partialTicks, be.lastRenderTime, be.renderTime) + (pos.hashCode() % 10);
         shader.getUniformSafe("FlameRenderTime").setFloat(flameRenderTime);
-        shader.getUniformSafe("Intensity").setFloat(Mth.clamp(intensity * 2f - .35f, 0.25f, 1.5f));
+        shader.getUniformSafe("Intensity").setFloat(Mth.clamp(intensity + 0.25f, 0.25f, 1.5f));
         shader.getUniformSafe("Palette").setFloat(palette);
         shader.getUniformSafe("LengthMultiplier").setFloat(Math.max(lengthMultiplier, FLAME_PIXEL));
         shader.getUniformSafe("WidthMultiplier").setFloat(Math.max(widthMultiplier, FLAME_PIXEL));

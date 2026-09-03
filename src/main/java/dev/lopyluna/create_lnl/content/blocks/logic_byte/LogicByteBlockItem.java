@@ -24,7 +24,7 @@ public class LogicByteBlockItem extends BlockItem {
         var player = ctx.getPlayer();
         if (!level.isClientSide) {
             be.add(slot, player == null ? ctx.getHorizontalDirection().getOpposite() : player.getDirection().getOpposite());
-            if (player == null || !player.isCreative()) ctx.getItemInHand().shrink(1);
+            if (player == null || !player.hasInfiniteMaterials()) ctx.getItemInHand().shrink(1);
             level.playSound(null, pos, be.getBlockState().getSoundType().getPlaceSound(), SoundSource.BLOCKS, 1f, 0.8f);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);

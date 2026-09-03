@@ -148,7 +148,9 @@ public class LooseNodes {
         var stack = new ItemStack(LiftsItems.NODE_PLUG.get(), count);
         var point = Sable.HELPER.projectOutOfSubLevel(level, pos.getCenter());
         var player = level.getNearestPlayer(point.x, point.y, point.z, 6, false);
-        if (player != null) player.getInventory().placeItemBackInInventory(stack);
-        else Block.popResource(level, pos, stack);
+        if (player != null) {
+            if (player.hasInfiniteMaterials()) return;
+            player.getInventory().placeItemBackInInventory(stack);
+        } else Block.popResource(level, pos, stack);
     }
 }

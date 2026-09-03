@@ -130,7 +130,7 @@ public class WheelBlock extends RotatedPillarKineticBlock implements IBE<WheelBE
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (level.getBlockEntity(pos) instanceof WheelBE be) be.dropped = player.isCreative();
+        if (level.getBlockEntity(pos) instanceof WheelBE be) be.dropped = player.hasInfiniteMaterials();
         return super.playerWillDestroy(level, pos, state, player);
     }
 

@@ -28,7 +28,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -200,11 +199,7 @@ public class ThrusterBlock extends Block implements IBE<ThrusterBE> {
 
     @Override
     public int getAnalogOutputSignal(final BlockState pState, final Level pLevel, final BlockPos pPos) {
-        if (!(pLevel.getBlockEntity(pPos) instanceof ThrusterBE be)) return 0;
-        int power = 0;
-        final int ticks = Math.round(be.getTotalBurnTime());
-        if (ticks > 0) power = Math.min(ticks/200, 14) + 1;
-        return power;
+        return pLevel.getBlockEntity(pPos) instanceof ThrusterBE be ? be.comparatorLevel() : 0;
     }
 
     @Override
@@ -280,6 +275,5 @@ public class ThrusterBlock extends Block implements IBE<ThrusterBE> {
             if (!be.inventory.isEmpty()) Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), be.inventory.getItem(0));
             level.removeBlockEntity(pos);
         }
-        if (level.getBlockState(pos.relative(state.getValue(FACING))).getBlock() instanceof ThrusterStructureBlock) level.setBlockAndUpdate(pos.relative(state.getValue(FACING)), Blocks.AIR.defaultBlockState());
     }
 }

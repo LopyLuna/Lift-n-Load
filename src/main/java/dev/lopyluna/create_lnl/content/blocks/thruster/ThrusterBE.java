@@ -66,6 +66,8 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
     private final LerpedFloat thrust = LerpedFloat.linear().chase(0, 0.65, LerpedFloat.Chaser.EXP);
     private Vec3 lastFlagWorldCenter;
     private boolean blocked;
+    private int light;
+    private int comparator;
 
     private Direction direction;
 
@@ -119,6 +121,21 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
         intensity.updateChaseTarget(targetIntensity);
         intensity.tickChaser();
         var intensityVal = intensity.getValue();
+        var lit = Mth.clamp(Math.round(intensityVal * 15f), 0, 15);
+        if (lit != light) {
+            light = lit;
+            level.getLightEngine().checkBlock(worldPosition);
+            level.getLightEngine().checkBlock(worldPosition.relative(dir));
+        }
+
+        if (!level.isClientSide) {
+            var signal = comparatorLevel();
+            if (signal != comparator) {
+                comparator = signal;
+                level.updateNeighbourForOutputSignal(worldPosition, state.getBlock());
+                level.updateNeighbourForOutputSignal(worldPosition.relative(dir), state.getBlock());
+            }
+        }
         intensitySwitch.updateChaseTarget(Math.round(targetIntensity));
         intensitySwitch.tickChaser();
 
@@ -134,17 +151,26 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
     }
     
     public void updateSignal() {
-        if (level == null || burnTime <= 0) return;
+        if (level == null || level.isClientSide) return;
         final int newSignalStrength = level.getBestNeighborSignal(worldPosition);
-        if (newSignalStrength != strength) {
+        if (newSignalStrength == strength) return;
+        if (burnTime > 0) {
             if (strength == 0) level.playSound(null, worldPosition, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS,
                     .1f + level.random.nextFloat() * .05f, 0.9f - level.random.nextFloat() * .2f);
             else if (newSignalStrength == 0) level.playSound(null, worldPosition, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS,
                     .05f + level.random.nextFloat() * .025f, 1.1f - level.random.nextFloat() * .2f);
-            strength = newSignalStrength;
-            invalidateRenderBoundingBox();
-            this.sendData();
         }
+        strength = newSignalStrength;
+        invalidateRenderBoundingBox();
+        this.sendData();
+    }
+
+    public int comparatorLevel() {
+        var stack = inventory.slot.getStack();
+        var fill = 0f;
+        if (!stack.isEmpty()) fill = stack.getCount() / (float) Math.min(inventory.maxStackSize, stack.getMaxStackSize());
+        if (!tank.isEmpty()) fill = Math.max(fill, tank.getFluidAmount() / (float) tank.getCapacity());
+        return fill <= 0 ? 0 : Mth.clamp(Mth.floor(fill * 14f) + 1, 1, 15);
     }
 
     public float getBurningSpeed() {
@@ -153,7 +179,7 @@ public class ThrusterBE extends SmartBlockEntity implements IHaveGoggleInformati
 
     @Override
     public void sable$physicsTick(ServerSubLevel subLevel, RigidBodyHandle handle, double timeStep) {
-        if (!isActive() || blocked) return;
+        if (isRemoved() || !isActive() || blocked) return;
         var state = getBlockState();
         var dir = state.getValue(ThrusterBlock.FACING);
         this.applyForces(subLevel, worldPosition, dir, timeStep);

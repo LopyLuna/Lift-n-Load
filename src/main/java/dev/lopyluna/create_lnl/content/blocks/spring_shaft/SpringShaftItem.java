@@ -7,6 +7,7 @@ import dev.ryanhcode.sable.Sable;
 import dev.simulated_team.simulated.content.items.spring.SpringItemHandler;
 import dev.simulated_team.simulated.data.SimLang;
 import dev.simulated_team.simulated.util.SimColors;
+import dev.simulated_team.simulated.util.extra_kinetics.ExtraKinetics;
 import net.createmod.catnip.outliner.Outliner;
 import net.createmod.catnip.theme.Color;
 import net.minecraft.core.BlockPos;
@@ -142,7 +143,9 @@ public class SpringShaftItem extends Item {
     public boolean cantSupportFaceOrShaft(Level level, BlockPos pos, Direction dir) {
         if (Block.canSupportCenter(level, pos, dir)) return false;
         var state = level.getBlockState(pos);
-        return !(state.getBlock() instanceof IRotate rot) || !rot.hasShaftTowards(level, pos, state, dir);
+        var block = state.getBlock();
+        if (block instanceof IRotate rot && rot.hasShaftTowards(level, pos, state, dir)) return false;
+        return !(block instanceof ExtraKinetics.ExtraKineticsBlock ext) || !(ext.getExtraKineticsRotationConfiguration() instanceof IRotate rot) || !rot.hasShaftTowards(level, pos, state, dir);
     }
 
     public InteractionResult sendMessage(String message, int color, @Nullable Player player, InteractionResult result) {

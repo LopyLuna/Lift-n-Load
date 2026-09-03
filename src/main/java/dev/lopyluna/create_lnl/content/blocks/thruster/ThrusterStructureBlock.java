@@ -140,8 +140,9 @@ public class ThrusterStructureBlock extends Block implements IWrenchable, IProxy
 
     @Override
     public int getAnalogOutputSignal(final BlockState pState, final Level pLevel, final BlockPos pPos) {
-        var masterState = pLevel.getBlockState(pPos.relative(pState.getValue(FACING)));
-        return masterState.getAnalogOutputSignal(pLevel, pPos);
+        var master = getMaster(pLevel, pPos, pState);
+        if (master.getFirst().isEmpty()) return 0;
+        return master.getFirst().getAnalogOutputSignal(pLevel, master.getSecond());
     }
 
     @Override
@@ -190,7 +191,7 @@ public class ThrusterStructureBlock extends Block implements IWrenchable, IProxy
         if (!master.getFirst().isEmpty()) {
             BlockPos masterPos = master.getSecond();
             pLevel.destroyBlockProgress(masterPos.hashCode(), masterPos, -1);
-            if (!pLevel.isClientSide() && pPlayer.isCreative()) pLevel.destroyBlock(masterPos, false);
+            if (!pLevel.isClientSide() && pPlayer.hasInfiniteMaterials()) pLevel.destroyBlock(masterPos, false);
         }
         return super.playerWillDestroy(pLevel, pPos, pState, pPlayer);
     }

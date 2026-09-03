@@ -90,7 +90,7 @@ public class LogicByteBlock extends Block implements IBE<LogicByteBE>, IWrenchab
     }
 
     private static BlockState moved(BlockState state, UnaryOperator<LogicSlot> mapper) {
-        var slots = state.getValue(SLOTS);
+        int slots = state.getValue(SLOTS);
         var mapped = 0;
         for (var slot : LogicSlot.ALL) if ((slots & slot.bit) != 0) mapped |= mapper.apply(slot).bit;
         return state.setValue(SLOTS, mapped);
@@ -111,7 +111,7 @@ public class LogicByteBlock extends Block implements IBE<LogicByteBE>, IWrenchab
         if (slot == null || be.has(slot) || !fits(level, pos, state, slot)) return null;
         if (!level.isClientSide) {
             be.add(slot, player.getDirection().getOpposite());
-            if (!player.isCreative()) stack.shrink(1);
+            if (!player.hasInfiniteMaterials()) stack.shrink(1);
             level.playSound(null, pos, getSoundType(state).getPlaceSound(), SoundSource.BLOCKS, 1f, 0.8f);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
@@ -141,7 +141,7 @@ public class LogicByteBlock extends Block implements IBE<LogicByteBE>, IWrenchab
         if (!level.isClientSide) {
             be.remove(slot);
             var player = ctx.getPlayer();
-            if (player != null && !player.isCreative()) player.getInventory().placeItemBackInInventory(new ItemStack(this));
+            if (player != null && !player.hasInfiniteMaterials()) player.getInventory().placeItemBackInInventory(new ItemStack(this));
             IWrenchable.playRemoveSound(level, pos);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);

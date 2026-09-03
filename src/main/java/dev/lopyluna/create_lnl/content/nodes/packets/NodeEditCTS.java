@@ -43,7 +43,7 @@ public record NodeEditCTS(Node.Key from, Node.Key to) implements ServerboundPack
         }
         if (!graph.anchored(key.pos())) return;
         graph.unanchor(level, key.pos());
-        if (player.isCreative()) return;
+        if (player.hasInfiniteMaterials()) return;
         player.getInventory().placeItemBackInInventory(new ItemStack(LiftsItems.NODE_PLUG.get()));
     }
 

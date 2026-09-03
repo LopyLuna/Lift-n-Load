@@ -27,7 +27,7 @@ public class NodePlugItem extends Item {
         if (!level.isClientSide) {
             if (!LooseNodes.place(level, target.pos(), target.id())) return InteractionResult.PASS;
             var player = ctx.getPlayer();
-            if (player == null || !player.isCreative()) ctx.getItemInHand().shrink(1);
+            if (player == null || !player.hasInfiniteMaterials()) ctx.getItemInHand().shrink(1);
             level.playSound(null, target.pos(), SoundEvents.COMPARATOR_CLICK, SoundSource.BLOCKS, 1f, 1.6f);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);

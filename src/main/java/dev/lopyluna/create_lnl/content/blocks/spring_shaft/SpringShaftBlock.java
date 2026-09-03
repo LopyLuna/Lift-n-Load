@@ -17,6 +17,7 @@ import dev.simulated_team.simulated.data.SimLang;
 import dev.simulated_team.simulated.index.SimBlockShapes;
 import dev.simulated_team.simulated.index.SimTags;
 import dev.simulated_team.simulated.util.SimColors;
+import dev.simulated_team.simulated.util.extra_kinetics.ExtraKinetics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -151,7 +152,10 @@ public class SpringShaftBlock extends DirectionalKineticBlock implements IBE<Spr
     public static boolean canAttach(LevelReader level, BlockPos pos, Direction dir) {
         var rel = pos.relative(dir);
         var relState = level.getBlockState(rel);
-        return relState.isFaceSturdy(level, rel, dir.getOpposite()) ||  (relState.getBlock() instanceof IRotate rot && rot.hasShaftTowards(level, rel, relState, dir.getOpposite()));
+        if (relState.isFaceSturdy(level, rel, dir.getOpposite())) return true;
+        var block = relState.getBlock();
+        if (block instanceof IRotate rot && rot.hasShaftTowards(level, rel, relState, dir.getOpposite())) return true;
+        return block instanceof ExtraKinetics.ExtraKineticsBlock ext && ext.getExtraKineticsRotationConfiguration() instanceof IRotate rot && rot.hasShaftTowards(level, rel, relState, dir.getOpposite());
     }
 
     @Override
