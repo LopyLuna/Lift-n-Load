@@ -1,10 +1,10 @@
 package dev.lopyluna.create_lnl.content.nodes;
 
 import dev.lopyluna.create_lnl.content.nodes.hosts.KineticHost;
-import dev.lopyluna.create_lnl.content.nodes.loose.LooseNodes;
-import dev.lopyluna.create_lnl.content.nodes.loose.NodeCell;
 import dev.lopyluna.create_lnl.content.nodes.hosts.PlugHost;
 import dev.lopyluna.create_lnl.content.nodes.hosts.WheelMountHost;
+import dev.lopyluna.create_lnl.content.nodes.loose.LooseNodes;
+import dev.lopyluna.create_lnl.content.nodes.loose.NodeCell;
 import dev.lopyluna.create_lnl.register.LiftsTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+@SuppressWarnings("unused")
 public class NodeHosts {
     private static final Map<Block, Node.Host> BLOCKS = new IdentityHashMap<>();
     private static final Map<BlockEntityType<?>, Node.Host> ENTITIES = new IdentityHashMap<>();

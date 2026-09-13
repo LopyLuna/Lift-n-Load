@@ -27,6 +27,8 @@ public class LiftsPartialModels {
 
             LIFT_ANIM_BASE = block("contraption_lift/animation/base"),
 
+            ACTUATOR_MIDDLE = block("linear_actuator/middle"),
+
             SLIME_MONSTROUS_TIRE = item("monstrous_slime_tire/monstrous_slime_tire"),
             SLIME_LARGE_TIRE = item("large_slime_tire/large_slime_tire"),
             SLIME_TIRE = item("slime_tire/slime_tire"),

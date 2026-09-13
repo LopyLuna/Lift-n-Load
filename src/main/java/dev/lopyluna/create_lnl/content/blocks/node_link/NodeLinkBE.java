@@ -1,8 +1,8 @@
 package dev.lopyluna.create_lnl.content.blocks.node_link;
 
-import dev.lopyluna.create_lnl.content.nodes.Node;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import dev.lopyluna.create_lnl.content.nodes.Node;
 import net.createmod.catnip.data.Iterate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

@@ -2,8 +2,10 @@ package dev.lopyluna.create_lnl.content.blocks.logic_byte;
 
 import com.mojang.serialization.MapCodec;
 import com.simibubi.create.api.contraption.transformable.TransformableBlock;
+import com.simibubi.create.api.schematic.requirement.SpecialBlockItemRequirement;
 import com.simibubi.create.content.contraptions.StructureTransform;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
+import com.simibubi.create.content.schematics.requirement.ItemRequirement;
 import com.simibubi.create.foundation.block.IBE;
 import dev.lopyluna.create_lnl.content.blocks.IBlockFromHandInteraction;
 import dev.lopyluna.create_lnl.register.LiftsBETypes;
@@ -21,6 +23,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -36,7 +39,7 @@ import java.util.List;
 import java.util.function.UnaryOperator;
 
 @SuppressWarnings({"NullableProblems", "deprecation"})
-public class LogicByteBlock extends Block implements IBE<LogicByteBE>, IWrenchable, IBlockFromHandInteraction, TransformableBlock {
+public class LogicByteBlock extends Block implements IBE<LogicByteBE>, IWrenchable, IBlockFromHandInteraction, TransformableBlock, SpecialBlockItemRequirement {
     public static final MapCodec<LogicByteBlock> CODEC = simpleCodec(LogicByteBlock::new);
     public static final IntegerProperty SLOTS = IntegerProperty.create("slots", 0, 255);
     private static final VoxelShape[] SHAPES = new VoxelShape[256];
@@ -149,7 +152,16 @@ public class LogicByteBlock extends Block implements IBE<LogicByteBE>, IWrenchab
 
     @Override
     public List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
-        return List.of(new ItemStack(this, Math.max(1, Integer.bitCount(state.getValue(SLOTS)))));
+        return List.of(new ItemStack(this, count(state)));
+    }
+
+    @Override
+    public ItemRequirement getRequiredItems(BlockState state, @Nullable BlockEntity blockEntity) {
+        return new ItemRequirement(ItemRequirement.ItemUseType.CONSUME, new ItemStack(this, count(state)));
+    }
+
+    public static int count(BlockState state) {
+        return Math.max(1, Integer.bitCount(state.getValue(SLOTS)));
     }
 
     @Override

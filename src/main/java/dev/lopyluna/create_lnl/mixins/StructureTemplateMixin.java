@@ -1,8 +1,8 @@
 package dev.lopyluna.create_lnl.mixins;
 
+import com.simibubi.create.content.contraptions.StructureTransform;
 import dev.lopyluna.create_lnl.content.nodes.Node;
 import dev.lopyluna.create_lnl.content.nodes.NodePayload;
-import com.simibubi.create.content.contraptions.StructureTransform;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderGetter;

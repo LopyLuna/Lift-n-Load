@@ -1,7 +1,7 @@
 package dev.lopyluna.create_lnl.mixins;
 
-import dev.lopyluna.create_lnl.content.nodes.Node;
 import com.simibubi.create.foundation.utility.BlockHelper;
+import dev.lopyluna.create_lnl.content.nodes.Node;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;

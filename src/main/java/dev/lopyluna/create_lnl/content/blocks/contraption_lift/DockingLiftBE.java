@@ -1,12 +1,12 @@
 package dev.lopyluna.create_lnl.content.blocks.contraption_lift;
 
+import com.simibubi.create.content.contraptions.AssemblyException;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import dev.lopyluna.create_lnl.content.blocks.PhysicHoldingBEs;
 import dev.lopyluna.create_lnl.content.utils.LiftUtils;
 import dev.lopyluna.create_lnl.events.CommonEvents;
 import dev.lopyluna.create_lnl.register.LiftsBlocks;
-import com.simibubi.create.content.contraptions.AssemblyException;
 import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.api.physics.PhysicsPipeline;
 import dev.ryanhcode.sable.api.physics.constraint.FixedConstraintConfiguration;

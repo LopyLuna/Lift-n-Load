@@ -1,7 +1,7 @@
 package dev.lopyluna.create_lnl.mixins;
 
-import dev.lopyluna.create_lnl.content.nodes.Node;
 import com.simibubi.create.content.contraptions.StructureTransform;
+import dev.lopyluna.create_lnl.content.nodes.Node;
 import dev.lopyluna.create_lnl.content.nodes.NodePayload;
 import dev.ryanhcode.sable.api.SubLevelAssemblyHelper;
 import net.minecraft.core.BlockPos;

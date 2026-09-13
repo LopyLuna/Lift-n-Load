@@ -1,8 +1,8 @@
 package dev.lopyluna.create_lnl.content.nodes.client;
 
 import dev.lopyluna.create_lnl.content.nodes.Node;
-import dev.lopyluna.create_lnl.content.nodes.loose.NodeCell;
 import dev.lopyluna.create_lnl.content.nodes.NodeHosts;
+import dev.lopyluna.create_lnl.content.nodes.loose.NodeCell;
 import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.companion.math.JOMLConversion;
 import dev.ryanhcode.sable.sublevel.ClientSubLevel;

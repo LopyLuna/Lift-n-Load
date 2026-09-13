@@ -7,8 +7,8 @@ import dev.ryanhcode.sable.sublevel.SubLevel;
 import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;

@@ -1,7 +1,7 @@
 package dev.lopyluna.create_lnl.content.nodes.hosts;
 
-import dev.lopyluna.create_lnl.content.nodes.Node;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
+import dev.lopyluna.create_lnl.content.nodes.Node;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;

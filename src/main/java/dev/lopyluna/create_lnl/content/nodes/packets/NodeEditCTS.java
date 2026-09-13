@@ -1,9 +1,9 @@
 package dev.lopyluna.create_lnl.content.nodes.packets;
 
 import dev.lopyluna.create_lnl.content.nodes.Node;
+import dev.lopyluna.create_lnl.content.nodes.NodeGraph;
 import dev.lopyluna.create_lnl.content.nodes.loose.LooseNodes;
 import dev.lopyluna.create_lnl.content.nodes.loose.NodeCell;
-import dev.lopyluna.create_lnl.content.nodes.NodeGraph;
 import dev.lopyluna.create_lnl.register.LiftsItems;
 import dev.lopyluna.create_lnl.register.LiftsPackets;
 import dev.ryanhcode.sable.Sable;

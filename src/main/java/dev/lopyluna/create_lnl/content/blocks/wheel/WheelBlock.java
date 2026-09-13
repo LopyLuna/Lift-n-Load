@@ -5,11 +5,8 @@ import com.simibubi.create.content.kinetics.base.RotatedPillarKineticBlock;
 import com.simibubi.create.foundation.block.IBE;
 import dev.lopyluna.create_lnl.content.blocks.overwrite.TireBlockItem;
 import dev.lopyluna.create_lnl.register.LiftsBETypes;
-import dev.lopyluna.create_lnl.register.LiftsItems;
-import dev.ryanhcode.offroad.Offroad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -51,12 +48,7 @@ public class WheelBlock extends RotatedPillarKineticBlock implements IBE<WheelBE
 
     @Override
     public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
-        if (level.getBlockEntity(pos) instanceof WheelBE be) return switch (be.type) {
-            case MONSTROUS -> be.sticky ? LiftsItems.SLIME_MONSTROUS_TIRE.asStack() : BuiltInRegistries.ITEM.get(Offroad.path("monstrous_tire")).getDefaultInstance();
-            case LARGE -> be.sticky ? LiftsItems.SLIME_LARGE_TIRE.asStack() : BuiltInRegistries.ITEM.get(Offroad.path("large_tire")).getDefaultInstance();
-            case NORMAL -> be.sticky ? LiftsItems.SLIME_TIRE.asStack() : BuiltInRegistries.ITEM.get(Offroad.path("tire")).getDefaultInstance();
-            case SMALL -> be.sticky ? LiftsItems.SLIME_SMALL_TIRE.asStack() : BuiltInRegistries.ITEM.get(Offroad.path("small_tire")).getDefaultInstance();
-        };
+        if (level.getBlockEntity(pos) instanceof WheelBE be) return be.type.item(be.sticky);
         return super.getCloneItemStack(state, target, level, pos, player);
     }
 
@@ -142,12 +134,7 @@ public class WheelBlock extends RotatedPillarKineticBlock implements IBE<WheelBE
 
     @Override
     public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
-        if (pLevel.getBlockEntity(pPos) instanceof WheelBE be && !be.dropped && !pIsMoving) Containers.dropItemStack(pLevel, pPos.getX(), pPos.getY(), pPos.getZ(), switch (be.type) {
-            case MONSTROUS -> be.sticky ? LiftsItems.SLIME_MONSTROUS_TIRE.asStack() : BuiltInRegistries.ITEM.get(Offroad.path("monstrous_tire")).getDefaultInstance();
-            case LARGE -> be.sticky ? LiftsItems.SLIME_LARGE_TIRE.asStack() : BuiltInRegistries.ITEM.get(Offroad.path("large_tire")).getDefaultInstance();
-            case NORMAL -> be.sticky ? LiftsItems.SLIME_TIRE.asStack() : BuiltInRegistries.ITEM.get(Offroad.path("tire")).getDefaultInstance();
-            case SMALL -> be.sticky ? LiftsItems.SLIME_SMALL_TIRE.asStack() : BuiltInRegistries.ITEM.get(Offroad.path("small_tire")).getDefaultInstance();
-        });
+        if (pLevel.getBlockEntity(pPos) instanceof WheelBE be && !be.dropped && !pIsMoving) Containers.dropItemStack(pLevel, pPos.getX(), pPos.getY(), pPos.getZ(), be.type.item(be.sticky));
         super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
     }
 }

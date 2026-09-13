@@ -1,18 +1,19 @@
 package dev.lopyluna.create_lnl.events;
 
-import dev.lopyluna.create_lnl.content.nodes.Node;
 import dev.lopyluna.create_lnl.Lifts;
 import dev.lopyluna.create_lnl.content.blocks.IBlockFromHandInteraction;
 import dev.lopyluna.create_lnl.content.blocks.PhysicHoldingBEs;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftBE;
 import dev.lopyluna.create_lnl.content.blocks.wheel.WheelBE;
+import dev.lopyluna.create_lnl.content.items.gravity_grip.GravityGripItem;
+import dev.lopyluna.create_lnl.content.nodes.Node;
 import dev.lopyluna.create_lnl.content.nodes.NodeHosts;
 import dev.lopyluna.create_lnl.content.nodes.NodePayload;
-import net.minecraft.core.BlockPos;
 import dev.lopyluna.create_lnl.register.LiftsArmInteractions;
 import dev.lopyluna.create_lnl.register.LiftsBETypes;
 import dev.lopyluna.create_lnl.register.LiftsItems;
 import dev.ryanhcode.sable.sublevel.system.SubLevelPhysicsSystem;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -95,7 +96,15 @@ public class CommonEvents {
 
     @SubscribeEvent
     public static void onLevelTick(final LevelTickEvent.Post event) {
-        if (event.getLevel() instanceof ServerLevel level) Node.Graphs.tick(level);
+        if (event.getLevel() instanceof ServerLevel level) {
+            GravityGripItem.tick(level);
+            Node.Graphs.tick(level);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLeave(final PlayerEvent.PlayerLoggedOutEvent event) {
+        GravityGripItem.release(event.getEntity());
     }
 
     @SubscribeEvent
@@ -105,11 +114,13 @@ public class CommonEvents {
 
     @SubscribeEvent
     public static void onDimensionChange(final PlayerEvent.PlayerChangedDimensionEvent event) {
+        GravityGripItem.release(event.getEntity());
         if (event.getEntity() instanceof ServerPlayer player) Node.Graphs.sync(player);
     }
 
     @SubscribeEvent
     public static void onRespawn(final PlayerEvent.PlayerRespawnEvent event) {
+        GravityGripItem.release(event.getEntity());
         if (event.getEntity() instanceof ServerPlayer player) Node.Graphs.sync(player);
     }
 
@@ -134,9 +145,11 @@ public class CommonEvents {
         LiftsArmInteractions.init();
     }
 
+    @SuppressWarnings("unused")
     public static void onPhysicsTick(final SubLevelPhysicsSystem physicsSystem, final double timeStep) {
         for (var be : PHYSIC_HOLDERS) be.physicsTick(physicsSystem);
-        WheelBE.applyAllBatchedForces(timeStep);
+        WheelBE.applyAllBatchedForces();
+        GravityGripItem.physicTick(physicsSystem);
     }
     public static void addPhysicHolder(PhysicHoldingBEs be) {
         if (!PHYSIC_HOLDERS.contains(be)) PHYSIC_HOLDERS.add(be);

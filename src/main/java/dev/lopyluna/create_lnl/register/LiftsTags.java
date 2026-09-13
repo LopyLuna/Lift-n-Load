@@ -18,9 +18,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagBuilder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 
 import static dev.lopyluna.create_lnl.Lifts.MOD_ID;
 import static dev.lopyluna.create_lnl.Lifts.REG;
+import static net.minecraft.tags.BlockTags.*;
 
 @SuppressWarnings({"unused", "deprecation"})
 public class LiftsTags {
@@ -45,6 +46,7 @@ public class LiftsTags {
 
     }
 
+    public static TagKey<Block> SMOOTH_TERRAIN = block("smooth_terrain");
     public static TagKey<Block> NODE_INPUT = block("node_input");
     public static TagKey<Block> NODE_OUTPUT = block("node_output");
     public static TagKey<Block> NODE_BOTH = block("node_both");
@@ -88,9 +90,9 @@ public class LiftsTags {
                 .add(Blocks.WAXED_EXPOSED_COPPER_BULB)
                 .add(Blocks.WAXED_WEATHERED_COPPER_BULB)
                 .add(Blocks.WAXED_OXIDIZED_COPPER_BULB)
-                .addTag(net.minecraft.tags.BlockTags.DOORS)
-                .addTag(net.minecraft.tags.BlockTags.TRAPDOORS)
-                .addTag(net.minecraft.tags.BlockTags.FENCE_GATES);
+                .addTag(DOORS)
+                .addTag(TRAPDOORS)
+                .addTag(FENCE_GATES);
         for (var dye : DyeColor.values()) nodeIn.addOptional(AllBlocks.NIXIE_TUBES.get(dye).getId());
         for (var dye : DyeColor.values()) nodeIn.addOptional(LiftsBlocks.THRUSTERS.get(dye).getId());
 
@@ -100,6 +102,52 @@ public class LiftsTags {
         prov.tag(NODE_BOTH)
                 .add(Blocks.REDSTONE_TORCH)
                 .add(Blocks.REDSTONE_WALL_TORCH);
+
+        prov.tag(SMOOTH_TERRAIN)
+                .add(Blocks.BEDROCK)
+                .add(Blocks.MAGMA_BLOCK)
+                .add(Blocks.MUSHROOM_STEM)
+                .add(Blocks.BROWN_MUSHROOM_BLOCK)
+                .add(Blocks.RED_MUSHROOM_BLOCK)
+                .add(Blocks.SLIME_BLOCK)
+                .add(Blocks.HONEY_BLOCK)
+                .add(Blocks.HONEYCOMB_BLOCK)
+                .add(Blocks.DEAD_BRAIN_CORAL_BLOCK)
+                .add(Blocks.DEAD_BUBBLE_CORAL_BLOCK)
+                .add(Blocks.DEAD_FIRE_CORAL_BLOCK)
+                .add(Blocks.DEAD_HORN_CORAL_BLOCK)
+                .add(Blocks.DEAD_TUBE_CORAL_BLOCK)
+                .add(AllBlocks.COPYCAT_PANEL.get())
+                .add(AllBlocks.COPYCAT_STEP.get())
+                .addTag(TRAPDOORS)
+                .addTag(STAIRS)
+                .addTag(SLABS)
+                .addTag(WOOL_CARPETS)
+                .addTag(ICE)
+                .addTag(LEAVES)
+                .addTag(LOGS)
+                .addTag(PLANKS)
+                .addTag(WOOL)
+                .addTag(DIRT)
+                .addTag(SAND)
+                .addTag(TERRACOTTA)
+                .addTag(BASE_STONE_NETHER)
+                .addTag(BASE_STONE_OVERWORLD)
+                .addTag(OVERWORLD_CARVER_REPLACEABLES)
+                .addTag(NETHER_CARVER_REPLACEABLES)
+                .addTag(AZALEA_ROOT_REPLACEABLE)
+                .addTag(MOSS_REPLACEABLE)
+                .addTag(SCULK_REPLACEABLE)
+                .addTag(LUSH_GROUND_REPLACEABLE)
+                .addTag(MANGROVE_LOGS_CAN_GROW_THROUGH)
+                .addTag(CORAL_BLOCKS)
+                .addTag(MINEABLE_WITH_HOE)
+                .addTag(MINEABLE_WITH_SHOVEL)
+                .addTag(SWORD_EFFICIENT)
+                .addTag(Tags.Blocks.OBSIDIANS)
+                .addTag(Tags.Blocks.SANDSTONE_BLOCKS)
+                .addTag(Tags.Blocks.COBBLESTONES)
+                .addTag(Tags.Blocks.ORES);
     }
 
     public static TagKey<Item> NODE_CONNECTOR = item("node_connector");

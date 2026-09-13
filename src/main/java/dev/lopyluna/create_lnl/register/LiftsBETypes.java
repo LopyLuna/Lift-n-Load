@@ -7,6 +7,8 @@ import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import dev.engine_room.flywheel.lib.model.Models;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftBE;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftRenderer;
+import dev.lopyluna.create_lnl.content.blocks.linear_actuator.ActuatorBE;
+import dev.lopyluna.create_lnl.content.blocks.linear_actuator.ActuatorRenderer;
 import dev.lopyluna.create_lnl.content.blocks.logic_byte.LogicByteBE;
 import dev.lopyluna.create_lnl.content.blocks.logic_byte.LogicByteRenderer;
 import dev.lopyluna.create_lnl.content.blocks.node_link.NodeLinkBE;
@@ -57,6 +59,13 @@ public class LiftsBETypes {
             .renderer(() -> ThrusterRenderer::new)
             .register();
 
+
+    public static final BlockEntityEntry<ActuatorBE> LINEAR_ACTUATOR = REG
+            .blockEntity("linear_actuator", ActuatorBE::new)
+            .visual(() -> SingleAxisRotatingVisual::shaft, true)
+            .validBlock(LiftsBlocks.LINEAR_ACTUATOR)
+            .renderer(() -> ActuatorRenderer::new)
+            .register();
 
     public static final BlockEntityEntry<WheelBE> WHEEL = REG
             .blockEntity("wheel", WheelBE::new)

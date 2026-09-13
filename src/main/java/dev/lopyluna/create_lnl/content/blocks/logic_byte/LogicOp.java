@@ -1,8 +1,8 @@
 package dev.lopyluna.create_lnl.content.blocks.logic_byte;
 
-import dev.lopyluna.create_lnl.content.nodes.Node;
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.INamedIconOptions;
 import com.simibubi.create.foundation.gui.AllIcons;
+import dev.lopyluna.create_lnl.content.nodes.Node;
 import dev.lopyluna.create_lnl.register.client.LiftIcons;
 
 import java.util.List;

@@ -1,5 +1,6 @@
 {
   "values": [
+    "create_lnl:linear_actuator",
     "create_lnl:spring_shaft"
   ]
 }

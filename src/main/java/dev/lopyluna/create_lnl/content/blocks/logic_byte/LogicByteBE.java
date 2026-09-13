@@ -1,10 +1,10 @@
 package dev.lopyluna.create_lnl.content.blocks.logic_byte;
 
-import dev.lopyluna.create_lnl.content.nodes.Node;
 import com.simibubi.create.api.contraption.transformable.TransformableBlockEntity;
 import com.simibubi.create.content.contraptions.StructureTransform;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import dev.lopyluna.create_lnl.content.nodes.Node;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;

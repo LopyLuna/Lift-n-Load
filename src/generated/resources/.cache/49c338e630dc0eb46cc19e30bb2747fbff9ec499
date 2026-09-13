@@ -1,4 +1,4 @@
-// 1.21.1	2026-08-31T23:39:35.2572242	Registrate Provider for create_lnl [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+// 1.21.1	2026-09-10T06:12:40.4842618	Registrate Provider for create_lnl [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
 ef64a1c2420f820916660b2db473e46834be12af assets/create_lnl/blockstates/amber_thruster.json
 156981bf7b4b1cb3ddad33025111ec1ba1f775b5 assets/create_lnl/blockstates/aqua_thruster.json
 ad8d54a88ee6adbd6b7d04802bc13a301b990678 assets/create_lnl/blockstates/beige_thruster.json
@@ -16,6 +16,7 @@ cd2e4a70dcbca10945adb0a35f3b90eae537a5ee assets/create_lnl/blockstates/contrapti
 9369338ac68d83e69f78e19d0400903554f5c17c assets/create_lnl/blockstates/light_blue_thruster.json
 17fd34ab92d076cda6e6e4b4c402e786c0772ab5 assets/create_lnl/blockstates/light_gray_thruster.json
 5a7d6d642c8472e1005f01fdbf751b0cc49a4232 assets/create_lnl/blockstates/lime_thruster.json
+713854c48eee99024eda59f26e3de8e46494e245 assets/create_lnl/blockstates/linear_actuator.json
 15f1ed0c0d05fdd110ad027ccde84b98d0f8a3dc assets/create_lnl/blockstates/logic_byte.json
 07fdd92fbda50df9a40823ced25dda658bc9288c assets/create_lnl/blockstates/magenta_thruster.json
 0eb74cfdf81ea213723e9c9972ac1ece33f770b5 assets/create_lnl/blockstates/maroon_thruster.json
@@ -38,8 +39,8 @@ b97beec1c0033c4d9a2f6514e90ce074e8f7c85a assets/create_lnl/blockstates/thruster.
 a0a61b57bf4fcb1833aab57da9c7d3cf91e619a8 assets/create_lnl/blockstates/wheel.json
 5a2bb7006a32e4be68043ebbd6989adf2217fc3e assets/create_lnl/blockstates/white_thruster.json
 88fb5db4e900c477ec64fe1024e20e615d90b3ce assets/create_lnl/blockstates/yellow_thruster.json
-bd06ce32957d0aefee9f0de6d6305549e04354d6 assets/create_lnl/lang/en_ud.json
-873d03381b6d5dbfbce830d37508084144328d44 assets/create_lnl/lang/en_us.json
+be36317830574a71a3600bee6eb4069276b9944e assets/create_lnl/lang/en_ud.json
+58a5b180229018aa00fb8fcda47a9e22f0170f6f assets/create_lnl/lang/en_us.json
 3b3e1f83968335fa906ca142028c8c3f7375626e assets/create_lnl/models/block/contraption_lift.json
 5d18205f4d21f9ed7a8e32164ddb67ddb985d3e2 assets/create_lnl/models/block/contraption_lift/amber/animation/east_flap.json
 4ca8f811b05b8adf4e2c79e69b621eb44b28f741 assets/create_lnl/models/block/contraption_lift/amber/animation/east_foot.json
@@ -468,6 +469,7 @@ b9127de863347b8709963ec5eb47ef27fd287d61 assets/create_lnl/models/item/coral_thr
 fcc811af58fa02952a9c2a242bccc3db693beace assets/create_lnl/models/item/cyan_thruster.json
 b6030fbb25b6867bfacab93085e9bc8733a75a99 assets/create_lnl/models/item/forest_thruster.json
 88500c1ab80d1dcee0eb04f7a554cc44bc6f601d assets/create_lnl/models/item/ginger_thruster.json
+59a7fe03d0d7541a4509b1f2836f553734ed0020 assets/create_lnl/models/item/gravity_grip.json
 e370d500a1bf1eb7ccd3ad43f6dc835ddea34850 assets/create_lnl/models/item/gray_thruster.json
 16dd376089d70c8e18332884be7cb7e65264be7a assets/create_lnl/models/item/green_thruster.json
 3e500c3059bba358579c9630a47d95313381c466 assets/create_lnl/models/item/indigo_thruster.json
@@ -478,6 +480,7 @@ fbeb5b3b829334238c863ba714357a84b9d5c995 assets/create_lnl/models/item/large_sli
 d9ad5241d247b211822d72fd8a1ffb91781b7473 assets/create_lnl/models/item/light_blue_thruster.json
 6a3f44059a95c1fa022f0e1df4c23675593a8e2b assets/create_lnl/models/item/light_gray_thruster.json
 02e684951b01fa47def7b914f9898161d908774e assets/create_lnl/models/item/lime_thruster.json
+33fd1000567bd77583f3ecb2dcc9ce02b26e845e assets/create_lnl/models/item/linear_actuator.json
 c394976d5ccfabfb172f5ce2d740c37e7e85e666 assets/create_lnl/models/item/logic_byte.json
 46c4f10d87379f4d6670eed97b88d3f8c35b89a0 assets/create_lnl/models/item/lunar_diamond.json
 615759053ee558bcd5105af51f037ee0168c8fda assets/create_lnl/models/item/magenta_thruster.json
@@ -514,7 +517,7 @@ e883d8b7e32a9f1f2db509836e979ab12686add0 assets/create_lnl/models/item/small_sli
 f48290e0724b47d4e044750dd97949584a44f5f3 assets/create_lnl/models/item/white_thruster.json
 a0409acced9449e3eab278f930d775b942b3ac27 assets/create_lnl/models/item/yellow_thruster.json
 2804256ace2350e22aea31b013f7da26206a8ab0 data/create/tags/block/brittle.json
-45a394b20049a49abdd829fe321f54951935c060 data/create/tags/block/non_movable.json
+b0e2ef9619215ce08f8ac4f5359fa132ca90201c data/create/tags/block/non_movable.json
 d397638326b84b8512acb85b5d09a4ba1c0f25d7 data/create/tags/block/safe_nbt.json
 533e062b85a4f2bc1081682a5a395adcd2976dee data/create_lnl/advancement/recipes/misc/amber_thruster.json
 2fbe5f0c248a970393d80ac8ed7d1ae46f3f5d63 data/create_lnl/advancement/recipes/misc/aqua_thruster.json
@@ -527,6 +530,7 @@ f5586bbcbdb5ae97372485c87b8d14acbcc4fd99 data/create_lnl/advancement/recipes/mis
 c86917c5f28f8cf5052efad8726738231d20bed3 data/create_lnl/advancement/recipes/misc/cyan_thruster.json
 c460f110ab1cebab5b11308e3b619f231d6742b4 data/create_lnl/advancement/recipes/misc/forest_thruster.json
 60f9a13317ae6d8d5ba0929adc6c9c494db68b7b data/create_lnl/advancement/recipes/misc/ginger_thruster.json
+058768982450ea0a9b15ecd2f1e0a32937f3919f data/create_lnl/advancement/recipes/misc/gravity_grip.json
 285adaef64b8749de1364c8c79966ba2aeb3bebf data/create_lnl/advancement/recipes/misc/gray_thruster.json
 8ae8f1e984ba47bab7f3ed03549eef7437a1c3f1 data/create_lnl/advancement/recipes/misc/green_thruster.json
 f175ed7f7fce868a21eb98fdbb8edfc2d167fbf0 data/create_lnl/advancement/recipes/misc/indigo_thruster.json
@@ -578,6 +582,7 @@ dd1cb6dd36d41a1472bd52753842fa86b41304a4 data/create_lnl/loot_table/blocks/indig
 c9ebba83917d95c5059aa4b55db69c68d16f508c data/create_lnl/loot_table/blocks/light_blue_thruster.json
 928db513ee81be1ad7ce905271791f2de38d3327 data/create_lnl/loot_table/blocks/light_gray_thruster.json
 e988d6634366680a2750fcc0520c5b4dd07d886c data/create_lnl/loot_table/blocks/lime_thruster.json
+19cff9743972d8e552fbf0d38a0298dbb5a33ac4 data/create_lnl/loot_table/blocks/linear_actuator.json
 f4abbe2b4abfe86305997d9782f95089b462bb3f data/create_lnl/loot_table/blocks/logic_byte.json
 49a266aab404a24d240a7f6398df6fe0c1b6ae46 data/create_lnl/loot_table/blocks/magenta_thruster.json
 a43b6319524555d96ff2d02c75150f26fe84dc58 data/create_lnl/loot_table/blocks/maroon_thruster.json
@@ -611,6 +616,7 @@ bba91f778bb3cfad699b7a9da8681d216dc85ce0 data/create_lnl/recipe/brown_thruster.j
 dd5a822bbe907b4158a7a7d2a9ebecca4cc0341a data/create_lnl/recipe/cyan_thruster.json
 7899a4873bafb78636794f973706800f3570ad3c data/create_lnl/recipe/forest_thruster.json
 51b030593a6acec04821f21c3ec7ac779be297a1 data/create_lnl/recipe/ginger_thruster.json
+38aca5d7da543d404d04086c61a01d6c85d97b28 data/create_lnl/recipe/gravity_grip.json
 a641d24c3900e9bef83e12dde20a3d9c1357b2c4 data/create_lnl/recipe/gray_thruster.json
 354507759db64d80ae6319966ab25d6aad8ee0f3 data/create_lnl/recipe/green_thruster.json
 82d2b74a0089333b39b0603b4df2d6ef1afd9f20 data/create_lnl/recipe/indigo_thruster.json
@@ -648,6 +654,7 @@ b7ede52f2951acf68ea0b0be7c7b273d6b956ed6 data/create_lnl/recipe/spring_shaft.jso
 fa0ecb1fd43c137478ae9a82987229c1699016d6 data/create_lnl/tags/block/node_both.json
 6cbd2a7c0157b66a92110a1caac877a069ac5e5e data/create_lnl/tags/block/node_input.json
 5062f87edc398907dc1146faf13a91bd2caefe21 data/create_lnl/tags/block/node_output.json
+3eecb51f5d81d094acebb5a681a5acf268989207 data/create_lnl/tags/block/smooth_terrain.json
 318468190a7b87c82629dcb95d59818e974c344a data/create_lnl/tags/item/node_connector.json
 c53036dafb5e534a892678524b1cd9b5c9f9a7ad data/create_lnl/tags/item/node_viewer.json
 b0fb3d16418185778766f40626e2c40995e8c73b data/create_lnl/tags/item/spring_like.json
@@ -685,7 +692,7 @@ b1cee43110380a4e975e605c6c624eb428d0df50 data/create_lnl/tags/item/thrusters/ros
 a04bc66f3e19fd05cd37802f5d36db5704dfcaa2 data/create_lnl/tags/item/thrusters/white.json
 18c22b6eb7315fb783a3e2e30502c754cec7deaf data/create_lnl/tags/item/thrusters/yellow.json
 fd06eec4878a77b62c50fc3f25ef3a8243db2d5e data/minecraft/tags/block/mineable/axe.json
-cee6160468d8492259666da72b827afb7b1994cc data/minecraft/tags/block/mineable/pickaxe.json
+2e7ab146c7e0752077eaf9751be98e7d37f4351b data/minecraft/tags/block/mineable/pickaxe.json
 45a394b20049a49abdd829fe321f54951935c060 data/sable/tags/block/light.json
 65f93af16775aba81b3e666dd04599e8c7fd1121 data/simulated/tags/block/non_movable.json
 45a394b20049a49abdd829fe321f54951935c060 data/simulated/tags/item/spring_adjuster.json

@@ -3,6 +3,7 @@ package dev.lopyluna.create_lnl.register;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.AllTags;
+import com.simibubi.create.foundation.block.DyedBlockList;
 import com.simibubi.create.foundation.data.AssetLookup;
 import com.simibubi.create.foundation.data.BlockStateGen;
 import com.simibubi.create.foundation.data.SharedProperties;
@@ -13,6 +14,7 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import dev.lopyluna.create_lnl.Lifts;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftBlock;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftBlockItem;
+import dev.lopyluna.create_lnl.content.blocks.linear_actuator.ActuatorBlock;
 import dev.lopyluna.create_lnl.content.blocks.logic_byte.LogicByteBlock;
 import dev.lopyluna.create_lnl.content.blocks.logic_byte.LogicByteBlockItem;
 import dev.lopyluna.create_lnl.content.blocks.node_link.NodeLinkBlock;
@@ -26,6 +28,7 @@ import dev.simulated_team.simulated.Simulated;
 import dev.simulated_team.simulated.content.blocks.spring.SpringBlock;
 import dev.simulated_team.simulated.index.SimItems;
 import dev.simulated_team.simulated.index.SimTags;
+import dev.simulated_team.simulated.registrate.simulated_tab.CreativeTabItemTransforms;
 import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.lang.Lang;
 import net.minecraft.client.renderer.RenderType;
@@ -33,6 +36,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.world.item.DyeColor;
@@ -42,19 +46,16 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.TagEntry;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.level.material.PushReaction;
-import com.simibubi.create.foundation.block.DyedBlockList;
-import dev.simulated_team.simulated.registrate.simulated_tab.CreativeTabItemTransforms;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
-import net.minecraft.data.recipes.RecipeOutput;
 
 import java.util.function.Function;
 
@@ -171,6 +172,24 @@ public class LiftsBlocks {
             .lang("Thruster")
             .register();
 
+    public static final BlockEntry<ActuatorBlock> LINEAR_ACTUATOR = REG.block("linear_actuator", ActuatorBlock::new)
+            .initialProperties(SharedProperties::netheriteMetal)
+            .properties(p -> p.destroyTime(5f).noOcclusion())
+            .transform(pickaxeOnly())
+            .tag(AllTags.AllBlockTags.NON_MOVABLE.tag)
+            .blockstate((c, p) -> p.getVariantBuilder(c.getEntry()).forAllStates(s -> {
+                var dir = s.getValue(ActuatorBlock.FACING);
+                var rotated = (dir.getAxis() == Direction.Axis.X) ^ s.getValue(ActuatorBlock.AXIS_ALONG_FIRST_COORDINATE);
+                return ConfiguredModel.builder()
+                        .modelFile(p.models().getExistingFile(Lifts.loc("block/linear_actuator/" + (s.getValue(ActuatorBlock.HEAD) ? "head" : "block") + (rotated ? "_rotated" : ""))))
+                        .rotationX(dir == Direction.UP ? 0 : dir == Direction.DOWN ? 180 : 90)
+                        .rotationY(dir.getAxis().isVertical() ? 0 : ((int) dir.toYRot() + 180) % 360)
+                        .build();
+            }))
+            .item()
+            .model((c, p) -> p.withExistingParent(c.getName(), Lifts.loc("block/linear_actuator/item")))
+            .build()
+            .register();
 
     public static final BlockEntry<WheelBlock> WHEEL = REG.block("wheel", WheelBlock::new)
             .initialProperties(SharedProperties::softMetal)

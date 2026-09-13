@@ -1,6 +1,7 @@
 package dev.lopyluna.create_lnl;
 
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.LiftHolding;
+import dev.lopyluna.create_lnl.content.items.gravity_grip.GravityGripHandler;
 import dev.lopyluna.create_lnl.register.LiftsBlocks;
 import dev.lopyluna.create_lnl.register.client.LiftsPartialModels;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -21,6 +22,7 @@ public class LiftsClient {
 
     public static void clientInit(final FMLClientSetupEvent event) {
         LiftsPartialModels.init();
+        event.enqueueWork(GravityGripHandler::init);
         event.enqueueWork(() -> ItemProperties.register(LiftsBlocks.CONTRAPTION_LIFT.asItem(), Lifts.loc("color"),
                 (stack, level, entity, seed) -> entity instanceof Player player ?
                         (LiftHolding.color(player) + 1) : 0)

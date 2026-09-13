@@ -1,0 +1,420 @@
+{
+  "variants": {
+    "assembled=false,axis_along_first=false,facing=down,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 180
+    },
+    "assembled=false,axis_along_first=false,facing=down,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 180
+    },
+    "assembled=false,axis_along_first=false,facing=down,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 180
+    },
+    "assembled=false,axis_along_first=false,facing=down,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 180
+    },
+    "assembled=false,axis_along_first=false,facing=east,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=false,axis_along_first=false,facing=east,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=false,axis_along_first=false,facing=east,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=false,axis_along_first=false,facing=east,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=false,axis_along_first=false,facing=north,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90
+    },
+    "assembled=false,axis_along_first=false,facing=north,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90
+    },
+    "assembled=false,axis_along_first=false,facing=north,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90
+    },
+    "assembled=false,axis_along_first=false,facing=north,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90
+    },
+    "assembled=false,axis_along_first=false,facing=south,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=false,axis_along_first=false,facing=south,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=false,axis_along_first=false,facing=south,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=false,axis_along_first=false,facing=south,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=false,axis_along_first=false,facing=up,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block"
+    },
+    "assembled=false,axis_along_first=false,facing=up,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block"
+    },
+    "assembled=false,axis_along_first=false,facing=up,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head"
+    },
+    "assembled=false,axis_along_first=false,facing=up,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head"
+    },
+    "assembled=false,axis_along_first=false,facing=west,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=false,axis_along_first=false,facing=west,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=false,axis_along_first=false,facing=west,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=false,axis_along_first=false,facing=west,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=false,axis_along_first=true,facing=down,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 180
+    },
+    "assembled=false,axis_along_first=true,facing=down,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 180
+    },
+    "assembled=false,axis_along_first=true,facing=down,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 180
+    },
+    "assembled=false,axis_along_first=true,facing=down,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 180
+    },
+    "assembled=false,axis_along_first=true,facing=east,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=false,axis_along_first=true,facing=east,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=false,axis_along_first=true,facing=east,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=false,axis_along_first=true,facing=east,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=false,axis_along_first=true,facing=north,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90
+    },
+    "assembled=false,axis_along_first=true,facing=north,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90
+    },
+    "assembled=false,axis_along_first=true,facing=north,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90
+    },
+    "assembled=false,axis_along_first=true,facing=north,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90
+    },
+    "assembled=false,axis_along_first=true,facing=south,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=false,axis_along_first=true,facing=south,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=false,axis_along_first=true,facing=south,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=false,axis_along_first=true,facing=south,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=false,axis_along_first=true,facing=up,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block_rotated"
+    },
+    "assembled=false,axis_along_first=true,facing=up,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block_rotated"
+    },
+    "assembled=false,axis_along_first=true,facing=up,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head_rotated"
+    },
+    "assembled=false,axis_along_first=true,facing=up,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head_rotated"
+    },
+    "assembled=false,axis_along_first=true,facing=west,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=false,axis_along_first=true,facing=west,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=false,axis_along_first=true,facing=west,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=false,axis_along_first=true,facing=west,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=true,axis_along_first=false,facing=down,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 180
+    },
+    "assembled=true,axis_along_first=false,facing=down,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 180
+    },
+    "assembled=true,axis_along_first=false,facing=down,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 180
+    },
+    "assembled=true,axis_along_first=false,facing=down,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 180
+    },
+    "assembled=true,axis_along_first=false,facing=east,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=true,axis_along_first=false,facing=east,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=true,axis_along_first=false,facing=east,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=true,axis_along_first=false,facing=east,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=true,axis_along_first=false,facing=north,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90
+    },
+    "assembled=true,axis_along_first=false,facing=north,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90
+    },
+    "assembled=true,axis_along_first=false,facing=north,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90
+    },
+    "assembled=true,axis_along_first=false,facing=north,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90
+    },
+    "assembled=true,axis_along_first=false,facing=south,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=true,axis_along_first=false,facing=south,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=true,axis_along_first=false,facing=south,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=true,axis_along_first=false,facing=south,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=true,axis_along_first=false,facing=up,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block"
+    },
+    "assembled=true,axis_along_first=false,facing=up,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block"
+    },
+    "assembled=true,axis_along_first=false,facing=up,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head"
+    },
+    "assembled=true,axis_along_first=false,facing=up,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head"
+    },
+    "assembled=true,axis_along_first=false,facing=west,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=true,axis_along_first=false,facing=west,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=true,axis_along_first=false,facing=west,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=true,axis_along_first=false,facing=west,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=true,axis_along_first=true,facing=down,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 180
+    },
+    "assembled=true,axis_along_first=true,facing=down,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 180
+    },
+    "assembled=true,axis_along_first=true,facing=down,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 180
+    },
+    "assembled=true,axis_along_first=true,facing=down,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 180
+    },
+    "assembled=true,axis_along_first=true,facing=east,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=true,axis_along_first=true,facing=east,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=true,axis_along_first=true,facing=east,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=true,axis_along_first=true,facing=east,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90,
+      "y": 90
+    },
+    "assembled=true,axis_along_first=true,facing=north,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90
+    },
+    "assembled=true,axis_along_first=true,facing=north,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90
+    },
+    "assembled=true,axis_along_first=true,facing=north,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90
+    },
+    "assembled=true,axis_along_first=true,facing=north,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90
+    },
+    "assembled=true,axis_along_first=true,facing=south,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=true,axis_along_first=true,facing=south,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block_rotated",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=true,axis_along_first=true,facing=south,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=true,axis_along_first=true,facing=south,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head_rotated",
+      "x": 90,
+      "y": 180
+    },
+    "assembled=true,axis_along_first=true,facing=up,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block_rotated"
+    },
+    "assembled=true,axis_along_first=true,facing=up,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block_rotated"
+    },
+    "assembled=true,axis_along_first=true,facing=up,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head_rotated"
+    },
+    "assembled=true,axis_along_first=true,facing=up,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head_rotated"
+    },
+    "assembled=true,axis_along_first=true,facing=west,head=false,powered=false": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=true,axis_along_first=true,facing=west,head=false,powered=true": {
+      "model": "create_lnl:block/linear_actuator/block",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=true,axis_along_first=true,facing=west,head=true,powered=false": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90,
+      "y": 270
+    },
+    "assembled=true,axis_along_first=true,facing=west,head=true,powered=true": {
+      "model": "create_lnl:block/linear_actuator/head",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

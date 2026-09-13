@@ -6,10 +6,11 @@ import com.simibubi.create.foundation.data.AssetLookup;
 import com.simibubi.create.foundation.data.recipe.CommonMetal;
 import com.tterrag.registrate.providers.RegistrateRecipeProvider;
 import com.tterrag.registrate.util.entry.ItemEntry;
-import dev.lopyluna.create_lnl.content.items.NodePlugItem;
 import dev.lopyluna.create_lnl.content.blocks.overwrite.TireBlockItem;
 import dev.lopyluna.create_lnl.content.blocks.spring_shaft.SpringShaftItem;
 import dev.lopyluna.create_lnl.content.blocks.wheel.WheelBE;
+import dev.lopyluna.create_lnl.content.items.NodePlugItem;
+import dev.lopyluna.create_lnl.content.items.gravity_grip.GravityGripItem;
 import dev.lopyluna.create_lnl.content.items.physic_welder.PhysicWelderItem;
 import dev.ryanhcode.offroad.Offroad;
 import dev.ryanhcode.offroad.content.components.TireLike;
@@ -22,6 +23,7 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.Tags;
 
@@ -43,6 +45,19 @@ public class LiftsItems {
                     .pattern("S").pattern("N").pattern("S").define('S', SimItems.SPRING).define('N', AllBlocks.SHAFT)
                     .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(SimItems.SPRING)).save(prov))
             .tag(SimTags.Items.SPRING_ADJUSTER)
+            .register();
+
+    public static final ItemEntry<GravityGripItem> GRAVITY_GRIP = REG.item("gravity_grip", GravityGripItem::new)
+            .properties(p -> p.stacksTo(1))
+            .recipe((c, p) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, c.get(), 1)
+                    .pattern("HEA").pattern(" BB")
+                    .define('B', LiftsTags.itemC("ingots/brass"))
+                    .define('H', AllItems.BRASS_HAND)
+                    .define('A', AllItems.ANDESITE_ALLOY)
+                    .define('E', Items.ENDER_PEARL)
+                    .unlockedBy("has_ingredient", RegistrateRecipeProvider.has(AllItems.BRASS_HAND))
+                    .save(p))
+            .model(AssetLookup.itemModelWithPartials())
             .register();
 
     public static final ItemEntry<Item> NODE_CONNECTOR = REG.item("node_connector", Item::new)

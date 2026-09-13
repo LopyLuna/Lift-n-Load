@@ -1,12 +1,12 @@
 package dev.lopyluna.create_lnl.mixins;
 
-import dev.lopyluna.create_lnl.content.nodes.Node;
 import com.simibubi.create.AllDataComponents;
 import com.simibubi.create.content.contraptions.StructureTransform;
 import com.simibubi.create.content.schematics.SchematicItem;
 import com.simibubi.create.content.schematics.SchematicPrinter;
 import com.simibubi.create.content.schematics.cannon.MaterialChecklist;
 import com.simibubi.create.content.schematics.requirement.ItemRequirement;
+import dev.lopyluna.create_lnl.content.nodes.Node;
 import dev.lopyluna.create_lnl.content.nodes.NodePayload;
 import dev.lopyluna.create_lnl.register.LiftsItems;
 import net.minecraft.core.BlockPos;

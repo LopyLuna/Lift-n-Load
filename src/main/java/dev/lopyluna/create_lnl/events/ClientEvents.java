@@ -1,6 +1,5 @@
 package dev.lopyluna.create_lnl.events;
 
-import dev.lopyluna.create_lnl.content.nodes.Node;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -8,35 +7,36 @@ import com.mojang.math.Axis;
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import dev.lopyluna.create_lnl.Lifts;
 import dev.lopyluna.create_lnl.client.LiftsRenderTypes;
-import dev.lopyluna.create_lnl.content.nodes.loose.NodeCell;
-import dev.lopyluna.create_lnl.register.client.LiftsPartialModels;
-import dev.ryanhcode.sable.Sable;
-import dev.ryanhcode.sable.sublevel.ClientSubLevel;
-import net.createmod.catnip.render.CachedBuffers;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.RenderType;
-import dev.lopyluna.create_lnl.content.nodes.NodeHosts;
-import dev.lopyluna.create_lnl.content.nodes.client.NodeClient;
-import dev.lopyluna.create_lnl.content.blocks.logic_byte.LogicOp;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.DockingLiftBE;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.client.DockingLiftGhost;
 import dev.lopyluna.create_lnl.content.blocks.contraption_lift.packets.LiftActions;
+import dev.lopyluna.create_lnl.content.blocks.logic_byte.LogicOp;
 import dev.lopyluna.create_lnl.content.blocks.spring_shaft.SpringShaftItem;
+import dev.lopyluna.create_lnl.content.nodes.Node;
+import dev.lopyluna.create_lnl.content.nodes.NodeHosts;
+import dev.lopyluna.create_lnl.content.nodes.client.NodeClient;
+import dev.lopyluna.create_lnl.content.nodes.loose.NodeCell;
 import dev.lopyluna.create_lnl.content.utils.LiftSoundDistUtil;
 import dev.lopyluna.create_lnl.register.LiftsTags;
 import dev.lopyluna.create_lnl.register.client.LiftKeys;
+import dev.lopyluna.create_lnl.register.client.LiftsPartialModels;
+import dev.ryanhcode.sable.Sable;
+import dev.ryanhcode.sable.sublevel.ClientSubLevel;
 import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.platform.CatnipServices;
+import net.createmod.catnip.render.CachedBuffers;
 import net.createmod.catnip.render.DefaultSuperRenderTypeBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -46,7 +46,9 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @SuppressWarnings("removal")
 @EventBusSubscriber(modid = Lifts.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)

@@ -12,13 +12,7 @@ import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 @SuppressWarnings("UnusedReturnValue")
@@ -29,6 +23,7 @@ public class NodeGraph {
     public final Map<Node.Key, Integer> colors = new HashMap<>();
     public long colorStamp = -1;
     public boolean resolving;
+    private int sweep;
     public final Set<BlockPos> pending = new HashSet<>();
     @Nullable public Consumer<BlockPos> listener;
 
@@ -291,10 +286,27 @@ public class NodeGraph {
             for (var link : List.copyOf(node.outputs(key.port()))) unlink(level, key, link);
             for (var link : List.copyOf(node.inputs(key.port()))) unlink(level, key, link);
         }
+        if (++sweep >= 10) {
+            sweep = 0;
+            for (var pair : snapped(level, active)) unlink(level, pair[0], pair[1]);
+        }
         active.keySet().retainAll(nodes.keySet());
         if (active.isEmpty()) return;
         var signals = new ArrayList<Node.Signal>();
         for (var i = 0; i < 8; i++) if (!step(level, active, signals)) break;
+    }
+
+    private List<Node.Key[]> snapped(Level level, Map<BlockPos, List<Node.Port>> active) {
+        var broken = new ArrayList<Node.Key[]>();
+        for (var pos : active.keySet()) {
+            var node = nodes.get(pos);
+            if (node == null) continue;
+            for (var port : node.outputs.entrySet()) for (var link : port.getValue()) {
+                if (!active.containsKey(link.pos()) || !outOfRange(level, pos, link.pos())) continue;
+                broken.add(new Node.Key[]{new Node.Key(pos, port.getKey()), link});
+            }
+        }
+        return broken;
     }
 
     private void collectStale(BlockPos pos, Map<String, Set<Node.Key>> links, List<Node.Port> ports, List<Node.Key> stale) {
